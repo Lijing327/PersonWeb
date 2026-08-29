@@ -8,7 +8,7 @@
 
     <div class="game-shell">
       <div class="game-topbar">
-        <NuxtLink to="/" class="game-back-button">
+        <NuxtLink to="/work" class="game-back-button">
           <i class="fas fa-arrow-left"></i>
           返回首页
         </NuxtLink>

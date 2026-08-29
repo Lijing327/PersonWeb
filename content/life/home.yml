@@ -1,0 +1,30 @@
+hero:
+  kicker: "01 · LIFE"
+  greeting: "你好，我是"
+  name: "溪午听风"
+  lines:
+    - "周末比上班更容易冒出奇怪想法。"
+  current: "最近在减脂、增肌，也重新惦记上骑车了。"
+
+sections:
+  now:
+    number: "02"
+    title: "最近在"
+  moments:
+    number: "03"
+    title: "最近"
+  notes:
+    number: "04"
+    title: "随笔"
+  about:
+    title: "关于我"
+
+empty:
+  moments: "还没写过这种短记录。"
+  notes: "还没有更长的一篇。有了会放在这里。"
+
+about:
+  description: "如果还想多认识一点，关于我里还有些零零碎碎的东西。"
+  linkText: "去看看 →"
+
+closing: "先这样。"

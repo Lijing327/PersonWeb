@@ -1,7 +1,15 @@
 /**
- * AI 解决方案页面数据配置
- * 将页面展示文案和结构化数据从页面组件中分离，便于维护与复用。
+ * AI 解决方案页面数据配置。
+ * 页面只负责展示，内容、案例状态和跳转路径统一在这里维护。
  */
+
+export interface SolutionScenario {
+  id: string
+  title: string
+  icon: string
+  description: string
+  examples: string[]
+}
 
 export interface Capability {
   id: string
@@ -16,6 +24,7 @@ export interface FeaturedProject {
   icon: string
   description: string
   highlights: string[]
+  status: string
   path: string | null
 }
 
@@ -31,9 +40,7 @@ export interface CooperationStep {
 }
 
 export interface AiSolutionsPageConfig {
-  badge: {
-    text: string
-  }
+  badge: { text: string }
   title: string
   subtitle: string
   description: string
@@ -41,24 +48,20 @@ export interface AiSolutionsPageConfig {
     title: string
     description: string
   }
+  scenarios: SolutionScenario[]
   capabilities: Capability[]
   featuredProjects: FeaturedProject[]
   techStackCategories: TechStackCategory[]
   cooperationSteps: CooperationStep[]
   cta: {
     text: string
-    primaryButton: {
-      text: string
-      path: string
-      icon: string
-    }
-    secondaryButton: {
-      text: string
-      anchor: string
-      icon: string
-    }
+    primaryButton: { text: string; path: string; icon: string }
+    secondaryButton: { text: string; anchor: string; icon: string }
   }
   sectionTitles: {
+    scenarios: string
+    scenariosIcon: string
+    scenariosNote: string
     capabilities: string
     capabilitiesIcon: string
     projects: string
@@ -72,188 +75,150 @@ export interface AiSolutionsPageConfig {
   }
 }
 
-export const useAiSolutionsData = (): AiSolutionsPageConfig => {
-  return {
-    badge: {
-      text: 'AI / 智能体解决方案'
+export const useAiSolutionsData = (): AiSolutionsPageConfig => ({
+  badge: { text: '从业务问题出发，而不是从模型出发' },
+  title: '把 AI 从想法，做成真正可用的产品',
+  subtitle: '为个人创作者、小团队与中小企业设计并交付可落地的 AI 应用',
+  description:
+    '从需求梳理、原型验证到前后端开发与上线，我会把模型能力嵌入真实工作流，重点解决效率、知识检索、内容生产和产品智能化问题。每个方案都以可验证、可维护和可持续迭代为交付标准。',
+
+  seo: {
+    title: 'AI 解决方案与应用开发 | 溪午听风',
+    description: '面向个人创作者、小团队与中小企业的 AI 应用开发服务，覆盖智能体、知识库问答、流程自动化、AI 工具与现有系统集成。'
+  },
+
+  scenarios: [
+    {
+      id: 'workflow-efficiency',
+      title: '重复流程占用大量时间',
+      icon: 'fas fa-arrows-rotate',
+      description: '把资料整理、表单处理、报告生成和跨系统操作组合成可追踪的自动化流程。',
+      examples: ['数据整理与归类', '内容生成与审核', '定时任务与结果通知']
     },
-    title: 'AI / 智能体解决方案',
-    subtitle: '为个人与中小团队打造可落地的 AI 应用与智能体系统',
-    description:
-      '我专注于将 AI 技术落地为真实可用的工具与系统，覆盖智能体构建、知识库问答、流程自动化与 AI 工具开发，适用于个人创作者、小团队与中小企业的实际业务场景。',
-
-    seo: {
-      title: 'AI / 智能体解决方案 | 溪午听风',
-      description:
-        '为个人与中小团队打造可落地的 AI 应用与智能体系统，包含智能体构建、知识库问答、流程自动化与 AI 工具开发。'
+    {
+      id: 'knowledge-search',
+      title: '资料很多，但查找与复用困难',
+      icon: 'fas fa-book-open',
+      description: '让团队文档、产品资料和历史经验变成能够检索、追问并标注来源的知识库。',
+      examples: ['内部知识问答', '产品资料检索', '回答来源与权限控制']
     },
-
-    capabilities: [
-      {
-        id: 'agent-system',
-        title: '智能体系统开发',
-        icon: 'fas fa-robot',
-        features: [
-          '多角色智能体设计',
-          '任务拆解与自动执行',
-          '工具调用与流程编排',
-          '支持长期记忆与上下文管理'
-        ]
-      },
-      {
-        id: 'ai-tools',
-        title: 'AI 工具 / 助手定制',
-        icon: 'fas fa-magic',
-        features: [
-          '智能取名、内容生成',
-          '表单 / 数据处理自动化',
-          '规则 + AI 混合逻辑',
-          '支持私有化部署'
-        ]
-      },
-      {
-        id: 'knowledge-qa',
-        title: '知识库智能问答',
-        icon: 'fas fa-database',
-        features: [
-          '文档 / 网站 / 私有数据接入',
-          '向量化与语义检索',
-          '多轮对话与精确引用',
-          '适用于企业内部或个人知识管理'
-        ]
-      },
-      {
-        id: 'integration',
-        title: 'AI + 网站 / 系统集成',
-        icon: 'fas fa-plug',
-        features: [
-          'AI 客服 / 网站聊天助手',
-          '管理后台 AI 辅助',
-          '与现有系统无缝集成',
-          '前后端完整交付'
-        ]
-      }
-    ],
-
-    featuredProjects: [
-      {
-        id: 'name-tool',
-        title: '智能取名助手',
-        icon: 'fas fa-sparkles',
-        description:
-          '基于规则与大模型的智能取名系统，支持行业、风格、禁用词等多维度控制。',
-        highlights: [
-          'Prompt 模板化管理',
-          '多轮生成与去重逻辑',
-          '可扩展为品牌命名 / 产品命名工具'
-        ],
-        path: '/tools/name'
-      },
-      {
-        id: 'website-chat',
-        title: '网站 AI 聊天助手',
-        icon: 'fas fa-comments',
-        description:
-          '为个人网站与产品站点提供定制化 AI 问答能力。',
-        highlights: [
-          '系统 Prompt 与用户 Prompt 分离',
-          '支持上下文与历史消息',
-          '可对接知识库与业务接口'
-        ],
-        path: null
-      },
-      {
-        id: 'finance-assistant',
-        title: '个人理财 / 资产分析智能助手（规划中）',
-        icon: 'fas fa-chart-line',
-        description:
-          '用于个人资产统计、分析与长期理财规划的 AI 辅助系统。',
-        highlights: [
-          '多资产类型建模',
-          '数据分析 + AI 解释',
-          '长期可演进为个人理财助手'
-        ],
-        path: null
-      }
-    ],
-
-    techStackCategories: [
-      {
-        name: 'AI / 模型层',
-        icon: 'fas fa-brain',
-        items: [
-          '主流大模型（OpenAI / 国产模型等）',
-          'Prompt Engineering',
-          '多模型策略与降本方案'
-        ]
-      },
-      {
-        name: '后端与服务编排',
-        icon: 'fas fa-server',
-        items: [
-          'Python / .NET WebAPI',
-          'LangChain / 向量数据库',
-          '工具调用、任务流设计',
-          '权限与安全控制'
-        ]
-      },
-      {
-        name: '前端与交互',
-        icon: 'fas fa-desktop',
-        items: [
-          'Vue 3 / Nuxt 3',
-          '管理后台与用户交互设计',
-          'AI 结果可视化'
-        ]
-      }
-    ],
-
-    cooperationSteps: [
-      {
-        title: '需求沟通',
-        description: '明确你的业务场景与目标'
-      },
-      {
-        title: '方案设计',
-        description: 'AI 能力拆解与技术方案制定'
-      },
-      {
-        title: '开发实现',
-        description: '敏捷开发，阶段性交付与验收'
-      },
-      {
-        title: '交付与迭代',
-        description: '支持后期优化与功能扩展'
-      }
-    ],
-
-    cta: {
-      text:
-        '如果你正在寻找一个<br>能真正把 AI 做成“工具”和“系统”的开发者<br>欢迎与我交流你的想法。',
-      primaryButton: {
-        text: '联系我',
-        path: '/about',
-        icon: 'fas fa-arrow-right'
-      },
-      secondaryButton: {
-        text: '查看项目',
-        anchor: '#projects',
-        icon: 'fas fa-arrow-down'
-      }
+    {
+      id: 'product-intelligence',
+      title: '现有产品需要接入 AI',
+      icon: 'fas fa-puzzle-piece',
+      description: '在网站、管理后台或业务系统中增加真正融入使用路径的 AI 能力。',
+      examples: ['网站智能助手', '后台内容辅助', '业务接口与模型联动']
     },
-
-    sectionTitles: {
-      capabilities: '我能为你构建哪些 AI 能力',
-      capabilitiesIcon: 'fas fa-lightbulb',
-      projects: '部分 AI 项目与实践',
-      projectsIcon: 'fas fa-project-diagram',
-      projectsNote: '可持续新增，不求多，但求真实',
-      projectsDescription:
-        '部分项目仍在持续迭代中，但核心能力已经具备并可复用。',
-      techStack: '技术栈与架构能力',
-      techStackIcon: 'fas fa-code',
-      cooperation: '合作流程',
-      cooperationIcon: 'fas fa-handshake'
+    {
+      id: 'idea-to-mvp',
+      title: '有 AI 想法，但缺少落地路径',
+      icon: 'fas fa-rocket',
+      description: '先验证最关键的业务假设，再用小步迭代的方式完成可演示、可使用的 MVP。',
+      examples: ['需求与边界梳理', '交互原型验证', 'MVP 开发与上线']
     }
+  ],
+
+  capabilities: [
+    {
+      id: 'agent-system',
+      title: '智能体系统开发',
+      icon: 'fas fa-robot',
+      features: ['单智能体与多角色协作设计', '任务拆解、工具调用与状态流转', '短期上下文与长期记忆管理', '异常处理、人工确认与运行日志']
+    },
+    {
+      id: 'ai-tools',
+      title: 'AI 工具与业务助手',
+      icon: 'fas fa-wand-magic-sparkles',
+      features: ['内容生成、改写、分类与提取', '表单、文件与结构化数据处理', '业务规则与模型能力混合编排', 'Web 应用与管理后台完整交付']
+    },
+    {
+      id: 'knowledge-qa',
+      title: '知识库智能问答',
+      icon: 'fas fa-database',
+      features: ['文档、网页与业务数据接入', '分段、索引、召回与答案生成', '多轮问答、来源引用与权限隔离', '内容更新、质量评估与反馈闭环']
+    },
+    {
+      id: 'integration',
+      title: 'AI 与现有系统集成',
+      icon: 'fas fa-plug',
+      features: ['网站助手、客服与线索收集', '管理后台内容与数据辅助', '对接现有 API、数据库与权限体系', '监控、限流、缓存与成本控制']
+    }
+  ],
+
+  featuredProjects: [
+    {
+      id: 'name-tool',
+      title: '智能取名助手',
+      icon: 'fas fa-signature',
+      description: '基于业务规则与大模型的取名工具，支持行业、风格、关键词和禁用词等多维约束。',
+      highlights: ['Prompt 模板化管理', '多轮生成与结果去重', '支持品牌名、产品名等场景扩展'],
+      status: '可在线体验',
+      path: '/tools/name'
+    },
+    {
+      id: 'website-chat',
+      title: '网站 AI 聊天助手',
+      icon: 'fas fa-comments',
+      description: '面向访客咨询与产品介绍的对话式助手，展示完整的聊天交互与上下文能力。',
+      highlights: ['系统指令与用户消息分层', '支持上下文与历史消息', '可接入知识库与业务接口'],
+      status: '可在线体验',
+      path: '/ai/chat-bot'
+    },
+    {
+      id: 'knowledge-system',
+      title: '个人知识库与内容中枢',
+      icon: 'fas fa-book',
+      description: '将分散的文章、笔记和资料统一组织，为语义检索与知识问答建立内容基础。',
+      highlights: ['统一的内容分类与检索入口', '支持结构化知识沉淀', '可扩展为 RAG 问答与内容助手'],
+      status: '持续建设中',
+      path: '/knowledge'
+    }
+  ],
+
+  techStackCategories: [
+    {
+      name: '模型与智能层',
+      icon: 'fas fa-brain',
+      items: ['OpenAI 与主流国产模型接入', 'Prompt、结构化输出与工具调用', '模型路由、缓存与成本控制', '效果评估与失败兜底']
+    },
+    {
+      name: '服务与数据层',
+      icon: 'fas fa-server',
+      items: ['Python / .NET Web API / Nitro', '关系数据库、向量检索与缓存', '任务编排、队列与定时任务', '鉴权、日志、限流与敏感数据保护']
+    },
+    {
+      name: '产品与交互层',
+      icon: 'fas fa-desktop',
+      items: ['Vue 3 / Nuxt 3 / TypeScript', '对话、流式响应与人工确认交互', '管理后台、配置面板与结果可视化', '响应式页面与部署交付']
+    }
+  ],
+
+  cooperationSteps: [
+    { title: '需求沟通', description: '梳理目标用户、现有流程、数据来源与成功标准，判断 AI 是否真的适合这个问题。' },
+    { title: '方案与原型', description: '拆分业务规则与模型能力，明确数据边界、技术路线、交付范围和阶段计划。' },
+    { title: '开发与验证', description: '优先完成关键链路，通过真实样例验证效果，并在阶段节点演示和确认。' },
+    { title: '上线与迭代', description: '交付代码、配置与使用说明，完善监控和兜底机制，再根据真实反馈持续优化。' }
+  ],
+
+  cta: {
+    text: '如果你已经有一个具体场景，或只有一个还不够清晰的想法，<br>都可以先聊聊问题本身，再判断应该做什么、做到哪一步。',
+    primaryButton: { text: '沟通你的需求', path: '/contact', icon: 'fas fa-arrow-right' },
+    secondaryButton: { text: '先看实践案例', anchor: '#projects', icon: 'fas fa-arrow-down' }
+  },
+
+  sectionTitles: {
+    scenarios: '哪些问题适合用 AI 解决',
+    scenariosIcon: 'fas fa-compass',
+    scenariosNote: '先判断问题，再选择模型与技术',
+    capabilities: '我能为你构建哪些 AI 能力',
+    capabilitiesIcon: 'fas fa-lightbulb',
+    projects: '可以查看的 AI 项目与实践',
+    projectsIcon: 'fas fa-diagram-project',
+    projectsNote: '优先展示真实可访问、可验证的站内实践',
+    projectsDescription: '这些项目仍在持续迭代，但核心链路已经可以体验，相关能力也能复用到新的业务场景中。',
+    techStack: '技术实现与交付保障',
+    techStackIcon: 'fas fa-code',
+    cooperation: '从想法到上线的合作流程',
+    cooperationIcon: 'fas fa-handshake'
   }
-}
+})

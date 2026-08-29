@@ -428,7 +428,7 @@
 
         <!-- 返回首页 -->
         <div class="search-back-home">
-          <NuxtLink to="/" class="search-back-link">
+          <NuxtLink to="/work" class="search-back-link">
             ← 返回首页
           </NuxtLink>
         </div>

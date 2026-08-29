@@ -10,6 +10,10 @@ const SITE = process.env.SITE_URL || 'https://xifg.com.cn'
 /** 公开前台静态路由（不含 /admin、订单流程等） */
 const STATIC_PATHS = [
   '/',
+  '/life',
+  '/life/about',
+  '/life/notes',
+  '/work',
   '/about',
   '/blog',
   '/projects',
@@ -33,7 +37,6 @@ const STATIC_PATHS = [
   '/products/desktop-pet',
   '/showcase',
   '/game',
-  '/life',
 ]
 
 const lastmod = new Date().toISOString().slice(0, 10)

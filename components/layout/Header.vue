@@ -5,18 +5,14 @@
       <div class="header-brand-row">
         <div
           class="header-brand-mark"
-          aria-hidden="true"
           title="点击标识可进入管理后台"
           @click.stop="handleLogoClick"
           @mouseenter="handleAvatarHover"
         >
-          <span></span>
-          <span></span>
-          <span></span>
+          <SiteBrandLogo variant="wordmark" />
         </div>
-        <NuxtLink to="/" class="header-brand-text-link" aria-label="溪午听风首页">
+        <NuxtLink to="/work" class="header-brand-text-link" aria-label="溪午听风工作站首页">
           <span class="header-brand-text">
-            <strong>溪午听风</strong>
             <small>个人数字资产 | AI 产品实验室</small>
           </span>
         </NuxtLink>
@@ -47,7 +43,7 @@
         </NuxtLink>
 
         <NuxtLink to="/ai" class="header-secondary-cta">
-          进入平台
+          AI 解决方案
         </NuxtLink>
         <NuxtLink to="/contact" class="header-primary-cta">
           联系合作
@@ -97,6 +93,13 @@
             {{ item.title }}
           </NuxtLink>
           <NuxtLink
+            to="/life"
+            @click="closeMobileMenu"
+            class="header-mobile-menu-item header-mobile-menu-item-inactive"
+          >
+            Life ↗
+          </NuxtLink>
+          <NuxtLink
             to="/contact"
             @click="closeMobileMenu"
             class="header-mobile-secondary-btn"
@@ -108,7 +111,7 @@
             @click="closeMobileMenu"
             class="header-mobile-platform-btn"
           >
-            进入平台
+            AI 解决方案
           </NuxtLink>
         </nav>
       </div>
@@ -119,6 +122,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import NavMoreMenu from '~/components/layout/NavMoreMenu.vue'
+import SiteBrandLogo from '~/components/layout/SiteBrandLogo.vue'
 import { moreNavItems, moreNavPaths } from '~/constants/site-more-nav'
 
 // @ts-ignore - Nuxt 3 auto-imports
@@ -181,7 +185,7 @@ onMounted(() => {
 })
 
 const navigationItems: Array<{ title: string; path: string }> = [
-  { title: '首页',    path: '/' },
+  { title: '首页',    path: '/work' },
   { title: '产品',    path: '/products' },
   { title: '案例',    path: '/projects' },
   { title: 'AI实验室', path: '/lab' },
@@ -192,8 +196,8 @@ const navigationItems: Array<{ title: string; path: string }> = [
 const isActiveRoute = (path: string) => {
   if (!route || !route.path) return false
 
-  if (path === '/') {
-    return route.path === '/' || route.path === ''
+  if (path === '/work') {
+    return route.path === '/work'
   }
 
   const prefixMatchPaths = [

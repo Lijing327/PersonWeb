@@ -1,0 +1,885 @@
+/* Life 站点壳：仅由 layouts/life.vue 引入，不进入 nuxt.config 全局 css。 */
+
+html[data-life-world='true'],
+html[data-life-world='true'] body {
+  background: #f4efe7;
+  color: #3a3228;
+}
+
+.life-shell {
+  --life-bg: #f4efe7;
+  --life-ink: #3a3228;
+  --life-ink-soft: #6d6256;
+  --life-accent: #9c4f38;
+  --life-line: rgba(60, 50, 40, 0.12);
+  --life-line-strong: rgba(60, 50, 40, 0.18);
+  --life-content-max: 78rem;
+  --life-font-body: "Iowan Old Style", "Palatino Linotype", "Songti SC", "STSong", "Noto Serif SC", Georgia, serif;
+  --life-font-sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  --life-font-note: "Segoe Script", "Bradley Hand", "KaiTi", "STKaiti", cursive;
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  background: var(--life-bg);
+  color: var(--life-ink);
+  font-family: var(--life-font-body);
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.life-shell::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.12;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.life-shell > * {
+  position: relative;
+  z-index: 1;
+}
+
+.life-shell a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.life-shell h1,
+.life-shell h2,
+.life-shell h3,
+.life-shell h4,
+.life-shell h5,
+.life-shell h6 {
+  color: var(--life-ink);
+  font-family: inherit;
+}
+
+.life-shell-main {
+  flex: 1;
+  width: min(100% - 3.5rem, var(--life-content-max));
+  margin: 0 auto;
+  padding: 2.2rem 0 5rem;
+}
+
+.life-notes,
+.life-note-article {
+  max-width: 46rem;
+}
+
+/* Header */
+
+.life-header {
+  border-bottom: 1px solid var(--life-line);
+}
+
+.life-header-inner {
+  width: min(100% - 3.5rem, var(--life-content-max));
+  margin: 0 auto;
+  min-height: 4.25rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  font-family: var(--life-font-sans);
+}
+
+.life-header-brand {
+  flex: 0 0 auto;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.life-header-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.life-header-nav a {
+  font-size: 0.9375rem;
+  font-weight: 400;
+  color: var(--life-ink-soft);
+}
+
+.life-header-switch {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  color: var(--life-ink-soft);
+}
+
+.life-header-nav a:hover,
+.life-header-brand:hover,
+.life-header-switch a:hover {
+  color: var(--life-ink);
+}
+
+.life-header-nav a.is-active {
+  color: var(--life-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.28em;
+}
+
+/* Footer */
+
+.life-footer {
+  border-top: 1px solid var(--life-line);
+  font-family: var(--life-font-sans);
+}
+
+.life-footer-inner {
+  width: min(100% - 3.5rem, var(--life-content-max));
+  margin: 0 auto;
+  padding: 1.4rem 0 1.6rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.life-footer-copy {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.life-footer-copy strong {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.life-footer-copy p {
+  margin: 0;
+  color: var(--life-ink-soft);
+  font-size: 0.875rem;
+}
+
+.life-footer-year {
+  color: var(--life-ink-soft);
+  font-size: 0.875rem;
+}
+
+/* Home: editorial */
+
+.life-home {
+  display: grid;
+  padding-top: 0.6rem;
+}
+
+.life-intro {
+  padding: 1.4rem 0 4.8rem;
+}
+
+.life-block--now {
+  padding: 0 0 3.2rem;
+}
+
+.life-block--lately {
+  padding: 0.2rem 0 3.4rem;
+}
+
+.life-block--lately-empty {
+  padding-bottom: 1.6rem;
+}
+
+.life-block--mine {
+  padding: 0.6rem 0 4.2rem;
+}
+
+.life-block--recent {
+  padding: 0 0 3.6rem;
+}
+
+.life-block--recent-empty {
+  padding-bottom: 1.6rem;
+}
+
+.life-intro-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2.4rem;
+}
+
+.life-intro-kicker,
+.life-intro-stamp,
+.life-block-index,
+.life-now-cat {
+  margin: 0;
+  color: var(--life-accent);
+  font-family: var(--life-font-sans);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+
+.life-intro-stamp {
+  font-family: var(--life-font-note);
+  letter-spacing: 0.04em;
+  font-weight: 500;
+  font-size: 1.125rem;
+}
+
+.life-intro-copy {
+  max-width: 44rem;
+}
+
+.life-intro-hello {
+  margin: 0 0 0.35rem;
+  color: var(--life-ink-soft);
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
+
+.life-intro h1 {
+  position: relative;
+  width: fit-content;
+  margin: 0;
+  font-size: clamp(3rem, 8vw, 5.4rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+}
+
+.life-intro-mark {
+  position: absolute;
+  left: 0.1rem;
+  bottom: -0.15rem;
+  width: min(100%, 11rem);
+  height: 0.85rem;
+  overflow: visible;
+}
+
+.life-intro-mark path {
+  fill: none;
+  stroke: var(--life-accent);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  opacity: 0.7;
+}
+
+.life-intro-lead {
+  margin: 1.8rem 0 0;
+  max-width: 32rem;
+  color: var(--life-ink-soft);
+  font-size: 1.25rem;
+  line-height: 1.85;
+}
+
+.life-intro-aside {
+  margin: 1.35rem 0 0;
+  color: var(--life-accent);
+  font-family: var(--life-font-sans);
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+}
+
+.life-block-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.85rem;
+  margin-bottom: 1.6rem;
+}
+
+.life-block--now .life-block-head {
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--life-line);
+}
+
+.life-block-head--plain {
+  margin-bottom: 1.25rem;
+}
+
+.life-block-head h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.life-now-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1.05fr) minmax(0, 1.1fr);
+  gap: 2.4rem 3.2rem;
+}
+
+.life-now-item {
+  display: grid;
+  align-content: start;
+  gap: 0.4rem;
+}
+
+.life-now-item:nth-child(2) {
+  padding-top: 1.1rem;
+}
+
+.life-now-item:nth-child(3) {
+  padding-top: 0.35rem;
+}
+
+.life-now-item strong {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.life-now-item p,
+.life-mine-item p,
+.life-end p {
+  margin: 0;
+  color: var(--life-ink-soft);
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+a.life-now-item:hover strong,
+a.life-mine-item:hover strong,
+a.life-lately-text:hover,
+.life-recent-item:hover strong {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.life-lately-empty {
+  margin: 0;
+  max-width: 28rem;
+  color: var(--life-ink-soft);
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.life-lately-list {
+  display: grid;
+  gap: 1.55rem;
+  max-width: 48rem;
+}
+
+.life-lately-item {
+  display: grid;
+  grid-template-columns: 4.2rem minmax(0, 1fr);
+  column-gap: 1.1rem;
+  align-items: start;
+}
+
+.life-lately-item:nth-child(even) {
+  margin-left: 2.4rem;
+}
+
+.life-lately-item:nth-child(3n) {
+  margin-left: 0.85rem;
+}
+
+.life-lately-item time {
+  color: var(--life-ink-soft);
+  font-family: var(--life-font-sans);
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  padding-top: 0.22rem;
+}
+
+.life-lately-body {
+  display: grid;
+  justify-items: start;
+  gap: 0.5rem;
+}
+
+.life-lately-text {
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.8;
+}
+
+.life-lately-photo {
+  display: block;
+  max-width: min(100%, 20rem);
+  width: auto;
+  height: auto;
+}
+
+.life-mine-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  column-gap: 4.5rem;
+  row-gap: 2rem;
+  align-items: start;
+}
+
+.life-mine-item {
+  display: grid;
+  align-content: start;
+  gap: 0.35rem;
+}
+
+.life-mine-item strong {
+  font-size: 1.02rem;
+  font-weight: 600;
+}
+
+.life-mine-item--wide {
+  grid-column: 1 / -1;
+  max-width: 26rem;
+  margin-bottom: 0.4rem;
+}
+
+.life-mine-item--wide p {
+  font-size: 1.08rem;
+}
+
+.life-mine-item--line {
+  padding-top: 0.15rem;
+}
+
+.life-mine-item--line p {
+  font-family: var(--life-font-sans);
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  color: var(--life-ink);
+}
+
+.life-mine-item--note {
+  max-width: 22rem;
+  padding-top: 0.15rem;
+}
+
+.life-mine-item--short {
+  padding-top: 1.6rem;
+  max-width: 14rem;
+}
+
+.life-mine-item--quiet {
+  padding-top: 0.2rem;
+  opacity: 0.78;
+}
+
+.life-mine-item--quiet strong {
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.life-mine-item--quiet p {
+  font-size: 0.92rem;
+}
+
+.life-mine-item--link {
+  margin-top: 0.5rem;
+  padding-left: 0.9rem;
+  border-left: 1px solid var(--life-accent);
+}
+
+.life-mine-item--link strong::after {
+  content: ' →';
+  color: var(--life-accent);
+  font-weight: 500;
+}
+
+.life-recent-empty {
+  margin: 0;
+  max-width: 28rem;
+  color: var(--life-ink-soft);
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.life-recent-list {
+  display: grid;
+}
+
+.life-recent-item {
+  display: grid;
+  grid-template-columns: 4.2rem minmax(0, 1fr);
+  gap: 1.2rem;
+  padding: 0.95rem 0;
+  border-top: 1px solid var(--life-line);
+}
+
+.life-recent-item:last-child {
+  border-bottom: 1px solid var(--life-line);
+}
+
+.life-recent-item time {
+  color: var(--life-ink-soft);
+  font-family: var(--life-font-sans);
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  padding-top: 0.18rem;
+}
+
+.life-recent-item span {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.life-recent-item strong {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.life-recent-item em {
+  color: var(--life-ink-soft);
+  font-style: normal;
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.life-end {
+  display: grid;
+  grid-template-columns: 0.9fr 1fr;
+  gap: 3rem;
+  align-items: end;
+  padding: 1.4rem 0 0.4rem;
+  margin-left: clamp(0rem, 6vw, 4.5rem);
+}
+
+.life-end-about {
+  display: grid;
+  justify-items: start;
+  gap: 0.7rem;
+}
+
+.life-end-about h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.life-end-link {
+  margin-top: 0.4rem;
+  font-size: 1rem;
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+}
+
+.life-end-close {
+  color: var(--life-ink-soft);
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  text-align: right;
+}
+
+/* About / Notes / Detail */
+
+.life-notes,
+.life-note-article {
+  display: grid;
+  gap: 2.4rem;
+}
+
+.life-notes h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 650;
+}
+
+.life-about {
+  display: grid;
+  gap: 2.6rem;
+  justify-items: start;
+  max-width: 64rem;
+}
+
+.life-about-head {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.life-about-kicker {
+  margin: 0;
+  color: var(--life-accent);
+  font-family: var(--life-font-sans);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+
+.life-about h1 {
+  margin: 0;
+  font-size: 2.1rem;
+  font-weight: 600;
+}
+
+.life-about-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 45rem) 10.5rem;
+  column-gap: 3.25rem;
+  align-items: start;
+  width: 100%;
+}
+
+.life-about-essay {
+  max-width: 45rem;
+}
+
+.life-about-essay p {
+  margin: 0 0 1.4em;
+  color: var(--life-ink);
+  font-size: 1.0625rem;
+  line-height: 1.9;
+}
+
+.life-about-essay p:last-child {
+  margin-bottom: 0;
+}
+
+.life-about-emphasis {
+  margin: 1.55em 0 1.65em;
+  max-width: 22em;
+  color: var(--life-ink);
+  font-size: 1.2rem;
+  font-weight: 500;
+  line-height: 1.7;
+}
+
+.life-about-essay span.life-about-emphasis {
+  display: inline;
+  margin: 0;
+  max-width: none;
+  font-size: 1.12em;
+}
+
+.life-about-aside {
+  display: grid;
+  gap: 1.4rem;
+  padding-top: 0.35rem;
+  font-family: var(--life-font-sans);
+}
+
+.life-about-aside p {
+  margin: 0;
+  color: var(--life-ink-soft);
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+.life-about-aside span {
+  display: block;
+  margin-bottom: 0.22rem;
+  color: var(--life-accent);
+  font-size: 0.8125rem;
+  letter-spacing: 0.06em;
+}
+
+.life-about-back {
+  margin: 0.2rem 0 0;
+}
+
+.life-notes-lead,
+.life-empty {
+  margin: 0.7rem 0 0;
+  color: var(--life-ink-soft);
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.life-note-back {
+  color: var(--life-ink-soft);
+  font-family: var(--life-font-sans);
+  font-size: 0.875rem;
+}
+
+.life-note-back:hover {
+  color: var(--life-ink);
+}
+
+.life-note-article header p {
+  margin: 0 0 0.7rem;
+  color: var(--life-ink-soft);
+  font-size: 0.875rem;
+}
+
+.life-note-article h1 {
+  font-size: clamp(1.6rem, 3.4vw, 2.1rem);
+}
+
+.life-note-cover {
+  width: 100%;
+  margin: 1.2rem 0 0;
+}
+
+.life-note-cover img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.life-note-body {
+  font-size: 1.125rem;
+  line-height: 1.85;
+}
+
+.life-note-body :deep(p + p) {
+  margin-top: 1em;
+}
+
+.life-note-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  color: var(--life-ink-soft);
+  font-size: 0.875rem;
+}
+
+.life-note-list {
+  display: grid;
+  gap: 0;
+}
+
+.life-note-item {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.95rem 0;
+  border-top: 1px solid var(--life-line);
+}
+
+.life-note-item:last-child {
+  border-bottom: 1px solid var(--life-line);
+}
+
+.life-note-item time {
+  color: var(--life-ink-soft);
+  font-family: var(--life-font-sans);
+  font-size: 0.875rem;
+}
+
+.life-note-item h2,
+.life-note-item strong {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.life-note-item p {
+  margin: 0;
+  color: var(--life-ink-soft);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+@media (max-width: 900px) {
+  .life-now-grid {
+    grid-template-columns: 1fr;
+    gap: 1.6rem;
+  }
+
+  .life-about-layout {
+    grid-template-columns: 1fr;
+    row-gap: 2.4rem;
+  }
+
+  .life-about-essay {
+    max-width: none;
+  }
+
+  .life-about-aside {
+    padding-top: 0.2rem;
+    max-width: 22rem;
+  }
+
+  .life-about-emphasis {
+    max-width: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .life-header-inner,
+  .life-shell-main,
+  .life-footer-inner {
+    width: min(100% - 1.6rem, var(--life-content-max));
+  }
+
+  .life-header-inner {
+    flex-wrap: wrap;
+    padding: 0.7rem 0 0.85rem;
+    min-height: 0;
+    gap: 0.45rem 1rem;
+  }
+
+  .life-header-nav {
+    order: 3;
+    flex: 1 1 100%;
+    gap: 1rem;
+  }
+
+  .life-header-switch {
+    margin-left: 0;
+    gap: 1rem;
+  }
+
+  .life-intro,
+  .life-block--now,
+  .life-block--lately,
+  .life-block--mine,
+  .life-block--recent,
+  .life-block--recent-empty {
+    padding-bottom: 2.4rem;
+  }
+
+  .life-now-item:nth-child(2),
+  .life-now-item:nth-child(3),
+  .life-mine-item--note,
+  .life-mine-item--short,
+  .life-mine-item--link {
+    padding-top: 0;
+    margin-top: 0;
+    padding-left: 0;
+  }
+
+  .life-lately-item:nth-child(even),
+  .life-lately-item:nth-child(3n) {
+    margin-left: 0;
+  }
+
+  .life-lately-item {
+    grid-template-columns: 3.4rem minmax(0, 1fr);
+    gap: 0.8rem;
+  }
+
+  .life-mine-item--wide,
+  .life-mine-item--note,
+  .life-mine-item--short {
+    max-width: none;
+  }
+
+  .life-end {
+    margin-left: 0;
+    padding-top: 0.4rem;
+  }
+
+  .life-intro h1 {
+    font-size: clamp(2.4rem, 12vw, 3.6rem);
+  }
+
+  .life-intro-lead {
+    font-size: 1.125rem;
+    max-width: none;
+  }
+
+  .life-mine-grid,
+  .life-end {
+    grid-template-columns: 1fr;
+  }
+
+  .life-end-close {
+    text-align: left;
+  }
+
+  .life-recent-item {
+    grid-template-columns: 3.4rem minmax(0, 1fr);
+    gap: 0.8rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .life-intro-mark path {
+    opacity: 0.55;
+  }
+}

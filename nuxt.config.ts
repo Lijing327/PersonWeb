@@ -138,6 +138,10 @@ export default defineNuxtConfig({
       // 预渲染核心路由和 admin 主要页面
       routes: [
         '/',
+        '/life',
+        '/life/about',
+        '/life/notes',
+        '/work',
         '/admin',
         '/admin/analytics',
         '/admin/articles',

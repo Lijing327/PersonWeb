@@ -5,7 +5,7 @@
       <!-- 面包屑导航 -->
       <nav class="mb-8">
         <div class="flex items-center space-x-2 text-sm text-gray-600">
-          <NuxtLink to="/" class="hover:text-purple-600 transition-colors">首页</NuxtLink>
+          <NuxtLink to="/work" class="hover:text-purple-600 transition-colors">首页</NuxtLink>
           <span>/</span>
           <NuxtLink to="/projects" class="hover:text-purple-600 transition-colors">项目展示</NuxtLink>
           <span>/</span>

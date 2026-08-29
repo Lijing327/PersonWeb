@@ -6,8 +6,7 @@
         <!-- Brand -->
         <div>
           <div class="footer-brand-logo">
-            <div class="footer-brand-logo-icon">XF</div>
-            <span class="footer-brand-name">溪午听风</span>
+            <SiteBrandLogo variant="wordmark" />
           </div>
           <div class="footer-brand-tagline">AI Product Studio</div>
           <p class="footer-brand-desc">
@@ -94,6 +93,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import SiteBrandLogo from '~/components/layout/SiteBrandLogo.vue'
+
 const showWeChatQR = ref(false)
 const showEmailModal = ref(false)
 </script>

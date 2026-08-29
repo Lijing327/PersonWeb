@@ -2,7 +2,6 @@
 export const moreNavItems = [
   { title: 'AI / 智能体', path: '/ai' },
   { title: '工具插件', path: '/tools' },
-  { title: '生活', path: '/life' },
   { title: '笔记', path: '/knowledge' },
   { title: '技能树', path: '/skills' },
   { title: '仪表盘', path: '/dashboard' },

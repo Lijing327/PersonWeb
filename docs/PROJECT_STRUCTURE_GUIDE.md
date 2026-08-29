@@ -174,7 +174,11 @@ PersonWeb/
 
 | 内容类型 | 路径 | 说明 |
 |----------|------|------|
-| **生活随笔** | `content/life/*.md` | 生活随笔文章（Markdown） |
+| **Life 首页文案** | `content/life/home.yml` | `/life` 固定话术 |
+| **Life About** | `content/life/profile.md` | `/life/about` 自我介绍 |
+| **Life Now** | `content/life/now.yml` | `/life`「最近在」 |
+| **Life Moments** | `content/life/moments.yml` | `/life`「最近」时间线 |
+| **生活随笔** | `content/life/*.md` | 随笔正文（不要用 `profile.md` 这个文件名） |
 | **认知说明书** | `content/cognition/*.md` | 个人认知使用说明书 |
 
 > ⚠️ **注意**：大部分内容已迁移到数据库，通过后台管理系统编辑。只有部分内容仍使用 Markdown 文件。

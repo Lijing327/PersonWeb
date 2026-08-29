@@ -1,0 +1,3 @@
+# 轻量生活记录。没有可确认日期与事实的条目时保持为空。
+# date / content 必填；type、image、note 可选。
+items: []

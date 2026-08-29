@@ -1,0 +1,34 @@
+/* 品牌 logo：只做识别，不拉伸、不加发光/阴影/描边 */
+
+.site-brand-logo {
+  display: block;
+  flex: 0 0 auto;
+  object-fit: contain;
+  object-position: center;
+  filter: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+.site-brand-logo--favicon {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.site-brand-logo--wordmark {
+  height: 2rem;
+  width: auto;
+  max-width: 11.5rem;
+}
+
+@media (max-width: 680px) {
+  .site-brand-logo--full {
+    height: 3rem;
+    max-width: 5.5rem;
+  }
+
+  .site-brand-logo--wordmark {
+    height: 1.7rem;
+    max-width: 9.5rem;
+  }
+}

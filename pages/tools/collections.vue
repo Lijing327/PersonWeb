@@ -11,7 +11,7 @@
       <nav class="tools-detail-nav">
         <n-breadcrumb>
           <n-breadcrumb-item>
-            <NuxtLink to="/">首页</NuxtLink>
+            <NuxtLink to="/work">首页</NuxtLink>
           </n-breadcrumb-item>
           <n-breadcrumb-item>
             <NuxtLink to="/tools">插件工具</NuxtLink>

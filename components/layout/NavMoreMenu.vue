@@ -44,6 +44,15 @@
         >
           {{ item.title }}
         </NuxtLink>
+        <div class="nav-more__divider" role="separator" />
+        <NuxtLink
+          to="/life"
+          class="nav-more__link"
+          role="menuitem"
+          @click="close"
+        >
+          Life ↗
+        </NuxtLink>
       </div>
     </Transition>
   </div>

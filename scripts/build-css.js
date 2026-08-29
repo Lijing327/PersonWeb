@@ -19,7 +19,6 @@ const cssImportOrder = [
   'projects.css',
   'blog.css',
   'about.css',
-  'life.css',
   'investment.css',
   'header.css',
   'footer.css',

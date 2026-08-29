@@ -401,6 +401,10 @@ async function main() {
       // blog 目录或根目录 -> article 表
       result = await importArticle(filePath, '技术文章')
     } else if (dir === 'life') {
+      if (fileName === 'profile.md') {
+        console.log('  跳过: profile.md 是 About 文案，不是随笔')
+        continue
+      }
       // life 目录 -> article 表（生活随笔分类）
       result = await importArticle(filePath, '生活随笔')
     } else if (dir.startsWith('projects')) {

@@ -29,7 +29,42 @@
         {{ description }}
       </p>
 
-      <!-- 模块一：我能做什么（能力展示） -->
+      <div class="ai-solutions-hero-actions">
+        <a href="#scenarios" class="ai-solutions-hero-link ai-solutions-hero-link--primary">
+          看看适用场景
+          <i class="fas fa-arrow-down" aria-hidden="true"></i>
+        </a>
+        <NuxtLink to="/contact" class="ai-solutions-hero-link ai-solutions-hero-link--secondary">
+          沟通具体需求
+          <i class="fas fa-arrow-right" aria-hidden="true"></i>
+        </NuxtLink>
+      </div>
+
+      <!-- 适用场景：先帮助访客判断自己的问题是否适合使用 AI -->
+      <section id="scenarios" class="ai-solutions-section">
+        <div class="ai-solutions-section-header">
+          <h2 class="ai-solutions-section-title">
+            <i :class="sectionTitles.scenariosIcon"></i>
+            {{ sectionTitles.scenarios }}
+          </h2>
+          <p class="ai-solutions-section-description">{{ sectionTitles.scenariosNote }}</p>
+        </div>
+
+        <div class="ai-solutions-scenarios-grid">
+          <article v-for="scenario in scenarios" :key="scenario.id" class="ai-solutions-scenario-card">
+            <div class="ai-solutions-scenario-icon">
+              <i :class="scenario.icon"></i>
+            </div>
+            <h3>{{ scenario.title }}</h3>
+            <p>{{ scenario.description }}</p>
+            <ul>
+              <li v-for="example in scenario.examples" :key="example">{{ example }}</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- 可交付的能力 -->
       <section id="capabilities" class="ai-solutions-section">
         <div class="ai-solutions-section-header">
           <h2 class="ai-solutions-section-title">
@@ -74,13 +109,18 @@
             v-for="project in featuredProjects"
             :key="project.id"
             class="ai-solutions-project-card"
+            :class="{ 'ai-solutions-project-card--clickable': project.path }"
+            :role="project.path ? 'link' : undefined"
+            :tabindex="project.path ? 0 : undefined"
             @click="handleProjectClick(project)"
+            @keydown.enter="handleProjectClick(project)"
           >
             <div class="ai-solutions-project-header">
               <div class="ai-solutions-project-icon">
                 <i :class="project.icon"></i>
               </div>
               <h3 class="ai-solutions-project-title">{{ project.title }}</h3>
+              <span class="ai-solutions-project-status">{{ project.status }}</span>
             </div>
             <p class="ai-solutions-project-description">{{ project.description }}</p>
             <div class="ai-solutions-project-highlights">
@@ -190,6 +230,7 @@ const {
   subtitle,
   description,
   seo,
+  scenarios,
   capabilities,
   featuredProjects,
   techStackCategories,
@@ -374,13 +415,138 @@ const handleProjectClick = (project: FeaturedProject) => {
   line-height: 1.9;
   color: var(--text-secondary);
   max-width: min(64rem, 100%);
-  margin: 0 auto 100px auto;
+  margin: 0 auto 32px auto;
   padding: 32px;
   background: linear-gradient(135deg, rgba(6, 182, 212, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
   border: 2px solid;
   border-image: linear-gradient(135deg, var(--color-cyan-500) 0%, var(--color-purple-500) 100%) 1;
   border-radius: 12px;
   text-align: center;
+}
+
+.ai-solutions-hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  margin-bottom: 120px;
+}
+
+.ai-solutions-hero-link {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: 0 var(--spacing-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  color: var(--text-main);
+  text-decoration: none;
+  transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.ai-solutions-hero-link--primary {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+}
+
+.ai-solutions-hero-link--secondary {
+  background: var(--color-surface);
+}
+
+.ai-solutions-hero-link:hover,
+.ai-solutions-hero-link:focus-visible {
+  transform: translateY(-3px);
+  border-color: var(--color-primary-hover);
+  outline: none;
+}
+
+/* 场景卡片与能力卡片保持同一页面视觉语言。 */
+.ai-solutions-scenarios-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.ai-solutions-scenario-card {
+  min-width: 0;
+  padding: var(--spacing-xl);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.ai-solutions-scenario-icon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  margin-bottom: var(--spacing-lg);
+  border-radius: var(--radius-md);
+  color: var(--color-primary-hover);
+  background: var(--color-primary-soft);
+}
+
+.ai-solutions-scenario-card h3 {
+  margin: 0 0 var(--spacing-md);
+  color: var(--text-main);
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+.ai-solutions-scenario-card p {
+  min-height: 5.2em;
+  margin: 0 0 var(--spacing-lg);
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.ai-solutions-scenario-card ul {
+  display: grid;
+  gap: var(--spacing-sm);
+  margin: 0;
+  padding: var(--spacing-lg) 0 0;
+  border-top: 1px solid var(--color-border);
+  list-style: none;
+}
+
+.ai-solutions-scenario-card li {
+  position: relative;
+  padding-left: var(--spacing-lg);
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.ai-solutions-scenario-card li::before {
+  position: absolute;
+  left: 0;
+  content: '✓';
+  color: var(--color-primary-hover);
+}
+
+@media (max-width: 1100px) {
+  .ai-solutions-scenarios-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .ai-solutions-hero-actions {
+    margin-bottom: 96px;
+  }
+
+  .ai-solutions-scenarios-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ai-solutions-scenario-card p {
+    min-height: 0;
+  }
 }
 
 @media (max-width: 768px) {
@@ -569,7 +735,7 @@ const handleProjectClick = (project: FeaturedProject) => {
 }
 
 .ai-solutions-capability-features li::before {
-  content: '?';
+  content: '✓';
   position: absolute;
   left: 0;
   background: linear-gradient(135deg, var(--color-cyan-500) 0%, var(--color-purple-500) 100%);
@@ -595,9 +761,19 @@ const handleProjectClick = (project: FeaturedProject) => {
   border: 2px solid rgba(6, 182, 212, 0.3);
   border-radius: 28px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
+  cursor: default;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(6, 182, 212, 0.1);
+}
+
+.ai-solutions-project-card--clickable {
+  cursor: pointer;
+}
+
+.ai-solutions-project-card--clickable:focus-visible {
+  border-color: var(--color-primary-hover);
+  outline: 2px solid var(--color-primary-soft);
+  outline-offset: 4px;
 }
 
 .ai-solutions-project-card::before {
@@ -672,6 +848,18 @@ const handleProjectClick = (project: FeaturedProject) => {
   letter-spacing: -0.01em;
 }
 
+.ai-solutions-project-status {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .ai-solutions-project-description {
   font-size: 15px;
   line-height: 1.7;
@@ -718,7 +906,7 @@ const handleProjectClick = (project: FeaturedProject) => {
 }
 
 .ai-solutions-project-highlights-list li::before {
-  content: '?';
+  content: '✓';
   position: absolute;
   left: 0;
   background: linear-gradient(135deg, var(--color-cyan-500) 0%, var(--color-purple-500) 100%);
@@ -818,7 +1006,7 @@ const handleProjectClick = (project: FeaturedProject) => {
 }
 
 .ai-solutions-tech-list li::before {
-  content: '?';
+  content: '✓';
   position: absolute;
   left: 0;
   background: linear-gradient(135deg, var(--color-cyan-500) 0%, var(--color-purple-500) 100%);
