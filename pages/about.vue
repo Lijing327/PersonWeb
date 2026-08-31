@@ -41,7 +41,7 @@
                 :href="social.link"
                 class="about-social-link"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 :aria-label="social.name"
               >
                 <i v-if="social.icon" :class="social.icon"></i>
@@ -52,7 +52,13 @@
 
           <aside class="about-profile-card">
             <div class="about-avatar">
-              <img src="/images/avatar.jpg" alt="溪午听风头像" />
+              <img
+                src="/images/avatar.webp"
+                alt="溪午听风头像"
+                width="160"
+                height="160"
+                decoding="async"
+              />
             </div>
             <h2 class="about-profile-name">溪午听风</h2>
             <p class="about-profile-location">
@@ -361,13 +367,20 @@ const workStyles = [
   }
 ]
 
-useHead({
+usePageSeo({
   title: '关于我 - 溪午听风',
-  meta: [
-    {
-      name: 'description',
-      content: '溪午听风：一个持续构建数字资产的开发者，专注 AI 应用、Web 系统、企业工具和个人数字资产建设。'
-    }
-  ]
+  description: '溪午听风：持续构建数字资产的开发者，专注 AI 应用、Web 系统与企业工具。',
+  path: '/about',
+  type: 'profile',
+  world: 'work',
 })
+
+useJsonLd(() => ({
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: '溪午听风',
+  url: toAbsoluteUrl('/about'),
+  jobTitle: '独立开发者',
+  description: '持续构建数字资产的开发者，专注 AI 应用、Web 系统与企业工具。',
+}))
 </script>

@@ -1,15 +1,11 @@
 import { CreateModuleRequest } from '~/types/module'
 import db from '~/server/services/database'
+import { checkAuth } from '~/server/utils/auth'
+import { throwSafeApiError } from '~/server/utils/api-error'
 
 export default defineEventHandler(async (event) => {
   try {
-    // 验证权限 - 实际项目中应该添加认证中间件
-    // if (!event.context.user || event.context.user.role !== 'admin') {
-    //   throw createError({
-    //     statusCode: 403,
-    //     statusMessage: '需要管理员权限'
-    //   })
-    // }
+    checkAuth(event)
 
     const body = await readBody(event)
     const {
@@ -88,11 +84,6 @@ export default defineEventHandler(async (event) => {
       message: '模块创建成功'
     }
   } catch (error) {
-    console.error('创建模块失败:', error)
-    throw createError({
-      statusCode: error.statusCode || 500,
-      statusMessage: error.statusMessage || '创建模块失败',
-      data: { error: error.message }
-    })
+    throwSafeApiError(error, '创建模块失败')
   }
 })

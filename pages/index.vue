@@ -66,16 +66,24 @@
 <script setup lang="ts">
 import '~/assets/css/portal.css'
 import SiteBrandLogo from '~/components/layout/SiteBrandLogo.vue'
+import { usePageSeo, useJsonLd, toAbsoluteUrl } from '~/composables/usePageSeo'
 
 definePageMeta({ layout: false })
 
 const currentYear = new Date().getFullYear()
 
-useHead({
+usePageSeo({
   title: '溪午听风 - 生活与工作',
-  meta: [
-    { key: 'description', name: 'description', content: '从这里进入生活，或进入工作与创造。' },
-    { name: 'theme-color', content: '#090d18' }
-  ]
+  description: '从这里进入生活，或进入工作与创造。',
+  path: '/',
+  world: 'portal',
 })
+
+useJsonLd(() => ({
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: '溪午听风',
+  url: toAbsoluteUrl('/'),
+  description: '从这里进入生活，或进入工作与创造。',
+}))
 </script>

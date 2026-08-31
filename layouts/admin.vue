@@ -167,6 +167,12 @@ import AppNaiveConfig from '~/components/layout/AppNaiveConfig.vue'
 import MouseTrail from '~/components/effects/MouseTrail.vue'
 import { adminMenu, type AdminMenuGroup } from '~/constants/admin/menu'
 
+useHead({
+  meta: [
+    { key: 'robots', name: 'robots', content: 'noindex,nofollow' },
+  ],
+})
+
 const router = useRouter()
 const route = useRoute()
 
@@ -440,14 +446,26 @@ const handleLinkClick = (e: MouseEvent) => {
   // 不阻止默认行为，让 NuxtLink 正常处理
 }
 
-const logout = () => {
-  if (confirm('确定要退出登录吗？')) {
-    if (process.client) {
-      localStorage.removeItem('admin_token')
-      localStorage.removeItem('admin_user')
-      router.push('/admin/login')
-    }
+const logout = async () => {
+  if (!confirm('确定要退出登录吗？')) {
+    return
   }
+
+  try {
+    await $fetch('/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include',
+    })
+  } catch {
+    // ignore network errors — still clear client state
+  }
+
+  if (process.client) {
+    localStorage.removeItem('admin_token')
+    localStorage.removeItem('admin_user')
+  }
+
+  router.push('/admin/login')
 }
 </script>
 

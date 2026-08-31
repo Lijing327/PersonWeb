@@ -1,87 +1,99 @@
 <template>
   <footer class="footer-container">
     <div class="footer-inner">
-      <!-- Main Grid -->
       <div class="footer-grid">
-        <!-- Brand -->
         <div>
           <div class="footer-brand-logo">
             <SiteBrandLogo variant="wordmark" />
           </div>
-          <div class="footer-brand-tagline">AI Product Studio</div>
+          <div class="footer-brand-tagline">Work · 专业工作名片</div>
           <p class="footer-brand-desc">
-            构建 AI 应用、数字产品与长期数字资产。<br>
-            把想法变成可上线、可使用、可迭代的成果。
+            展示真实案例、可使用的产品，以及公开写作。<br>
+            需要合作时，直接联系即可。
           </p>
           <div class="footer-social-links">
-            <a href="https://github.com/Lijing327" target="_blank" class="footer-social-btn" title="GitHub">
-              <i class="fab fa-github"></i>
+            <a
+              href="https://github.com/Lijing327"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="footer-social-btn"
+              aria-label="GitHub（新窗口打开）"
+            >
+              <i class="fab fa-github" aria-hidden="true"></i>
             </a>
-            <button class="footer-social-btn" title="邮箱" @click="showEmailModal = true">
-              <i class="fas fa-envelope"></i>
+            <button
+              type="button"
+              class="footer-social-btn"
+              aria-label="显示联系邮箱"
+              @click="openEmailModal"
+            >
+              <i class="fas fa-envelope" aria-hidden="true"></i>
             </button>
-            <button class="footer-social-btn" title="微信" @click="showWeChatQR = true">
-              <i class="fab fa-weixin"></i>
+            <button
+              type="button"
+              class="footer-social-btn"
+              aria-label="显示微信二维码"
+              @click="openWeChatModal"
+            >
+              <i class="fab fa-weixin" aria-hidden="true"></i>
             </button>
           </div>
         </div>
 
-        <!-- Products -->
-        <div>
-          <div class="footer-nav-title">产品</div>
+        <div v-for="section in footerSections" :key="section.title">
+          <div class="footer-nav-title">{{ section.title }}</div>
           <ul class="footer-nav-list">
-            <li><NuxtLink to="/products" class="footer-nav-link">全部产品</NuxtLink></li>
-            <li><NuxtLink to="/tools" class="footer-nav-link">工具插件</NuxtLink></li>
-            <li><NuxtLink to="/module-store" class="footer-nav-link">模块商店</NuxtLink></li>
-          </ul>
-        </div>
-
-        <!-- Content -->
-        <div>
-          <div class="footer-nav-title">内容</div>
-          <ul class="footer-nav-list">
-            <li><NuxtLink to="/projects" class="footer-nav-link">案例</NuxtLink></li>
-            <li><NuxtLink to="/lab" class="footer-nav-link">AI实验室</NuxtLink></li>
-            <li><NuxtLink to="/blog" class="footer-nav-link">文章</NuxtLink></li>
-          </ul>
-        </div>
-
-        <!-- About -->
-        <div>
-          <div class="footer-nav-title">关于</div>
-          <ul class="footer-nav-list">
-            <li><NuxtLink to="/about" class="footer-nav-link">关于我</NuxtLink></li>
-            <li><NuxtLink to="/contact" class="footer-nav-link">联系合作</NuxtLink></li>
-            <li><NuxtLink to="/changelog" class="footer-nav-link">更新日志</NuxtLink></li>
+            <li v-for="item in section.items" :key="item.path">
+              <NuxtLink :to="item.path" class="footer-nav-link">{{ item.title }}</NuxtLink>
+            </li>
           </ul>
         </div>
       </div>
 
-      <!-- Bottom -->
       <div class="footer-bottom">
         <span class="footer-copyright">© 2026 溪午听风</span>
-        <a href="https://beian.miit.gov.cn" target="_blank" class="footer-icp">
-          豫ICP备XXXXXXXX号
+        <a :href="SITE_LEGAL.icpQueryUrl" target="_blank" rel="noopener noreferrer" class="footer-icp">
+          {{ SITE_LEGAL.icp }}
         </a>
       </div>
     </div>
 
-    <!-- WeChat QR Modal -->
-    <div v-if="showWeChatQR" class="wechat-qr-modal" @click="showWeChatQR = false">
+    <div
+      v-if="showWeChatQR"
+      class="wechat-qr-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-label="微信二维码"
+      @click="closeModals"
+      @keydown.esc="closeModals"
+    >
       <div class="wechat-qr-content" @click.stop>
-        <button class="wechat-qr-close" @click="showWeChatQR = false">✕</button>
+        <button type="button" class="wechat-qr-close" aria-label="关闭微信二维码" @click="closeModals">✕</button>
         <div style="text-align:center">
-          <img src="/images/wechat-qr.png" alt="微信二维码"
-            style="width:180px;height:180px;border-radius:12px;margin:0 auto 12px;display:block" />
+          <img
+            src="/images/wechat-qr.png"
+            alt="微信二维码"
+            width="180"
+            height="180"
+            decoding="async"
+            style="width:180px;height:180px;border-radius:12px;margin:0 auto 12px;display:block"
+          />
           <p class="footer-copyright">扫码加好友，请注明来意</p>
         </div>
       </div>
     </div>
 
-    <!-- Email Modal -->
-    <div v-if="showEmailModal" class="email-modal" @click="showEmailModal = false">
+    <div
+      v-if="showEmailModal"
+      class="email-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-label="联系邮箱"
+      @click="closeModals"
+      @keydown.esc="closeModals"
+    >
       <div class="email-modal-content" @click.stop>
-        <button class="email-modal-close" @click="showEmailModal = false">✕</button>
+        <button type="button" class="email-modal-close" aria-label="关闭邮箱弹层" @click="closeModals">✕</button>
         <p class="footer-nav-title" style="margin-bottom:8px">联系邮箱</p>
         <p style="font-size:15px;color:var(--color-text);font-family:var(--font-family-mono)">
           linxiwanting@gmail.com
@@ -92,9 +104,41 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import SiteBrandLogo from '~/components/layout/SiteBrandLogo.vue'
+import { SITE_LEGAL } from '~/constants/siteLegal'
+import { WORK_FOOTER_SECTIONS } from '~/constants/work-ia'
 
+const footerSections = WORK_FOOTER_SECTIONS
 const showWeChatQR = ref(false)
 const showEmailModal = ref(false)
+
+const openWeChatModal = () => {
+  showEmailModal.value = false
+  showWeChatQR.value = true
+}
+
+const openEmailModal = () => {
+  showWeChatQR.value = false
+  showEmailModal.value = true
+}
+
+const closeModals = () => {
+  showWeChatQR.value = false
+  showEmailModal.value = false
+}
+
+const onKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape') {
+    closeModals()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', onKeydown)
+})
 </script>

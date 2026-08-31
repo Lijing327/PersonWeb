@@ -264,6 +264,11 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  layout: 'admin',
+  middleware: 'admin-auth',
+})
+
 import { ref, onMounted } from 'vue'
 
 // 状态管理

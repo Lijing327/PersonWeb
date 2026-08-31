@@ -36,11 +36,11 @@
         <div class="projects-hero-copy">
           <div class="projects-hero-badge">
             <span class="projects-hero-badge-dot"></span>
-            项目档案馆
+            项目案例
           </div>
-          <h1 class="projects-title">把产品、工具和实验做成可浏览的作品集</h1>
+          <h1 class="projects-title">我做过什么：真实项目与能力证明</h1>
           <p class="projects-subtitle">
-            这里收录我持续迭代的项目。它们不是静态截图，而是正在运行、持续维护、不断加深技术边界的数字作品。
+            这里讲背景、角色、方案与结果。想直接使用成品，请去「产品」；轻量单功能工具在「工具」。
           </p>
 
           <div class="projects-hero-actions">
@@ -158,6 +158,8 @@
                 :alt="`${project.title} 封面`"
                 class="projects-card-cover-image"
                 :class="{ 'projects-card-cover-image--designed': isDesignedCover(project.coverUrl) }"
+                width="640"
+                height="400"
                 loading="lazy"
                 decoding="async"
                 @error="handleCoverError($event, project)"
@@ -172,7 +174,7 @@
                     v-if="project.demoUrl"
                     :href="project.demoUrl"
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     class="projects-card-cover-button projects-card-cover-button--light"
                     @click.stop
                   >
@@ -182,7 +184,7 @@
                     v-if="project.githubUrl"
                     :href="project.githubUrl"
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     class="projects-card-cover-button projects-card-cover-button--dark"
                     @click.stop
                   >
@@ -653,6 +655,13 @@ await fetchProjects()
 
 onMounted(async () => {
   void loadGithubStats()
+})
+
+usePageSeo({
+  title: '项目案例 - 溪午听风',
+  description: '真实项目与案例：背景、角色、技术方案与能力证明。',
+  path: '/projects',
+  world: 'work',
 })
 </script>
 

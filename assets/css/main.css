@@ -243,16 +243,31 @@
     -webkit-overflow-scrolling: touch;
     overflow-scrolling: touch;
   }
+}
 
-  /* 减少动画（低端设备） */
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
+/* 键盘焦点可见（勿仅用 outline:none 而无替代） */
+:focus-visible {
+  outline: 2px solid var(--color-border-focus, var(--color-primary, #3b82f6));
+  outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* 尊重系统「减少动态效果」——全局，不限于移动端 */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

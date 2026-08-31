@@ -272,7 +272,8 @@ import { ref, onMounted, watch } from 'vue'
 import type { AdminGlobalStyle, AdminModuleStyle } from '~/types/api'
 
 definePageMeta({
-  layout: 'admin'
+  layout: 'admin',
+  middleware: 'admin-auth',
 })
 
 const api = useApi()

@@ -696,7 +696,7 @@
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 768px) {
   .home-page .work-main {
     padding-top: 6.5rem;
   }

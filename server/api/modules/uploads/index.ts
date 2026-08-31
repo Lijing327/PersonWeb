@@ -2,11 +2,15 @@ import db from '~/server/services/database'
 import { createHash } from 'crypto'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
+import { checkAuth } from '~/server/utils/auth'
+import { throwSafeApiError } from '~/server/utils/api-error'
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
 
 export default defineEventHandler(async (event) => {
   try {
+    checkAuth(event)
+
     // 使用 h3 内置的 readMultipartFormData 解析 multipart（无需 formidable）
     const formData = await readMultipartFormData(event)
 
@@ -132,12 +136,7 @@ export default defineEventHandler(async (event) => {
       message: '模块上传成功'
     }
   } catch (error) {
-    console.error('模块上传失败:', error)
-    throw createError({
-      statusCode: error.statusCode || 500,
-      statusMessage: error.statusMessage || '模块上传失败',
-      data: { error: error.message }
-    })
+    throwSafeApiError(error, '模块上传失败')
   }
 })
 

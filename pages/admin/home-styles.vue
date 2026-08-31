@@ -115,7 +115,8 @@
 
 <script setup lang="ts">
 definePageMeta({
-  layout: 'admin'
+  layout: 'admin',
+  middleware: 'admin-auth',
 })
 const api = useApi()
 const { success, error } = useNotification()

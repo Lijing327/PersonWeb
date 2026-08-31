@@ -9,6 +9,7 @@
       <button
         type="button"
         class="life-footer-top"
+        aria-label="回到页面顶部"
         @click="scrollToTop"
       >
         回到顶部 ↑

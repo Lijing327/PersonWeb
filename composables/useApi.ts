@@ -7,8 +7,6 @@ interface ApiResponse<T> {
 
 export const useApi = () => {
     const config = useRuntimeConfig()
-    // 跨请求缓存 admin token，避免每次请求都读 localStorage
-    const _adminToken = useState<string | null>('admin-token', () => null)
 
     /**
      * 根据当前环境自动获取 API 基础路径
@@ -54,47 +52,19 @@ export const useApi = () => {
     const request = async <T>(url: string, options: any = {}) => {
         const { silent, ...fetchOptions } = options
         try {
-            // 自动携带 Token（lazy 读 localStorage，后续从 useState 缓存取）
-            if (typeof window !== 'undefined') {
-                if (_adminToken.value === null) {
-                    _adminToken.value = localStorage.getItem('admin_token')
-                }
-                if (_adminToken.value) {
-                    fetchOptions.headers = {
-                        ...fetchOptions.headers,
-                        Authorization: `Bearer ${_adminToken.value}`
-                    }
-                }
-            }
-
             // 判断是否为 Nuxt server API（以 /api/ 开头）
-            // Nuxt server API 应该直接调用，不添加后端 baseURL
-            // 注意：在生产环境静态生成后，Nuxt Server API 可能不可用
             const isNuxtServerAPI = url.startsWith('/api/')
             
-            // 如果是 Nuxt Server API，直接使用相对路径，不添加 baseURL
-            // 在生产环境静态生成后，这些路由可能不存在，需要确保部署时包含 server 功能
-            // 或者使用 SSR 模式（nuxt build）而不是静态生成（nuxt generate）
             let finalBaseURL: string | undefined = undefined
             
             if (isNuxtServerAPI) {
-                // Nuxt Server API：使用相对路径，不添加 baseURL
+                // Nitro API：同源 cookie 鉴权，禁止注入 localStorage Bearer
                 finalBaseURL = undefined
+                fetchOptions.credentials = fetchOptions.credentials ?? 'include'
             } else {
-                // 后端 API：添加 baseURL
+                // .NET 后端 API
                 finalBaseURL = baseUrl
             }
-            
-            // 移除详细的请求日志，减少控制台输出
-            // 只在需要调试时手动启用
-            // if (process.env.NODE_ENV === 'development') {
-            //     console.log(`[useApi] ${options.method || 'GET'} ${url}`, {
-            //         isNuxtServerAPI,
-            //         baseURL: finalBaseURL,
-            //         originalBaseUrl: baseUrl,
-            //         finalUrl: finalBaseURL ? `${finalBaseURL}${url}` : url
-            //     })
-            // }
             
             const response = await $fetch<ApiResponse<T>>(url, {
                 baseURL: finalBaseURL,
@@ -116,11 +86,6 @@ export const useApi = () => {
 
             // 如果是标准格式，返回 data；否则直接返回 response
             const result = response.code === 0 ? response.data : response
-            // 移除响应日志，减少控制台输出
-            // 只在需要调试时手动启用
-            // if (process.env.NODE_ENV === 'development') {
-            //     console.log(`[API] ${options.method || 'GET'} ${url}:`, result)
-            // }
             return result
         } catch (error: any) {
             if (!silent && typeof window !== 'undefined') {
@@ -128,11 +93,11 @@ export const useApi = () => {
                 console.error('API Error URL:', url)
                 console.error('API Error Response:', error.response)
             }
-            // 如果是 401，跳转登录
-            if (error.response?.status === 401 && typeof window !== 'undefined') {
+            // Nitro Admin API 401 → 清残留 legacy 存储并跳转登录
+            const status = error?.response?.status ?? error?.statusCode ?? error?.status
+            if (status === 401 && typeof window !== 'undefined' && url.startsWith('/api/')) {
                 localStorage.removeItem('admin_token')
                 localStorage.removeItem('admin_user')
-                _adminToken.value = null
                 navigateTo('/admin/login')
             }
             throw error

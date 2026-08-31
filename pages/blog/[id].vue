@@ -1,12 +1,11 @@
 <template>
   <div class="blog-detail-page">
     <div class="blog-shell">
-      <div v-if="loading" class="blog-detail-loading">
+      <div v-if="pending && !article" class="blog-detail-loading">
         <div class="blog-detail-spinner"></div>
       </div>
 
       <div v-else-if="article" class="blog-layout">
-        <!-- 文章内容 -->
         <div class="blog-detail-card">
           <header class="blog-detail-header">
             <h1 class="blog-detail-title">{{ article.title }}</h1>
@@ -22,7 +21,6 @@
             </div>
           </header>
 
-          <!-- 移动端 TOC -->
           <div v-if="toc.length > 0" class="lg:hidden blog-detail-toc-card">
             <header class="blog-detail-toc-header">
               <span class="blog-detail-toc-icon">📋</span>
@@ -46,7 +44,6 @@
           <article class="blog-detail-content prose dark:prose-invert max-w-none" v-html="renderedContent"></article>
         </div>
 
-        <!-- 侧边栏 (桌面端 TOC) -->
         <aside class="hidden lg:block w-80">
           <div class="sticky top-24">
             <div v-if="toc.length > 0" class="blog-detail-toc-card">
@@ -78,33 +75,116 @@
           </div>
         </aside>
       </div>
-
-      <div v-else class="blog-detail-empty">
-        <div class="blog-detail-empty-icon">📄</div>
-        <h2 class="blog-detail-empty-title">文章未找到</h2>
-        <p class="blog-detail-empty-text">抱歉，您访问的文章不存在或已被删除。</p>
-        <NuxtLink to="/blog" class="blog-detail-empty-link">返回博客列表</NuxtLink>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import MarkdownIt from 'markdown-it'
+import { fetchBackendApi, isNotFoundError } from '~/composables/useBackendFetch'
+import { usePageSeo, useJsonLd, toAbsoluteUrl } from '~/composables/usePageSeo'
 import '~/assets/css/blog.css'
 
+definePageMeta({
+  layout: 'default',
+})
+
 const route = useRoute()
-const api = useApi()
 const md = new MarkdownIt({
   html: true,
   linkify: true,
-  typographer: true
+  typographer: true,
 })
 
-const article = ref<any>(null)
-const loading = ref(true)
-const renderedContent = ref('')
-const toc = ref<any[]>([])
+const idOrSlug = String(route.params.id || '')
+
+const { data: article, pending, error } = await useAsyncData(
+  `blog-article-${idOrSlug}`,
+  async () => {
+    const isNumeric = /^\d+$/.test(idOrSlug)
+    try {
+      if (isNumeric) {
+        return await fetchBackendApi<any>(`/Articles/${idOrSlug}`)
+      }
+      try {
+        return await fetchBackendApi<any>(`/Articles/slug/${idOrSlug}`)
+      } catch (slugError) {
+        if (!isNotFoundError(slugError)) throw slugError
+        return await fetchBackendApi<any>(`/Articles/${idOrSlug}`)
+      }
+    } catch (e) {
+      if (isNotFoundError(e)) {
+        throw createError({ statusCode: 404, statusMessage: 'Not Found' })
+      }
+      throw createError({ statusCode: 502, statusMessage: 'Upstream error' })
+    }
+  },
+)
+
+if (error.value && isNotFoundError(error.value)) {
+  throw createError({ statusCode: 404, statusMessage: 'Not Found' })
+}
+
+if (!article.value && !pending.value) {
+  throw createError({ statusCode: 404, statusMessage: 'Not Found' })
+}
+
+const renderArticle = (contentMd: string) => {
+  const tokens = md.parse(contentMd, {})
+  const tocList: Array<{ id: string; text: string; level: number }> = []
+  let firstH1Index = -1
+
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i]
+    if (token.type === 'heading_open') {
+      const level = parseInt(token.tag.slice(1))
+      if (level === 1 && firstH1Index === -1) {
+        firstH1Index = i
+        break
+      }
+    }
+  }
+
+  const filteredTokens: typeof tokens = []
+  for (let i = 0; i < tokens.length; i++) {
+    if (firstH1Index !== -1) {
+      if (i === firstH1Index) continue
+      if (i === firstH1Index + 1) continue
+      if (i === firstH1Index + 2 && tokens[i].type === 'heading_close') continue
+    }
+    filteredTokens.push(tokens[i])
+  }
+
+  filteredTokens.forEach((token, index) => {
+    if (token.type === 'heading_open') {
+      const level = parseInt(token.tag.slice(1))
+      const contentToken = filteredTokens[index + 1]
+      if (contentToken && contentToken.type === 'inline') {
+        const text = contentToken.content
+        const id = `h-${index}`
+        token.attrSet('id', id)
+        if (level >= 2 && level <= 3) {
+          tocList.push({ id, text, level })
+        }
+      }
+    }
+  })
+
+  return {
+    html: md.renderer.render(filteredTokens, md.options, {}),
+    toc: tocList,
+  }
+}
+
+const rendered = computed(() => {
+  if (!article.value?.contentMd) {
+    return { html: '', toc: [] as Array<{ id: string; text: string; level: number }> }
+  }
+  return renderArticle(article.value.contentMd)
+})
+
+const renderedContent = computed(() => rendered.value.html)
+const toc = computed(() => rendered.value.toc)
 
 const formatDate = (dateStr: string) => {
   if (!dateStr) return ''
@@ -118,119 +198,35 @@ const scrollTo = (id: string) => {
   }
 }
 
-const fetchArticle = async () => {
-  loading.value = true
-  try {
-    const idOrSlug = route.params.id as string
-    console.log('[Blog] Fetching article with id/slug:', idOrSlug)
-    
-    let res: any = null
-    
-    // 判断是数字 ID 还是 slug
-    const isNumeric = /^\d+$/.test(idOrSlug)
-    
-    if (isNumeric) {
-      // 如果是数字，直接通过 ID 获取
-      console.log('[Blog] Detected numeric ID, fetching by ID')
-      res = await api.get<any>(`/Articles/${idOrSlug}`)
-      console.log('[Blog] Found article by ID:', res?.title)
-    } else {
-      // 如果是字符串，先尝试通过 slug 获取
-      console.log('[Blog] Detected slug, fetching by slug')
-      try {
-        res = await api.get<any>(`/Articles/slug/${idOrSlug}`)
-        console.log('[Blog] Found article by slug:', res?.title)
-      } catch (slugError) {
-        // 如果 slug 获取失败，尝试通过 ID 获取（可能是字符串格式的 ID）
-        console.log('[Blog] Slug fetch failed, trying by ID as fallback')
-        try {
-          res = await api.get<any>(`/Articles/${idOrSlug}`)
-          console.log('[Blog] Found article by ID (fallback):', res?.title)
-        } catch (idError) {
-          console.error('[Blog] Failed to fetch article by both slug and ID')
-          throw idError
-        }
-      }
-    }
-    
-    article.value = res
-    
-    // Render Markdown
-    if (res && res.contentMd) {
-      // Custom renderer to add IDs to headers for TOC
-      const tokens = md.parse(res.contentMd, {})
-      
-      const tocList: any[] = []
-      let firstH1Index = -1 // 记录第一个 H1 标题的位置
-      
-      // 先找到第一个 H1 标题的位置
-      for (let i = 0; i < tokens.length; i++) {
-        const token = tokens[i]
-        if (token.type === 'heading_open') {
-          const level = parseInt(token.tag.slice(1))
-          if (level === 1 && firstH1Index === -1) {
-            firstH1Index = i
-            break // 找到第一个 H1 就退出
-          }
-        }
-      }
-      
-      // 过滤掉第一个 H1 标题（heading_open, inline, heading_close）
-      // 因为页面顶部已经显示了文章标题，避免重复
-      const filteredTokens: any[] = []
-      for (let i = 0; i < tokens.length; i++) {
-        // 如果是第一个 H1 标题及其相关内容，跳过
-        if (firstH1Index !== -1) {
-          // heading_open
-          if (i === firstH1Index) continue
-          // inline (内容)
-          if (i === firstH1Index + 1) continue
-          // heading_close
-          if (i === firstH1Index + 2 && tokens[i].type === 'heading_close') continue
-        }
-        filteredTokens.push(tokens[i])
-      }
-      
-      // 为剩余的标题添加 ID 并生成目录
-      filteredTokens.forEach((token: any, index: number) => {
-        if (token.type === 'heading_open') {
-          const level = parseInt(token.tag.slice(1))
-          const contentToken = filteredTokens[index + 1]
-          if (contentToken && contentToken.type === 'inline') {
-            const text = contentToken.content
-            const id = 'h-' + index // Simple ID generation
-            
-            // Add ID to token attributes
-            token.attrSet('id', id)
-            
-            // 排除H1标题（通常是文章标题），只包含H2-H3
-            if (level >= 2 && level <= 3) {
-              tocList.push({ id, text, level })
-            }
-          }
-        }
-      })
-      
-      toc.value = tocList
-      renderedContent.value = md.renderer.render(filteredTokens, md.options, {})
-    }
-  } catch (e) {
-    console.error('Failed to fetch article', e)
-    article.value = null
-  } finally {
-    loading.value = false
-  }
-}
+usePageSeo(() => ({
+  title: `${article.value?.title || '文章'} - 溪午听风`,
+  description: article.value?.summary || article.value?.description || '溪午听风的技术文章。',
+  path: `/blog/${idOrSlug}`,
+  image: article.value?.coverUrl || null,
+  type: 'article',
+  world: 'work',
+}))
 
-onMounted(() => {
-  fetchArticle()
+useJsonLd(() => {
+  if (!article.value) return null
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: article.value.title,
+    description: article.value.summary || article.value.description || undefined,
+    datePublished: article.value.publishTime || article.value.createdAt || undefined,
+    author: {
+      '@type': 'Person',
+      name: '溪午听风',
+    },
+    mainEntityOfPage: toAbsoluteUrl(`/blog/${idOrSlug}`),
+    image: article.value.coverUrl ? toAbsoluteUrl(article.value.coverUrl) : undefined,
+  }
 })
 </script>
 
 <style>
-/* 简单的平滑滚动 */
 html {
   scroll-behavior: smooth;
 }
 </style>
-

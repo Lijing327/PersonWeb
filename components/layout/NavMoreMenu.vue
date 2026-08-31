@@ -9,8 +9,10 @@
       class="nav-more__trigger"
       :class="{ 'nav-more__trigger--active': isTriggerActive }"
       :aria-expanded="open"
-      aria-haspopup="true"
+      aria-haspopup="menu"
+      :aria-label="`${label}导航菜单`"
       @click.stop="toggle"
+      @keydown.esc.stop="close"
     >
       {{ label }}
       <svg class="nav-more__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
@@ -103,12 +105,20 @@ const onDocClick = (e: MouseEvent) => {
   }
 }
 
+const onKeydown = (e: KeyboardEvent) => {
+  if (e.key === 'Escape' && open.value) {
+    close()
+  }
+}
+
 onMounted(() => {
   document.addEventListener('click', onDocClick)
+  window.addEventListener('keydown', onKeydown)
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', onDocClick)
+  window.removeEventListener('keydown', onKeydown)
 })
 
 watch(

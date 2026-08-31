@@ -14,9 +14,9 @@
           <span>🧰</span>
         </div>
         <div class="tools-hero-eyebrow">Tools Collection</div>
-        <h1 class="tools-title">插件工具合集</h1>
+        <h1 class="tools-title">轻量工具：单功能、直接用</h1>
         <p class="tools-subtitle">
-          把日常高频工作整理成可复用的插件、脚本与工具包，帮助你更快完成设计、开发与自动化流程。
+          与「产品」不同：这里是可获取的插件与脚本合集，解决具体效率问题；完整产品线请回产品中心。
         </p>
 
         <div class="tools-highlight-list">
@@ -216,11 +216,19 @@
           <div
             v-if="showWeChatQR"
             class="wechat-qr-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="微信联系二维码"
             @click="showWeChatQR = false"
           >
             <div class="wechat-qr-content" @click.stop>
-              <button class="wechat-qr-close" @click="showWeChatQR = false">
-                <i class="fas fa-times"></i>
+              <button
+                type="button"
+                class="wechat-qr-close"
+                aria-label="关闭微信二维码"
+                @click="showWeChatQR = false"
+              >
+                <i class="fas fa-times" aria-hidden="true"></i>
               </button>
 
               <div class="wechat-qr-header">
@@ -233,6 +241,9 @@
                   src="/images/wechat-qr.png"
                   alt="微信二维码"
                   class="wechat-qr-image"
+                  width="200"
+                  height="200"
+                  decoding="async"
                 />
               </div>
 
@@ -249,7 +260,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import '~/assets/css/tools.css'
 
 definePageMeta({
@@ -325,7 +336,7 @@ const normalizeTool = (tool: RawToolItem, index: number): ToolItem => {
     price,
     tags: tags.length > 0 ? tags.slice(0, 5) : ['效率工具', '工作流优化'],
     buyLink,
-    detailPath: `/tools/detail-${slug}`,
+    detailPath: `/tools/${slug}`,
     isHot: Boolean(tool.isHot || tool.hot),
     icon: tool.icon || '🔧',
     category: tool.category || (tags[0] ?? '工具包')
@@ -337,18 +348,13 @@ const fetchTools = async () => {
     pending.value = true
     error.value = null
 
-    const response = await api.get<RawToolItem[]>('/MockData/tools')
-    if (Array.isArray(response) && response.length > 0) {
-      tools.value = response.map(normalizeTool)
-      return
-    }
-
-    const contentTools = await $fetch<RawToolItem[]>('/api/content/tools')
-
-    if (Array.isArray(contentTools) && contentTools.length > 0) {
-      tools.value = contentTools.map((item, index) =>
-        normalizeTool(item as RawToolItem, index)
-      )
+    // PRIMARY: Toolbox marketplace (MySQL Tools). No markdown / MockData dual-track.
+    const res = await api.get<any>('/Toolbox/marketplace', {
+      params: { page: 1, pageSize: 100, sortBy: 'newest' },
+    })
+    const list = res?.tools || res?.Tools || (Array.isArray(res) ? res : [])
+    if (Array.isArray(list) && list.length > 0) {
+      tools.value = list.map((item: RawToolItem, index: number) => normalizeTool(item, index))
       return
     }
 
@@ -408,18 +414,26 @@ const formatPrice = (price: number) => {
   return `¥${price}`
 }
 
+const onWeChatKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape') {
+    showWeChatQR.value = false
+  }
+}
+
 onMounted(() => {
   fetchTools()
+  window.addEventListener('keydown', onWeChatKeydown)
 })
 
-useHead({
+onUnmounted(() => {
+  window.removeEventListener('keydown', onWeChatKeydown)
+})
+
+usePageSeo({
   title: '插件工具 - 溪午听风',
-  meta: [
-    {
-      name: 'description',
-      content: '整理我的插件、自动化脚本和效率工具，提供工具展示、购买入口与定制开发沟通方式。'
-    }
-  ]
+  description: '轻量、单功能的插件与脚本：可获取、可定制，区别于完整产品线。',
+  path: '/tools',
+  world: 'work',
 })
 </script>
 

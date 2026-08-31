@@ -23,14 +23,13 @@
             AI + 3D + 交互实验空间
           </p>
           <h1 class="mb-4 text-3xl font-bold text-text-main sm:text-4xl lg:text-5xl">
-            AI 实验室
+            实验场
             <span class="mt-3 block text-lg font-normal text-text-muted sm:text-xl">
-              用更轻量的 3D 场景承接博客、项目和数据面板，作为后续 AI 小实验的展示入口。
+              未完成的 Demo 与交互实验入口，不是正式产品或商业方案。
             </span>
           </h1>
           <p class="mb-4 text-sm leading-relaxed text-text-muted sm:text-base">
-            这页的价值不是单独提供一个工具，而是把站内几个“可探索入口”集中到一个实验空间里。
-            现在它主要承担导览与展示作用，后续可以继续接入 AI 智能体、互动式小工具和更完整的实验功能。
+            若要了解可合作的 AI 能力与方案，请看「AI 方案」；若要使用成品，请看「产品」。
           </p>
           <div class="flex flex-wrap gap-3">
             <NuxtLink
@@ -187,9 +186,11 @@ definePageMeta({
   layout: 'default'
 })
 
-useHead({
-  title: 'AI 实验室 - 溪风听风',
-  meta: [{ name: 'description', content: '3D 场景下的 AI 小实验入口。' }]
+usePageSeo({
+  title: '实验场 - 溪午听风',
+  description: '实验性 Demo 与交互入口；正式产品与 AI 合作方案请见产品与 AI 方案页。',
+  path: '/lab',
+  world: 'work',
 })
 </script>
 

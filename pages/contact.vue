@@ -4,7 +4,7 @@ import { computed, ref } from 'vue'
 type ContactType = 'wechat' | 'phone' | 'email'
 
 definePageMeta({
-  layout: 'home'
+  layout: 'default'
 })
 
 const api = useApi()
@@ -71,6 +71,13 @@ const submitConsultation = async () => {
     submitting.value = false
   }
 }
+
+usePageSeo({
+  title: '联系合作 - 溪午听风',
+  description: '合作咨询入口：描述目标、预算与交付期望，按项目方式对齐方案与节奏。',
+  path: '/contact',
+  world: 'work',
+})
 </script>
 
 <template>

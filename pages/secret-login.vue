@@ -30,6 +30,12 @@
 </template>
 
 <script setup lang="ts">
+useHead({
+  meta: [
+    { key: 'robots', name: 'robots', content: 'noindex,nofollow' },
+  ],
+})
+
 const password = ref('')
 const error = ref('')
 const router = useRouter()
@@ -38,8 +44,13 @@ const handleLogin = async () => {
   try {
     await $fetch('/api/auth/login', {
       method: 'POST',
+      credentials: 'include',
       body: { password: password.value }
     })
+    if (process.client) {
+      localStorage.removeItem('admin_token')
+      localStorage.removeItem('admin_user')
+    }
     router.push('/admin')
   } catch (e) {
     error.value = 'Invalid password'

@@ -169,8 +169,9 @@ usePageStyle('dashboard')
 useHead({
   title: '数字分身仪表盘 - 溪午听风',
   meta: [
-    { name: 'description', content: '查看近期的精力、行动、体征与资产变化，把个人记录整理成可回看的趋势面板。' }
-  ]
+    { name: 'description', content: '个人精力、行动、体征与资产的私人回顾面板（非 Work 对外名片）。' },
+    { key: 'robots', name: 'robots', content: 'noindex,nofollow' },
+  ],
 })
 
 type MetricRecord = {

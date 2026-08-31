@@ -1,15 +1,10 @@
-import { UpdateModuleRequest } from '~/types/module'
 import db from '~/server/services/database'
+import { checkAuth } from '~/server/utils/auth'
+import { throwSafeApiError } from '~/server/utils/api-error'
 
 export default defineEventHandler(async (event) => {
   try {
-    // 验证权限
-    // if (!event.context.user || event.context.user.role !== 'admin') {
-    //   throw createError({
-    //     statusCode: 403,
-    //     statusMessage: '需要管理员权限'
-    //   })
-    // }
+    checkAuth(event)
 
     const moduleKey = getRouterParam(event, 'moduleKey')
     const body = await readBody(event)
@@ -93,11 +88,6 @@ export default defineEventHandler(async (event) => {
       message: '模块更新成功'
     }
   } catch (error) {
-    console.error('更新模块失败:', error)
-    throw createError({
-      statusCode: error.statusCode || 500,
-      statusMessage: error.statusMessage || '更新模块失败',
-      data: { error: error.message }
-    })
+    throwSafeApiError(error, '更新模块失败')
   }
 })

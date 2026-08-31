@@ -33,18 +33,6 @@
         <p class="tools-loading-text">正在加载工具详情...</p>
       </div>
 
-      <div v-else-if="error" class="tools-error">
-        <n-result
-          status="warning"
-          title="无法加载工具"
-          :description="error"
-        >
-          <template #footer>
-            <n-button type="primary" @click="navigateTo('/tools')">返回工具列表</n-button>
-          </template>
-        </n-result>
-      </div>
-
       <div v-else-if="tool" class="tools-product-shell">
         <section class="tools-card tools-product-hero">
           <div class="tools-product-media">
@@ -278,9 +266,10 @@ import {
   NBreadcrumb,
   NBreadcrumbItem,
   NButton,
-  NResult
 } from 'naive-ui';
 import { useNotification } from '~/composables/useToast';
+import { fetchBackendApi, isNotFoundError } from '~/composables/useBackendFetch';
+import { usePageSeo, useJsonLd } from '~/composables/usePageSeo';
 
 const route = useRoute();
 const api = useApi();
@@ -325,11 +314,66 @@ const md = new MarkdownIt({
 });
 
 const tool = ref<Tool | null>(null);
-const loading = ref(false);
+const loading = ref(true);
 const purchasing = ref(false);
 const hasPurchased = ref(false);
 const showApiDocs = ref(false);
-const error = ref('');
+
+const slug = String(route.params.slug || '');
+
+const { data: toolData, pending, error: fetchError } = await useAsyncData(
+  `tool-${slug}`,
+  async () => {
+    try {
+      // PRIMARY: exact slug lookup
+      try {
+        const bySlug = await fetchBackendApi<Tool>(`/Toolbox/by-slug/${slug}`)
+        if (bySlug) return bySlug
+      } catch (slugErr: any) {
+        if (!isNotFoundError(slugErr) && slugErr?.statusCode !== 404) {
+          throw slugErr
+        }
+      }
+
+      // COMPAT: older backends without by-slug — marketplace + exact match
+      const res = await fetchBackendApi<any>(`/Toolbox/marketplace`, {
+        query: { search: slug },
+      });
+
+      const toolsList = res?.tools || res?.Tools || (Array.isArray(res) ? res : []);
+      const matchedTool = toolsList.find((item: any) => (item.slug || item.Slug) === slug);
+      if (!matchedTool) {
+        throw createError({ statusCode: 404, statusMessage: 'Not Found' });
+      }
+
+      const id = matchedTool.id ?? matchedTool.Id;
+      const detailRes = await fetchBackendApi<Tool>(`/Toolbox/${id}`);
+      if (!detailRes) {
+        throw createError({ statusCode: 404, statusMessage: 'Not Found' });
+      }
+      return detailRes;
+    } catch (err: any) {
+      if (isNotFoundError(err) || err?.statusCode === 404) {
+        throw createError({ statusCode: 404, statusMessage: 'Not Found' });
+      }
+      throw createError({ statusCode: 502, statusMessage: 'Upstream error' });
+    }
+  },
+);
+
+if (fetchError.value && isNotFoundError(fetchError.value)) {
+  throw createError({ statusCode: 404, statusMessage: 'Not Found' });
+}
+
+if (!toolData.value && !pending.value) {
+  throw createError({ statusCode: 404, statusMessage: 'Not Found' });
+}
+
+tool.value = toolData.value;
+loading.value = pending.value;
+
+watch(pending, (v) => { loading.value = v; });
+watch(toolData, (v) => { tool.value = v; }, { immediate: true });
 
 const priceLabel = computed(() => {
   if (!tool.value) return '￥0';
@@ -365,36 +409,8 @@ const usageSuggestion = computed(() => {
     : '建议先从核心功能开始验证效果，再逐步接入到日常工作流或正式项目中。';
 });
 
-const fetchTool = async () => {
-  loading.value = true;
-  error.value = '';
-
-  try {
-    const res = await api.get(`/Toolbox/marketplace?search=${route.params.slug}`);
-
-    if (!res?.tools?.length) {
-      throw new Error('未找到对应的工具信息');
-    }
-
-    const matchedTool = res.tools.find((item: any) => item.slug === route.params.slug) || res.tools[0];
-    const detailRes = await api.get(`/Toolbox/${matchedTool.id}`);
-
-    if (!detailRes) {
-      throw new Error('获取工具详情失败');
-    }
-
-    tool.value = detailRes as Tool;
-    await checkPurchaseStatus();
-  } catch (err: any) {
-    console.error('获取工具详情失败', err);
-    error.value = err?.message || '工具详情加载失败，请稍后重试';
-  } finally {
-    loading.value = false;
-  }
-};
-
 const checkPurchaseStatus = async () => {
-  const visitorId = localStorage.getItem('visitor_id');
+  const visitorId = import.meta.client ? localStorage.getItem('visitor_id') : null;
   if (!visitorId || !tool.value) return;
 
   try {
@@ -457,14 +473,32 @@ const formatApiDoc = (value?: string) => {
 };
 
 onMounted(() => {
-  fetchTool();
+  checkPurchaseStatus();
 });
 
-useHead({
-  title: computed(() => tool.value ? `${tool.value.name} - 插件工具` : '工具详情 - 溪午听风'),
-  meta: [
-    { name: 'description', content: computed(() => tool.value?.description || '工具详情') }
-  ]
+usePageSeo(() => ({
+  title: tool.value ? `${tool.value.name} - 插件工具` : '工具详情 - 溪午听风',
+  description: tool.value?.description || '溪午听风的插件与工具详情。',
+  path: `/tools/${slug}`,
+  image: tool.value?.coverImage || null,
+  world: 'work',
+}));
+
+useJsonLd(() => {
+  if (!tool.value) return null;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: tool.value.name,
+    description: tool.value.description || undefined,
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Any',
+    offers: {
+      '@type': 'Offer',
+      price: tool.value.isFree ? '0' : String(tool.value.price ?? 0),
+      priceCurrency: 'CNY',
+    },
+  };
 });
 </script>
 

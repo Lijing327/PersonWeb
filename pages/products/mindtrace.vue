@@ -22,6 +22,9 @@
           <NuxtLink to="/products" class="mindtrace-btn-secondary">
             返回产品中心
           </NuxtLink>
+          <NuxtLink to="/projects" class="mindtrace-btn-secondary">
+            在案例墙看能力证明
+          </NuxtLink>
         </div>
       </header>
 

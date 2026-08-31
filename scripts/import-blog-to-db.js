@@ -1,11 +1,11 @@
 /**
+ * LEGACY migration helper (Phase 6):
+ * Work markdown dirs content/blog|projects|tools were removed (empty + no runtime consumers).
+ * This script remains for one-off imports if you restore markdown into those paths.
+ * Prefer Admin → .NET APIs for ongoing content.
+ *
  * 将 content/blog/*.md 文件导入到数据库
- * 
- * 使用方法：
- * 1. 确保后端 API 服务运行
- * 2. 在管理后台登录，获取 token
- * 3. 设置环境变量 ADMIN_TOKEN=your_token
- * 4. 运行: node scripts/import-blog-to-db.js
+ * ...
  */
 
 const fs = require('fs')

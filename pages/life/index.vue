@@ -48,11 +48,12 @@
         </p>
         <div class="life-scene-frame">
           <img
-            src="/images/life/hero-desk.jpg"
+            src="/images/life/hero-desk.webp"
             alt=""
             width="1200"
             height="900"
             decoding="async"
+            fetchpriority="high"
           >
           <div class="life-scene-light" aria-hidden="true"></div>
         </div>
@@ -299,14 +300,10 @@ const formatShortDate = (dateString?: string) => {
   return `${month}.${day}`
 }
 
-useHead({
+usePageSeo({
   title: `${home.hero.name} - 生活`,
-  meta: [
-    {
-      key: 'description',
-      name: 'description',
-      content: home.hero.current || home.hero.lines[0] || '溪午听风的生活一面。'
-    }
-  ]
+  description: home.hero.current || home.hero.lines[0] || '溪午听风的生活一面。',
+  path: '/life',
+  world: 'life',
 })
 </script>

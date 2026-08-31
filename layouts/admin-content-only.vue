@@ -19,6 +19,12 @@
 import { computed } from 'vue'
 import { useTheme } from '~/composables/useTheme'
 
+useHead({
+  meta: [
+    { key: 'robots', name: 'robots', content: 'noindex,nofollow' },
+  ],
+})
+
 const { currentTheme } = useTheme()
 
 // 布局样式

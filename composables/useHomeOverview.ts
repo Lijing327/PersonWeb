@@ -1,40 +1,13 @@
 import type { HomeOverview } from '~/types/home'
 
-const FALLBACK: HomeOverview = {
-  stats: { projects: 20, articles: 50, tools: 8 },
+/** Empty overview when API unavailable — never invent stats. */
+const EMPTY_OVERVIEW: HomeOverview = {
+  stats: { projects: 0, articles: 0, tools: 0 },
   featuredProjects: [],
   featuredArticle: null,
   latestArticles: [],
   nowBuilding: [],
-  journey: [
-    {
-      id: 0,
-      year: 2022,
-      title: '探索开始',
-      description: '接触编程与自动化，开启数字世界的探索之旅。',
-      icon: 'icon-terminal',
-      color: 'blue',
-      isNow: false,
-    },
-    {
-      id: 1,
-      year: 2024,
-      title: '产品探索',
-      description: '从想法到原型，开始构建自己的产品。',
-      icon: 'icon-cube',
-      color: 'purple',
-      isNow: false,
-    },
-    {
-      id: 2,
-      year: new Date().getFullYear(),
-      title: '系统构建',
-      description: '专注产品化与系统化，打造可复用的解决方案。',
-      icon: 'icon-layers',
-      color: 'blue',
-      isNow: true,
-    },
-  ],
+  journey: [],
 }
 
 export const useHomeOverview = () => {
@@ -43,8 +16,9 @@ export const useHomeOverview = () => {
     () => $fetch<HomeOverview>('/api/home/overview'),
   )
 
-  const overview = computed<HomeOverview>(() => data.value ?? FALLBACK)
+  const overview = computed<HomeOverview>(() => data.value ?? EMPTY_OVERVIEW)
   const loading = computed(() => pending.value)
+  const unavailable = computed(() => Boolean(error.value) && !data.value)
 
-  return { overview, loading, error }
+  return { overview, loading, error, unavailable }
 }

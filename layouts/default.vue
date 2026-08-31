@@ -18,9 +18,6 @@
       <div class="default-layout-backdrop-noise"></div>
     </div>
     <ParticleBackground v-if="showParticleLayer" />
-    <!-- 动态背景效果（根据主题切换） -->
-    <!-- 🔴 已禁用：可能导致滚动条闪烁（requestAnimationFrame 持续动画） -->
-    <!-- <BackgroundEffects :effect="currentBackground" :config="backgroundConfig" /> -->
     
     <!-- 鼠标轨迹特效 -->
     <MouseTrail v-if="showDesktopEnhancements" />
@@ -42,22 +39,12 @@
     <SupportChat v-if="showSecondaryFloatingTools" />
     
     <!-- 访客互动功能 -->
-    <!-- 🔴 已禁用：z-index 过高，可能遮挡导航栏 -->
-    <!-- VisitorDanmakuWall: z-index: 100 (和导航栏同级) -->
-    <!-- <VisitorDanmakuWall /> -->
-    <!-- VisitorBubble: z-index: 200 (比导航栏高) -->
-    <!-- <VisitorBubble /> -->
-    <!-- VisitorInteractionPanel: 留言、互动功能（右下角） -->
     <VisitorInteractionPanel v-if="showSecondaryFloatingTools" />
     
     <!-- 访客互动式玩法（包含在抽屉中） -->
     <VisitorBehaviorListener v-if="showDesktopEnhancements" />
     <!-- 访客侧边栏抽屉（包含留言、互动等功能） -->
     <VisitorSidebarDrawer v-if="showDesktopEnhancements" />
-    <!-- 🔴 已禁用：可能导致滚动条闪烁（fixed 定位 + 动画） -->
-    <!-- <VisitorTriggerEffects /> -->
-    <!-- 🔴 已禁用：可能导致滚动条闪烁（requestAnimationFrame 持续动画） -->
-    <!-- <FireworksEffect /> -->
     
     <!-- 隐秘的后台入口 -->
     <SecretAdminAccess />
@@ -72,6 +59,10 @@ import { computed, defineAsyncComponent, onMounted, onUnmounted, ref } from 'vue
 import AppNaiveConfig from '~/components/layout/AppNaiveConfig.vue'
 import Footer from '~/components/layout/Footer.vue'
 import SecretAdminAccess from '~/components/admin/SecretAdminAccess.vue'
+import {
+  shouldShowWorkDeferredChrome,
+  shouldShowWorkParticleLayer,
+} from '~/utils/work-layout-effects'
 
 const ParticleBackground = defineAsyncComponent(() => import('~/components/effects/ParticleBackground.vue'))
 const MouseTrail = defineAsyncComponent(() => import('~/components/effects/MouseTrail.vue'))
@@ -86,13 +77,24 @@ const shouldMountDeferredUi = ref(false)
 const isLowPowerMode = ref(false)
 const isCompactFloatingMode = ref(false)
 
-const showDeferredWidgets = computed(() => shouldMountDeferredUi.value && !isLowPowerMode.value)
-const isFocusRoute = computed(() => route.path.startsWith('/search'))
-const showDesktopEnhancements = computed(() => showDeferredWidgets.value && !isFocusRoute.value)
-const showParticleLayer = computed(() => showDeferredWidgets.value)
-const showFloatingAssistants = computed(() => showDeferredWidgets.value && !isFocusRoute.value)
+const effectOpts = computed(() => ({
+  deferred: shouldMountDeferredUi.value,
+  lowPower: isLowPowerMode.value,
+}))
+
+const showDesktopEnhancements = computed(() =>
+  shouldShowWorkDeferredChrome(route.path || '/', effectOpts.value),
+)
+const showParticleLayer = computed(() =>
+  shouldShowWorkParticleLayer(route.path || '/', effectOpts.value),
+)
+const showFloatingAssistants = computed(() =>
+  shouldShowWorkDeferredChrome(route.path || '/', effectOpts.value),
+)
 const showPrimaryFloatingAssistant = computed(() => showFloatingAssistants.value)
-const showSecondaryFloatingTools = computed(() => showFloatingAssistants.value && !isCompactFloatingMode.value)
+const showSecondaryFloatingTools = computed(
+  () => showFloatingAssistants.value && !isCompactFloatingMode.value,
+)
 
 let deferredMountTimer: number | null = null
 

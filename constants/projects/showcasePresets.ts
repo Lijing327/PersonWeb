@@ -1,20 +1,37 @@
+/**
+ * Case Study presets — classification (Phase 4):
+ *
+ * CONTENT (LEGACY fill): pitch / features / challenges / roadmap / timeline narrative
+ * PRESENTATION: heroEyebrow, heroFloats tones, icon choices
+ * FALLBACK: used only when Project.Content has no showcase JSON
+ *
+ * PRIMARY content source: MySQL projects (+ optional showcase JSON in Content).
+ * This file must NOT be treated as the business source of truth.
+ * Metrics policy (Phase 2): no invented KPI numbers.
+ */
 import type { ProjectShowcasePartial } from '~/types/projectShowcase'
 import { PROJECT_COVER_PATHS, resolveProjectCoverKey } from '~/constants/projects/covers'
 
 const COVER = PROJECT_COVER_PATHS
 
+/**
+ * Case Study presets — metrics policy (Phase 2):
+ * REAL: verifiable product facts (platform, status labels, architecture names)
+ * UNKNOWN/PLACEHOLDER numeric claims (users, ratings, %, revenue) removed
+ * Prefer capability / outcome descriptions over invented KPIs
+ */
 const PRESETS: Record<string, ProjectShowcasePartial> = {
   'finance-assistant': {
     heroEyebrow: 'WeChat Mini Program · FinTech',
     heroFloats: [
-      { label: '资产管理', value: '¥ 128,450', tone: 'blue' },
-      { label: '收益分析', value: '+15.8%', tone: 'green' },
+      { label: '核心能力', value: '资产汇总', tone: 'blue' },
+      { label: '核心能力', value: '收益复盘', tone: 'green' },
     ],
     overview: [
-      { icon: '👥', value: '100+', label: '活跃用户', tone: 'blue' },
+      { icon: '💰', value: '记账', label: '多账户记录', tone: 'blue' },
       { icon: '🛠️', value: '持续维护', label: '项目状态', tone: 'green' },
-      { icon: '🏷️', value: 'V1.3.2', label: '当前版本', tone: 'purple' },
-      { icon: '📱', value: '微信小程序', label: '运行平台', tone: 'cyan' },
+      { icon: '🏷️', value: '小程序', label: '产品形态', tone: 'purple' },
+      { icon: '📱', value: '微信', label: '运行平台', tone: 'cyan' },
     ],
     background: {
       title: '项目背景',
@@ -52,7 +69,7 @@ const PRESETS: Record<string, ProjectShowcasePartial> = {
       {
         title: '高并发处理',
         challenge: '月末结算与报表生成时，接口并发峰值明显，响应时间波动。',
-        solution: 'Redis 缓存热点数据 + 队列异步生成报表，核心读路径控制在 200ms 内。',
+        solution: 'Redis 缓存热点数据 + 队列异步生成报表，核心读路径控制在可接受延迟内。',
       },
       {
         title: '异步任务',
@@ -66,10 +83,10 @@ const PRESETS: Record<string, ProjectShowcasePartial> = {
       },
     ],
     achievements: [
-      { icon: '👥', value: '100+', label: '注册用户', tone: 'blue' },
-      { icon: '⭐', value: '4.8/5', label: '用户评分', tone: 'green' },
-      { icon: '📈', value: '15%+', label: '平均收益提升', tone: 'cyan' },
-      { icon: '⚡', value: '99.9%', label: '系统稳定性', tone: 'purple' },
+      { icon: '📊', value: '可视化', label: '资产与收益复盘', tone: 'blue' },
+      { icon: '🎯', value: '预算', label: '分类阈值提醒', tone: 'green' },
+      { icon: '☁️', value: '云同步', label: '多端数据一致', tone: 'cyan' },
+      { icon: '🔒', value: '安全', label: '鉴权与脱敏', tone: 'purple' },
     ],
     roadmap: [
       { version: 'V1.0', status: 'completed', statusLabel: '已完成', items: ['基础记账', '分类统计', '预算提醒', '数据导出'] },
@@ -88,24 +105,24 @@ const PRESETS: Record<string, ProjectShowcasePartial> = {
         '缺少个性化建议，消费与储蓄决策缺少数据支撑',
       ],
       outcomes: [
-        { icon: '👥', value: '100+', label: '活跃用户', tone: 'blue' },
-        { icon: '⭐', value: '4.8/5', label: '用户评分', tone: 'green' },
-        { icon: '📈', value: '15%+', label: '平均收益提升', tone: 'cyan' },
-        { icon: '⚡', value: '99.9%', label: '系统稳定性', tone: 'purple' },
+        { icon: '📊', value: '可视化', label: '资产与收益复盘', tone: 'blue' },
+        { icon: '🎯', value: '预算', label: '分类阈值提醒', tone: 'green' },
+        { icon: '☁️', value: '云同步', label: '多端数据一致', tone: 'cyan' },
+        { icon: '🔒', value: '安全', label: '鉴权与脱敏', tone: 'purple' },
       ],
     },
   },
   'love-cube': {
     heroEyebrow: 'WeChat Mini Program · Social',
     heroFloats: [
-      { label: '今日匹配', value: '12 人', tone: 'pink' },
-      { label: '互动话题', value: '50+', tone: 'purple' },
+      { label: '核心玩法', value: '魔方破冰', tone: 'pink' },
+      { label: '核心玩法', value: '兴趣匹配', tone: 'purple' },
     ],
     overview: [
-      { icon: '💕', value: '200+', label: '注册用户', tone: 'pink' },
+      { icon: '🎲', value: '破冰', label: '魔方互动', tone: 'pink' },
       { icon: '🛠️', value: '持续维护', label: '项目状态', tone: 'green' },
-      { icon: '🏷️', value: 'V1.2.0', label: '当前版本', tone: 'purple' },
-      { icon: '📱', value: '微信小程序', label: '运行平台', tone: 'cyan' },
+      { icon: '🏷️', value: '小程序', label: '产品形态', tone: 'purple' },
+      { icon: '📱', value: '微信', label: '运行平台', tone: 'cyan' },
     ],
     background: {
       title: '项目背景',
@@ -157,10 +174,10 @@ const PRESETS: Record<string, ProjectShowcasePartial> = {
       },
     ],
     achievements: [
-      { icon: '💕', value: '200+', label: '注册用户', tone: 'pink' },
-      { icon: '🎲', value: '1.2k+', label: '互动次数', tone: 'purple' },
-      { icon: '⭐', value: '4.7/5', label: '满意度', tone: 'green' },
-      { icon: '⚡', value: '98%', label: '破冰成功率', tone: 'cyan' },
+      { icon: '🎲', value: '破冰', label: '魔方互动流程', tone: 'pink' },
+      { icon: '💬', value: '匹配', label: '兴趣标签推荐', tone: 'purple' },
+      { icon: '🛡️', value: '安全', label: '举报与过滤', tone: 'green' },
+      { icon: '📱', value: '轻量', label: '微信即用即走', tone: 'cyan' },
     ],
     roadmap: [
       { version: 'V1.0', status: 'completed', statusLabel: '已完成', items: ['魔方破冰', '兴趣标签', '基础匹配'] },
@@ -179,24 +196,24 @@ const PRESETS: Record<string, ProjectShowcasePartial> = {
         'UGC 社交存在骚扰与隐私顾虑，需要可控的安全机制',
       ],
       outcomes: [
-        { icon: '💕', value: '200+', label: '注册用户', tone: 'pink' },
-        { icon: '🎲', value: '1.2k+', label: '互动次数', tone: 'purple' },
-        { icon: '⭐', value: '4.7/5', label: '满意度', tone: 'green' },
-        { icon: '⚡', value: '98%', label: '破冰成功率', tone: 'cyan' },
+        { icon: '🎲', value: '破冰', label: '魔方互动流程', tone: 'pink' },
+        { icon: '💬', value: '匹配', label: '兴趣标签推荐', tone: 'purple' },
+        { icon: '🛡️', value: '安全', label: '举报与过滤', tone: 'green' },
+        { icon: '📱', value: '轻量', label: '微信即用即走', tone: 'cyan' },
       ],
     },
   },
   'iot-control': {
     heroEyebrow: 'Embedded · IoT',
     heroFloats: [
-      { label: '在线设备', value: '10 台', tone: 'cyan' },
-      { label: '控制延迟', value: '<200ms', tone: 'green' },
+      { label: '能力', value: '设备接入', tone: 'cyan' },
+      { label: '能力', value: '远程控制', tone: 'green' },
     ],
     overview: [
-      { icon: '🔌', value: '10+', label: '设备类型', tone: 'cyan' },
+      { icon: '🔌', value: '多设备', label: '统一接入', tone: 'cyan' },
       { icon: '🛠️', value: '持续维护', label: '项目状态', tone: 'green' },
-      { icon: '🏷️', value: 'V2.0', label: '当前版本', tone: 'purple' },
-      { icon: '📡', value: '24/7', label: '实时监控', tone: 'blue' },
+      { icon: '🏷️', value: '嵌入式', label: '产品形态', tone: 'purple' },
+      { icon: '📡', value: '监控', label: '实时状态', tone: 'blue' },
     ],
     background: {
       title: '项目背景',
@@ -248,10 +265,10 @@ const PRESETS: Record<string, ProjectShowcasePartial> = {
       },
     ],
     achievements: [
-      { icon: '🔌', value: '10+', label: '接入设备', tone: 'cyan' },
-      { icon: '📡', value: '24/7', label: '监控运行', tone: 'blue' },
-      { icon: '⚡', value: '<200ms', label: '控制响应', tone: 'green' },
-      { icon: '🛡️', value: '99.5%', label: '稳定率', tone: 'purple' },
+      { icon: '🔌', value: '接入', label: '多类设备统一注册', tone: 'cyan' },
+      { icon: '📡', value: '监控', label: '实时状态看板', tone: 'blue' },
+      { icon: '🎛️', value: '控制', label: '远程指令下发', tone: 'green' },
+      { icon: '🔗', value: '联动', label: '规则自动化', tone: 'purple' },
     ],
     roadmap: [
       { version: 'V1.0', status: 'completed', statusLabel: '已完成', items: ['设备采集', '基础控制', '告警通知'] },
@@ -270,10 +287,10 @@ const PRESETS: Record<string, ProjectShowcasePartial> = {
         '人工值守成本高，无法按规则自动联动与告警',
       ],
       outcomes: [
-        { icon: '🔌', value: '10+', label: '接入设备', tone: 'cyan' },
-        { icon: '📡', value: '24/7', label: '监控运行', tone: 'blue' },
-        { icon: '⚡', value: '<200ms', label: '控制响应', tone: 'green' },
-        { icon: '🛡️', value: '99.5%', label: '稳定率', tone: 'purple' },
+        { icon: '🔌', value: '接入', label: '多类设备统一注册', tone: 'cyan' },
+        { icon: '📡', value: '监控', label: '实时状态看板', tone: 'blue' },
+        { icon: '🎛️', value: '控制', label: '远程指令下发', tone: 'green' },
+        { icon: '🔗', value: '联动', label: '规则自动化', tone: 'purple' },
       ],
     },
   },
@@ -282,7 +299,7 @@ const PRESETS: Record<string, ProjectShowcasePartial> = {
     overview: [
       { icon: '🌐', value: '全栈', label: '技术架构', tone: 'blue' },
       { icon: '🛠️', value: '持续维护', label: '项目状态', tone: 'green' },
-      { icon: '🧩', value: '6+', label: '核心模块', tone: 'purple' },
+      { icon: '🧩', value: '模块化', label: '可插拔扩展', tone: 'purple' },
       { icon: '⚡', value: 'SSR', label: '前台体验', tone: 'cyan' },
     ],
     background: {
@@ -323,8 +340,8 @@ const PRESETS: Record<string, ProjectShowcasePartial> = {
       ],
       outcomes: [
         { icon: '🌐', value: '全栈', label: 'Nuxt + .NET + AI', tone: 'blue' },
-        { icon: '🧩', value: '6+', label: '可插拔模块', tone: 'purple' },
-        { icon: '📊', value: '实时', label: '访客分析', tone: 'cyan' },
+        { icon: '🧩', value: '模块化', label: '可插拔扩展', tone: 'purple' },
+        { icon: '📊', value: '分析', label: '访客统计能力', tone: 'cyan' },
         { icon: '⚡', value: 'SSR', label: '首屏体验', tone: 'green' },
       ],
     },

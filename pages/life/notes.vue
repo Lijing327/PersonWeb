@@ -51,14 +51,10 @@ const formatDate = (dateString?: string) => {
   })
 }
 
-useHead({
+usePageSeo({
   title: '随笔 - 溪午听风',
-  meta: [
-    {
-      key: 'description',
-      name: 'description',
-      content: '溪午听风写下的生活随笔。'
-    }
-  ]
+  description: '溪午听风写下的生活随笔。',
+  path: '/life/notes',
+  world: 'life',
 })
 </script>

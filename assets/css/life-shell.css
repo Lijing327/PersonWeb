@@ -19,7 +19,7 @@ html[data-life-world='true'] body {
   --life-line-strong: rgba(70, 55, 40, 0.18);
   --life-shadow: 0 16px 42px rgba(55, 38, 22, 0.045);
   --life-content-max: 76rem;
-  --life-font-body: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", "SimSun", "Iowan Old Style", Georgia, serif;
+  --life-font-body: "Source Han Serif SC", "Noto Serif SC", "Songti SC", "STSong", "SimSun", "Iowan Old Style", Georgia, "Times New Roman", serif;
   --life-font-sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
   --life-font-note: "Segoe Script", "Bradley Hand ITC", "KaiTi", "STKaiti", cursive;
   position: relative;
@@ -938,7 +938,7 @@ a.life-lately-text:hover,
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 768px) {
   .life-header-inner,
   .life-shell-main,
   .life-footer-inner {

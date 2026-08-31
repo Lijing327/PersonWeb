@@ -20,6 +20,7 @@
 
 <script setup lang="ts">
 import { isLifeNoteSlug } from '~/constants/life-content'
+import { usePageSeo, useJsonLd } from '~/composables/usePageSeo'
 
 definePageMeta({
   layout: 'life'
@@ -32,7 +33,7 @@ const { parse } = useMarkdown()
 const slugString = Array.isArray(slug) ? slug[0] : String(slug || '')
 
 if (!isLifeNoteSlug(slugString)) {
-  throw createError({ statusCode: 404, statusMessage: '文章不存在' })
+  throw createError({ statusCode: 404, statusMessage: 'Not Found' })
 }
 
 const { data: post } = await useAsyncData(`life-${slugString}`, async () => {
@@ -52,7 +53,7 @@ const { data: post } = await useAsyncData(`life-${slugString}`, async () => {
 const renderedContent = computed(() => parse(post.value?.content || ''))
 
 if (!post.value) {
-  throw createError({ statusCode: 404, statusMessage: '文章不存在' })
+  throw createError({ statusCode: 404, statusMessage: 'Not Found' })
 }
 
 const formatDate = (dateString?: string) => {
@@ -65,10 +66,25 @@ const formatDate = (dateString?: string) => {
   })
 }
 
-useHead({
-  title: `${post.value.title} - 溪午听风`,
-  meta: [
-    { key: 'description', name: 'description', content: post.value.description || '溪午听风的一篇生活随笔。' }
-  ]
+usePageSeo(() => ({
+  title: `${post.value.title} - 溪午听风 · Life`,
+  description: post.value.description || '溪午听风的一篇生活随笔。',
+  path: `/life/${slugString}`,
+  image: post.value.cover || null,
+  type: 'article',
+  world: 'life',
+}))
+
+useJsonLd(() => {
+  if (!post.value) return null
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.value.title,
+    description: post.value.description || undefined,
+    datePublished: post.value.date || undefined,
+    image: post.value.cover || undefined,
+    author: { '@type': 'Person', name: '溪午听风' },
+  }
 })
 </script>

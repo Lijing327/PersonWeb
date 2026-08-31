@@ -20,7 +20,7 @@
             v-model="password"
             type="password" 
             class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="123456"
+            placeholder="密码"
           />
         </div>
         
@@ -44,7 +44,13 @@
 import { ref } from 'vue'
 
 definePageMeta({
-  layout: false // 不使用默认布局（包含前台 Header/Footer）
+  layout: false
+})
+
+useHead({
+  meta: [
+    { key: 'robots', name: 'robots', content: 'noindex,nofollow' },
+  ],
 })
 
 const username = ref('')
@@ -52,7 +58,6 @@ const password = ref('')
 const error = ref('')
 const loading = ref(false)
 const router = useRouter()
-const api = useApi()
 
 const handleLogin = async () => {
   if (!username.value || !password.value) {
@@ -64,25 +69,26 @@ const handleLogin = async () => {
   error.value = ''
   
   try {
-    const res = await api.post<any>('/auth/login', { 
-      username: username.value, 
-      password: password.value 
+    // Cookie auth via Nitro — do not persist token in localStorage
+    await $fetch('/api/auth/login', {
+      method: 'POST',
+      credentials: 'include',
+      body: {
+        username: username.value,
+        password: password.value,
+      },
     })
 
-    // 登录成功
     if (process.client) {
-      localStorage.setItem('admin_token', res.token)
-      localStorage.setItem('admin_user', JSON.stringify({
-        username: res.username,
-        role: res.role
-      }))
+      localStorage.removeItem('admin_token')
+      localStorage.removeItem('admin_user')
     }
+
     router.push('/admin')
   } catch (e: any) {
-    error.value = e.message || '登录失败，请检查用户名或密码'
+    error.value = e?.statusMessage || e?.message || '登录失败，请检查用户名或密码'
   } finally {
     loading.value = false
   }
 }
 </script>
-

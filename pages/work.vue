@@ -11,7 +11,13 @@
         </NuxtLink>
 
         <nav class="home-nav" aria-label="首页导航">
-          <NuxtLink v-for="item in navItems" :key="item.href" :to="item.href" :class="{ 'is-active': activeNav === item.key }">
+          <NuxtLink
+            v-for="item in navItems"
+            :key="item.href"
+            :to="item.href"
+            :class="{ 'is-active': isNavActive(item.href) }"
+            :aria-current="isNavActive(item.href) ? 'page' : undefined"
+          >
             {{ item.label }}
           </NuxtLink>
           <NavMoreMenu variant="home" />
@@ -50,11 +56,11 @@
               <p class="work-hero-en">Aven</p>
               <p class="work-hero-role">AI 应用 · 产品开发 · 全栈工程</p>
               <p class="work-hero-value">
-                把想法做成可上线、可复用、能解决问题的数字产品。
+                专业工作名片：我是谁、能做什么、做过什么、做出了哪些可用产品，以及如何联系。
               </p>
               <div class="work-hero-actions">
-                <a href="#featured-projects" class="work-hero-btn work-hero-btn--primary">查看项目</a>
-                <NuxtLink to="/about" class="work-hero-btn work-hero-btn--secondary">关于我</NuxtLink>
+                <a href="#featured-projects" class="work-hero-btn work-hero-btn--primary">查看案例</a>
+                <NuxtLink to="/products" class="work-hero-btn work-hero-btn--secondary">可用产品</NuxtLink>
               </div>
               <div class="work-hero-links">
                 <a href="https://github.com/Lijing327" target="_blank" rel="noopener noreferrer">GitHub</a>
@@ -246,7 +252,7 @@
           <a href="https://github.com/Lijing327" target="_blank" rel="noreferrer">GitHub</a>
           <NuxtLink to="/contact">微信</NuxtLink>
           <a href="mailto:linxiwanting@gmail.com">邮箱</a>
-          <span>ICP备案：闽ICP备2022001234号-1</span>
+          <a :href="SITE_LEGAL.icpQueryUrl" target="_blank" rel="noopener noreferrer">{{ SITE_LEGAL.icp }}</a>
         </div>
       </div>
     </footer>
@@ -258,6 +264,9 @@ import { h } from 'vue'
 import NavMoreMenu from '~/components/layout/NavMoreMenu.vue'
 import SiteBrandLogo from '~/components/layout/SiteBrandLogo.vue'
 import { resolveProjectCoverUrl } from '~/constants/projects/covers'
+import { SITE_LEGAL } from '~/constants/siteLegal'
+import { WORK_PRIMARY_NAV } from '~/constants/work-ia'
+import { isWorkNavActive } from '~/utils/work-nav-active'
 import type { HomeProjectCard } from '~/types/home'
 
 definePageMeta({
@@ -265,17 +274,15 @@ definePageMeta({
 })
 
 const { overview, loading } = useHomeOverview()
+const route = useRoute()
 
-const activeNav = ref('home')
+const navItems = WORK_PRIMARY_NAV.map((item) => ({
+  label: item.title,
+  href: item.path,
+  key: item.key || item.path,
+}))
 
-const navItems = [
-  { label: '首页', href: '/work', key: 'home' },
-  { label: '产品', href: '/products', key: 'products' },
-  { label: '案例', href: '/projects', key: 'projects' },
-  { label: 'AI实验室', href: '/lab', key: 'lab' },
-  { label: '文章', href: '/blog', key: 'blog' },
-  { label: '关于', href: '/about', key: 'about' },
-]
+const isNavActive = (href: string) => isWorkNavActive(route.path || '/', href)
 
 const homePrimaryForMenu = computed(() =>
   navItems.map((item) => ({ label: item.label, href: item.href })),
@@ -455,49 +462,11 @@ const moreItemMeta = (project: HomeProjectCard) => {
   return projectStatus(project)
 }
 
-onMounted(() => {
-  const sections = [
-    { id: 'featured-projects', key: 'projects' },
-    { id: 'more-projects', key: 'projects' },
-    { id: 'contact', key: 'about' },
-  ]
-
-  const updateActiveNav = () => {
-    const viewportLine = window.scrollY + window.innerHeight * 0.42
-    let current: (typeof sections)[number] | undefined
-
-    for (let index = sections.length - 1; index >= 0; index -= 1) {
-      const section = sections[index]
-      const element = document.getElementById(section.id)
-      if (element && element.offsetTop <= viewportLine) {
-        current = section
-        break
-      }
-    }
-
-    activeNav.value = current?.key ?? 'home'
-  }
-
-  updateActiveNav()
-  window.addEventListener('scroll', updateActiveNav, { passive: true })
-  window.addEventListener('resize', updateActiveNav)
-
-  onBeforeUnmount(() => {
-    window.removeEventListener('scroll', updateActiveNav)
-    window.removeEventListener('resize', updateActiveNav)
-  })
-})
-
-useHead({
+usePageSeo({
   title: '溪午听风 - 用 AI 构建产品，创造长期价值',
-  meta: [
-    {
-      key: 'description',
-      name: 'description',
-      content: '溪午听风的个人品牌官网，专注 AI 应用开发、企业数字化与个人产品构建，持续打造真正有价值的数字资产。',
-    },
-    { name: 'theme-color', content: '#081631' },
-  ],
+  description: '专业工作名片：真实案例、可用产品、公开文章与合作入口。',
+  path: '/work',
+  world: 'work',
 })
 </script>
 

@@ -1,23 +1,30 @@
-export const checkAuth = (event: any) => {
-    // 1. Check Cookie
-    const cookies = parseCookies(event)
-    if (cookies.admin_auth === 'true') {
-        return true
-    }
+import type { H3Event } from 'h3'
+import { createError, getRequestHeader, parseCookies } from 'h3'
+import { verifyAdminToken } from './auth-token'
 
-    // 2. Check Authorization Header (Bearer Token)
-    const authHeader = getRequestHeader(event, 'Authorization')
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-        // In a real app, verify the token signature.
-        // Here we just check if it exists, as the token is just a random string in login.post.ts
-        // But wait, login.post.ts returns a token. Let's see what it is.
-        // It seems login.post.ts doesn't actually generate a real JWT, it just returns { success: true } in the code I saw earlier.
-        // Wait, let me check login.post.ts again to be sure.
-        return true
-    }
+function extractBearerToken(authHeader: string | undefined): string | null {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null
+  }
+  const token = authHeader.slice(7).trim()
+  return token || null
+}
 
-    throw createError({
-        statusCode: 401,
-        statusMessage: 'Unauthorized'
-    })
+export function checkAuth(event: H3Event): true {
+  const cookies = parseCookies(event)
+  const cookieToken = cookies.admin_token
+
+  if (cookieToken && verifyAdminToken(cookieToken)) {
+    return true
+  }
+
+  const bearerToken = extractBearerToken(getRequestHeader(event, 'Authorization'))
+  if (bearerToken && verifyAdminToken(bearerToken)) {
+    return true
+  }
+
+  throw createError({
+    statusCode: 401,
+    statusMessage: 'Unauthorized',
+  })
 }

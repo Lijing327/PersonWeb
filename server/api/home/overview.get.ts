@@ -1,4 +1,3 @@
-import { readMarkdownCollection } from '../../utils/content-files'
 import { parseTechStack } from '../../utils/parseTechStack'
 import { PROJECT_PROGRESS, DEFAULT_PROGRESS } from '../../../constants/nowBuilding'
 import type {
@@ -12,14 +11,18 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const base = (config.backendApiBase as string) || 'http://localhost:5234/api'
 
-  // 并发拉取三个来源
-  const [rawProjects, rawArticlesRes, rawTimeline] = await Promise.allSettled([
+  // 并发拉取：Projects / Articles / Timeline / Toolbox count
+  const [rawProjects, rawArticlesRes, rawTimeline, rawTools] = await Promise.allSettled([
     $fetch<{ code: number; data: any[] }>(`${base}/Projects`, { timeout: 5000 }),
     $fetch<{ code: number; data: { List: any[]; Total: number } }>(
       `${base}/Articles`,
       { query: { status: 1, pageSize: 50, page: 1 }, timeout: 5000 }
     ),
     $fetch<{ code: number; data: any[] }>(`${base}/Timeline`, { timeout: 5000 }),
+    $fetch<{ code: number; data: any }>(
+      `${base}/Toolbox/marketplace`,
+      { query: { page: 1, pageSize: 1 }, timeout: 5000 },
+    ),
   ])
 
   const projects: any[] = rawProjects.status === 'fulfilled'
@@ -34,7 +37,17 @@ export default defineEventHandler(async (event) => {
     ? (Array.isArray(rawTimeline.value?.data) ? rawTimeline.value.data : [])
     : []
 
-  const toolsCount = readMarkdownCollection('tools').length
+  let toolsCount = 0
+  if (rawTools.status === 'fulfilled') {
+    const toolsData = rawTools.value?.data
+    toolsCount = Number(
+      toolsData?.total
+      ?? toolsData?.Total
+      ?? (Array.isArray(toolsData?.tools) ? toolsData.tools.length : 0)
+      ?? (Array.isArray(toolsData?.Tools) ? toolsData.Tools.length : 0)
+      ?? 0,
+    )
+  }
 
   // 处理 Projects
   const allProjects: HomeProjectCard[] = projects.map((p: any) => ({

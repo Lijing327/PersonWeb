@@ -382,19 +382,14 @@ const handleUpload = async () => {
       ? 'http://localhost:5234/api'
       : config.public.apiBase
 
-    // 获取 token
-    const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null
-
     console.log('API Base URL:', baseUrl)
-    console.log('Token:', token ? '已设置' : '未设置')
 
+    // Admin Web uses Nitro cookie auth; do not inject localStorage Bearer.
+    // .NET Document API has its own auth model if needed.
     const response = await $fetch<ApiResponse<any>>('/Document/upload', {
       baseURL: baseUrl,
       method: 'POST',
       body: formData,
-      headers: token ? {
-        Authorization: `Bearer ${token}`
-      } : {}
     })
 
     console.log('上传响应:', response)

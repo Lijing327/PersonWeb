@@ -261,6 +261,83 @@ public class ToolboxController : ControllerBase
     }
 
     /// <summary>
+    /// 按 slug 获取已发布工具详情（公开）
+    /// </summary>
+    [HttpGet("by-slug/{slug}")]
+    public async Task<ActionResult<ApiResponse<object>>> GetToolBySlug(string slug)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(slug))
+            {
+                return NotFound(ApiResponse.Error("工具不存在", 404));
+            }
+
+            var tool = await _context.Tools
+                .Include(t => t.Category)
+                .FirstOrDefaultAsync(t => t.Slug == slug && t.Status == "published");
+
+            if (tool == null)
+            {
+                return NotFound(ApiResponse.Error("工具不存在", 404));
+            }
+
+            string[] tagsArray = Array.Empty<string>();
+            string[] featuresArray = Array.Empty<string>();
+
+            if (!string.IsNullOrEmpty(tool.Tags))
+            {
+                tagsArray = JsonSerializer.Deserialize<string[]>(tool.Tags) ?? Array.Empty<string>();
+            }
+
+            if (!string.IsNullOrEmpty(tool.Features))
+            {
+                featuresArray = JsonSerializer.Deserialize<string[]>(tool.Features) ?? Array.Empty<string>();
+            }
+
+            var result = new
+            {
+                tool.Id,
+                tool.Name,
+                tool.Slug,
+                tool.Icon,
+                tool.Description,
+                tool.DetailedDescription,
+                tool.CoverImage,
+                tool.DemoUrl,
+                tool.Price,
+                tool.OriginalPrice,
+                tool.IsFree,
+                tool.IsPremium,
+                tool.EnableOnlineOrder,
+                tool.PurchaseCount,
+                tool.UseCount,
+                tool.Rating,
+                tool.RatingCount,
+                tool.ApiEndpoint,
+                tool.ApiDocumentation,
+                tool.Requirements,
+                tool.FitFor,
+                tool.NotFitFor,
+                tool.DeliveryType,
+                tool.EstimatedDeliveryTime,
+                tool.Version,
+                tool.Author,
+                Category = tool.Category != null ? new { tool.Category.Name, tool.Category.Slug, tool.Category.Icon } : null,
+                Tags = tagsArray,
+                Features = featuresArray
+            };
+
+            return Ok(ApiResponse.Success(result));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "按 slug 获取工具失败");
+            return StatusCode(500, ApiResponse.Error($"获取工具失败: {ex.Message}", 500));
+        }
+    }
+
+    /// <summary>
     /// 获取工具详情
     /// </summary>
     [HttpGet("{id}")]

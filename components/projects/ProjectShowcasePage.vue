@@ -78,7 +78,10 @@
               :alt="`${project.title} 封面`"
               class="ps-showcase-hero-cover-image"
               :class="{ 'ps-showcase-hero-cover-image--designed': isDesignedCover }"
+              width="960"
+              height="600"
               fetchpriority="high"
+              decoding="async"
               @error="handleCoverError"
             />
           </div>
@@ -213,7 +216,7 @@
             </div>
           </div>
 
-          <div class="ps-showcase-details-section">
+          <div v-if="showcase.challenges.length" class="ps-showcase-details-section">
             <h3 class="ps-showcase-details-title">技术挑战</h3>
             <ul class="ps-showcase-challenge-list">
               <li v-for="item in showcase.challenges" :key="item.title">
@@ -223,7 +226,7 @@
             </ul>
           </div>
 
-          <div class="ps-showcase-details-section">
+          <div v-if="showcase.roadmap.length" class="ps-showcase-details-section">
             <h3 class="ps-showcase-details-title">版本规划</h3>
             <div class="ps-showcase-roadmap-compact">
               <div

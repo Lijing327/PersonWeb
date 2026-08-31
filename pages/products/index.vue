@@ -8,9 +8,9 @@
     <div class="products-hub-shell">
       <header class="products-hub-hero">
         <p class="products-hub-eyebrow">Products</p>
-        <h1 class="products-hub-title">产品与工具</h1>
+        <h1 class="products-hub-title">可以直接使用的产品</h1>
         <p class="products-hub-lead">
-          独立产品、插件工具与可扩展模块的入口。从这里进入各条产品线。
+          这里放可持续使用的产品入口：安装、下载、获取。若要看我怎么做出来的，请去「案例」。
         </p>
       </header>
 
@@ -61,14 +61,11 @@ const cards = [
   },
 ]
 
-useHead({
+usePageSeo({
   title: '产品 - 溪午听风',
-  meta: [
-    {
-      name: 'description',
-      content: '溪午听风的产品与工具入口：MindTrace 扩展、桌宠、插件工具与模块商店。',
-    },
-  ],
+  description: '可安装、可下载、可持续使用的产品入口：MindTrace、桌宠、工具与模块。',
+  path: '/products',
+  world: 'work',
 })
 </script>
 

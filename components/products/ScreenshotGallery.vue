@@ -22,6 +22,10 @@
             :src="item.src"
             :alt="item.alt"
             class="screenshot-gallery-img"
+            width="640"
+            height="400"
+            loading="lazy"
+            decoding="async"
           />
           <p class="screenshot-gallery-caption">{{ item.alt }}</p>
         </div>

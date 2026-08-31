@@ -1,4 +1,8 @@
 /**
+ * LEGACY migration helper (Phase 6):
+ * content/blog|projects|tools directories were removed as empty orphans.
+ * Life/cognition/ai paths remain. Script kept for optional one-off restores.
+ *
  * 将所有 content/*.md 文件导入到数据库，并删除原文件
  * 
  * 支持的文件类型：

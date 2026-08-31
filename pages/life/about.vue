@@ -80,14 +80,10 @@ const essayBlocks = computed((): EssayBlock[] => {
   })
 })
 
-useHead({
+usePageSeo({
   title: `${profile.value.title} - 溪午听风`,
-  meta: [
-    {
-      key: 'description',
-      name: 'description',
-      content: profile.value.description || '溪午听风的生活一面。'
-    }
-  ]
+  description: profile.value.description || '溪午听风的生活一面。',
+  path: '/life/about',
+  world: 'life',
 })
 </script>

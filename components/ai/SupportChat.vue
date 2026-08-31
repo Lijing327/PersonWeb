@@ -227,8 +227,7 @@ const getPageContext = (): string => {
 }
 
 const getUserMeta = (): string => {
-  if (!process.client) return '未登录访客'
-  return localStorage.getItem('admin_token') ? '已登录用户' : '未登录访客'
+  return '站点访客'
 }
 
 const formatMessage = (content: string): string => markdownToHtml(content)

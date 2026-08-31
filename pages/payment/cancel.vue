@@ -51,7 +51,7 @@ const goToModules = () => {
 }
 
 const contactSupport = () => {
-  window.open('mailto:support@example.com?subject=支付咨询', '_blank')
+  window.open('mailto:linxiwanting@gmail.com?subject=支付咨询', '_blank')
 }
 </script>
 

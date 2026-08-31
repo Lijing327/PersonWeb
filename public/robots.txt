@@ -2,7 +2,10 @@
 User-agent: *
 Allow: /
 Disallow: /admin/
+Disallow: /api/
 Disallow: /secret-login
 Disallow: /dashboard/
+Disallow: /order/
+Disallow: /payment/
 
 Sitemap: https://xifg.com.cn/sitemap.xml

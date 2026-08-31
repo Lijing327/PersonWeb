@@ -15,9 +15,9 @@
             <span class="blog-hero-badge-dot"></span>
             Writing System
           </div>
-          <h1 class="blog-title">把经验、技术和思考整理成可检索的知识文章</h1>
+          <h1 class="blog-title">我写了什么：公开长文与复盘</h1>
           <p class="blog-subtitle">
-            这里不是单纯的文章列表，而是一套持续生长的知识归档。项目复盘、技术积累、工具方法和阶段性感悟，都会被整理成可以回看的内容。
+            技术实践、项目复盘与可检索的公开文章。系统化短笔记在「知识笔记」；个人方法论在「认知说明书」。
           </p>
 
           <div class="blog-hero-actions">
@@ -505,11 +505,11 @@ const getArticlePath = (post: any) => {
   return pathSegment ? `/blog/${pathSegment}` : '/blog'
 }
 
-useHead({
+usePageSeo({
   title: '技术博客 - 溪午听风',
-  meta: [
-    { name: 'description', content: '分享技术心得、项目经验与生活感悟' }
-  ]
+  description: '公开长文：技术实践、项目复盘与工程经验。',
+  path: '/blog',
+  world: 'work',
 })
 </script>
 

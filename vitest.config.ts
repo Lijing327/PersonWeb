@@ -6,7 +6,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./test/setup.ts'],
-    include: ['test/**/*.{test,spec}.{ts,js}', 'tests/**/*.{test,spec}.{ts,js}'],
+    include: ['test/**/*.{test,spec}.{ts,js}', 'tests/**/*.{test,spec}.{ts,js}', 'server/tests/**/*.{test,spec}.{ts,js}'],
     exclude: ['node_modules', 'dist', '.nuxt'],
     coverage: {
       provider: 'v8',

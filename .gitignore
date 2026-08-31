@@ -122,6 +122,7 @@ test-documents/
 
 # SEO：构建时生成 / 本地上传 OSS 的副本，无需提交
 public/sitemap.xml
+public/sitemap.status.json
 deploy/seo/
 
 # ============================================

@@ -1,6 +1,7 @@
 import { Module } from '~/types/module'
+import { checkAuth } from '~/server/utils/auth'
+import { throwSafeApiError } from '~/server/utils/api-error'
 
-// 模拟数据库
 const mockModules: Module[] = [
   {
     id: 1,
@@ -19,7 +20,7 @@ const mockModules: Module[] = [
     isCore: false,
     sort: 100,
     createdAt: new Date('2024-01-01').toISOString(),
-    updatedAt: new Date('2024-01-01').toISOString()
+    updatedAt: new Date('2024-01-01').toISOString(),
   },
   {
     id: 2,
@@ -38,7 +39,7 @@ const mockModules: Module[] = [
     isCore: false,
     sort: 1,
     createdAt: new Date('2024-01-01').toISOString(),
-    updatedAt: new Date('2024-01-01').toISOString()
+    updatedAt: new Date('2024-01-01').toISOString(),
   },
   {
     id: 3,
@@ -57,49 +58,48 @@ const mockModules: Module[] = [
     isCore: false,
     sort: 50,
     createdAt: new Date('2024-01-01').toISOString(),
-    updatedAt: new Date('2024-01-01').toISOString()
-  }
+    updatedAt: new Date('2024-01-01').toISOString(),
+  },
 ]
 
 export default defineEventHandler(async (event) => {
-  const moduleKey = getRouterParam(event, 'moduleKey')
-  const body = await readBody(event)
-
-  if (!moduleKey) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: '缺少模块标识'
-    })
-  }
-
-  if (typeof body.enabled !== 'boolean') {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'enabled 参数必须是布尔值'
-    })
-  }
-
   try {
-    const module = mockModules.find(m => m.moduleKey === moduleKey)
+    checkAuth(event)
 
+    const moduleKey = getRouterParam(event, 'moduleKey')
+    const body = await readBody(event)
+
+    if (!moduleKey) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: '缺少模块标识',
+      })
+    }
+
+    if (typeof body.enabled !== 'boolean') {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'enabled 参数必须是布尔值',
+      })
+    }
+
+    const module = mockModules.find(m => m.moduleKey === moduleKey)
     if (!module) {
       throw createError({
         statusCode: 404,
-        statusMessage: '模块不存在'
+        statusMessage: '模块不存在',
       })
     }
 
-    // 检查是否为核心模块
     if (module.isCore) {
       throw createError({
         statusCode: 400,
-        statusMessage: '核心模块不能禁用'
+        statusMessage: '核心模块不能禁用',
       })
     }
 
-    // 检查依赖关系
     const dependentModules = mockModules.filter(m =>
-      m.dependencies && m.dependencies.includes(moduleKey)
+      m.dependencies && m.dependencies.includes(moduleKey),
     )
 
     if (body.enabled && dependentModules.length > 0) {
@@ -108,12 +108,11 @@ export default defineEventHandler(async (event) => {
         statusMessage: `该模块有 ${dependentModules.length} 个依赖模块，需要先禁用这些模块`,
         data: dependentModules.map(m => ({
           key: m.moduleKey,
-          name: m.moduleName
-        }))
+          name: m.moduleName,
+        })),
       })
     }
 
-    // 更新模块状态
     module.isEnabled = body.enabled
     module.updatedAt = new Date().toISOString()
 
@@ -122,15 +121,11 @@ export default defineEventHandler(async (event) => {
       data: {
         moduleKey: module.moduleKey,
         isEnabled: module.isEnabled,
-        updatedAt: module.updatedAt
+        updatedAt: module.updatedAt,
       },
-      message: body.enabled ? '模块已启用' : '模块已禁用'
+      message: body.enabled ? '模块已启用' : '模块已禁用',
     }
   } catch (error) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: '更新模块状态失败',
-      data: { error: error.message }
-    })
+    throwSafeApiError(error, '更新模块状态失败')
   }
 })

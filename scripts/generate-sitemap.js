@@ -1,64 +1,90 @@
 /**
- * 生成 public/sitemap.xml（部署到 OSS 前执行）
+ * 生成 public/sitemap.xml
  * 用法: node scripts/generate-sitemap.js
+ *
+ * 动态 URL 依赖 .NET API（NUXT_PUBLIC_API_BASE / SITEMAP_API_BASE）。
+ * 后端不可达时：仍写出静态 + Life 文件 URL，并写入 sitemap.status.json 标明不完整。
+ * 绝不虚构 blog/projects/tools/cognition 动态 URL。
  */
 const { writeFileSync } = require('node:fs')
 const { resolve } = require('node:path')
+const {
+  STATIC_PATHS,
+  collectLifeNotePaths,
+  collectDynamicFromApi,
+  buildSitemapXml,
+  stripTrailingSlash,
+} = require('./lib/sitemap-builder')
 
-const SITE = process.env.SITE_URL || 'https://xifg.com.cn'
+async function main() {
+  const SITE = stripTrailingSlash(process.env.SITE_URL || process.env.NUXT_PUBLIC_SITE_URL || 'https://xifg.com.cn')
+  const API_BASE = stripTrailingSlash(
+    process.env.SITEMAP_API_BASE
+      || process.env.NUXT_PUBLIC_API_BASE
+      || 'http://localhost:5234/api',
+  )
 
-/** 公开前台静态路由（不含 /admin、订单流程等） */
-const STATIC_PATHS = [
-  '/',
-  '/life',
-  '/life/about',
-  '/life/notes',
-  '/work',
-  '/about',
-  '/blog',
-  '/projects',
-  '/tools',
-  '/contact',
-  '/ai',
-  '/ai-intro',
-  '/lab',
-  '/search',
-  '/links',
-  '/changelog',
-  '/pricing',
-  '/download',
-  '/cognition',
-  '/cognition/changelog',
-  '/side-projects',
-  '/skills',
-  '/english',
-  '/knowledge',
-  '/products',
-  '/products/desktop-pet',
-  '/showcase',
-  '/game',
-]
+  const lifePaths = collectLifeNotePaths(resolve(__dirname, '../content/life'))
+  let dynamicPaths = []
+  let sources = { articles: false, projects: false, tools: false, cognition: false }
+  let errors = []
 
-const lastmod = new Date().toISOString().slice(0, 10)
+  try {
+    const dynamic = await collectDynamicFromApi(API_BASE)
+    dynamicPaths = dynamic.paths
+    sources = dynamic.sources
+    errors = dynamic.errors
+  } catch (e) {
+    errors.push(`api: ${e.message || e}`)
+  }
 
-const urls = STATIC_PATHS.map((path) => {
-  const loc = path === '/' ? SITE : `${SITE}${path}`
-  const priority = path === '/' ? '1.0' : path.split('/').length <= 2 ? '0.8' : '0.6'
-  const changefreq = path === '/' ? 'weekly' : 'monthly'
-  return `  <url>
-    <loc>${loc}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>${changefreq}</changefreq>
-    <priority>${priority}</priority>
-  </url>`
+  const allPaths = [...STATIC_PATHS, ...lifePaths, ...dynamicPaths]
+  const { xml, paths } = buildSitemapXml(SITE, allPaths)
+
+  const out = resolve(__dirname, '../public/sitemap.xml')
+  writeFileSync(out, xml, 'utf8')
+
+  const staticCount = STATIC_PATHS.length
+  const dynamicCount = paths.filter((p) => !STATIC_PATHS.includes(p)).length
+  const complete = sources.articles && sources.projects && sources.tools && sources.cognition && errors.length === 0
+
+  const status = {
+    generatedAt: new Date().toISOString(),
+    siteUrl: SITE,
+    apiBase: API_BASE,
+    complete,
+    counts: {
+      total: paths.length,
+      static: staticCount,
+      lifeNotes: lifePaths.length,
+      dynamicFromApi: dynamicPaths.length,
+      uniqueWritten: paths.length,
+    },
+    sources,
+    errors,
+    note: complete
+      ? 'Sitemap includes static + Life FS + backend dynamic URLs.'
+      : 'INCOMPLETE: backend dynamic sources unavailable or partial. No fictional URLs were invented. Re-run with a reachable SITEMAP_API_BASE / NUXT_PUBLIC_API_BASE.',
+  }
+
+  writeFileSync(
+    resolve(__dirname, '../public/sitemap.status.json'),
+    `${JSON.stringify(status, null, 2)}\n`,
+    'utf8',
+  )
+
+  if (complete) {
+    console.log(`✅ sitemap.xml → ${out} (${paths.length} URLs, complete)`)
+  } else {
+    console.warn(`⚠️  sitemap.xml → ${out} (${paths.length} URLs, INCOMPLETE)`)
+    console.warn(status.note)
+    if (errors.length) {
+      console.warn('Errors:', errors.join('; '))
+    }
+  }
+}
+
+main().catch((err) => {
+  console.error('sitemap generation failed:', err)
+  process.exit(1)
 })
-
-const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.join('\n')}
-</urlset>
-`
-
-const out = resolve(__dirname, '../public/sitemap.xml')
-writeFileSync(out, xml, 'utf8')
-console.log(`✅ sitemap.xml → ${out} (${STATIC_PATHS.length} URLs)`)

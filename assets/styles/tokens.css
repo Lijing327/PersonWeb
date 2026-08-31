@@ -159,6 +159,23 @@
   --shadow-md:             0 4px 6px -1px rgba(0,0,0,.3);
   --shadow-lg:             0 10px 15px -3px rgba(0,0,0,.3);
 
+  /*
+   * Breakpoint reference (documentation + JS use).
+   * Note: CSS @media cannot reliably consume custom properties in all browsers —
+   * keep media query literals aligned with these logical tiers when editing ACTIVE CSS.
+   *
+   * --bp-sm (640): compact phone / header brand squeeze
+   * --bp-md (768): mobile nav / tablet portrait (preferred over near-dupe 720)
+   * --bp-lg (900): tablet landscape / header desktop nav
+   * --bp-xl (1100): wide grids (work / projects)
+   * --bp-footer (960): footer column collapse (kept distinct from 900 — 3-col → 2-col)
+   */
+  --bp-sm: 640px;
+  --bp-md: 768px;
+  --bp-lg: 900px;
+  --bp-xl: 1100px;
+  --bp-footer: 960px;
+
   /* Chart palette (used by side-project dashboard components) */
   --chart-primary:         #3b82f6;
   --chart-secondary:       #10b981;

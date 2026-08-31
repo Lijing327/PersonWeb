@@ -11,6 +11,13 @@ import type {
 import { getProjectShowcasePreset } from '~/constants/projects/showcasePresets'
 import { normalizeProjectFields, resolveProjectCoverUrl } from '~/constants/projects/covers'
 
+/**
+ * COMPAT: allow legacy constants/projects/showcasePresets to fill gaps
+ * when Project.Content has no showcase JSON yet.
+ * Turn off after Admin can write ProjectShowcaseJson end-to-end.
+ */
+export const ENABLE_LEGACY_SHOWCASE_PRESETS = true
+
 function parseTechStack(techStack: string | string[] | undefined): string[] {
   if (!techStack) return []
   if (Array.isArray(techStack)) {
@@ -306,19 +313,29 @@ function mergePitch(
   custom: ProjectShowcasePartial | null,
 ): ProjectShowcasePitch {
   const fallback = buildDefaultPitch(project, paragraphs, achievements, challenges)
+  const legacy = ENABLE_LEGACY_SHOWCASE_PRESETS ? preset : {}
 
   return {
-    what: custom?.pitch?.what || preset.pitch?.what || fallback.what,
+    // PRIMARY: custom JSON → DB description/paragraphs → legacy preset → generic
+    what: custom?.pitch?.what
+      || paragraphs[0]
+      || project.description?.trim()
+      || legacy.pitch?.what
+      || fallback.what,
     problems: custom?.pitch?.problems?.length
       ? custom.pitch.problems
-      : preset.pitch?.problems?.length
-        ? preset.pitch.problems
-        : fallback.problems,
+      : challenges.length > 0
+        ? challenges.map(item => item.challenge).filter(Boolean).slice(0, 3)
+        : legacy.pitch?.problems?.length
+          ? legacy.pitch.problems
+          : fallback.problems,
     outcomes: custom?.pitch?.outcomes?.length
       ? custom.pitch.outcomes
-      : preset.pitch?.outcomes?.length
-        ? preset.pitch.outcomes
-        : fallback.outcomes,
+      : achievements.length > 0
+        ? achievements.slice(0, 4)
+        : legacy.pitch?.outcomes?.length
+          ? legacy.pitch.outcomes
+          : fallback.outcomes,
   }
 }
 
@@ -329,108 +346,91 @@ function mergeShowcase(
   custom: ProjectShowcasePartial | null,
 ): ProjectShowcaseData {
   const resolvedCover = resolveProjectCoverUrl(project)
+  const legacy = ENABLE_LEGACY_SHOWCASE_PRESETS ? preset : {}
+  const dbParagraphs = extractReadableParagraphs(project)
 
   const mergedBackgroundParagraphs = ensureBackgroundParagraphs(
     project,
     custom?.background?.paragraphs
-      || preset.background?.paragraphs
-      || extractReadableParagraphs(project),
+      || (dbParagraphs.length ? dbParagraphs : undefined)
+      || legacy.background?.paragraphs
+      || [],
   )
 
-  const backgroundHighlights = buildBackgroundHighlights(project, techStack, preset, custom)
+  const backgroundHighlights = buildBackgroundHighlights(project, techStack, legacy, custom)
 
   const backgroundTitle = custom?.background?.title
-    || preset.background?.title
     || '项目背景'
 
+  // CONTENT priority: custom → DB-derived → legacy preset → presentation defaults
   const features = custom?.features?.length
     ? custom.features
-    : preset.features?.length
-      ? preset.features
-      : buildDefaultFeatures(project, techStack)
+    : techStack.length >= 2
+      ? buildDefaultFeatures(project, techStack)
+      : legacy.features?.length
+        ? legacy.features
+        : buildDefaultFeatures(project, techStack)
 
   const overview = custom?.overview?.length
     ? custom.overview
-    : preset.overview?.length
-      ? preset.overview
-      : buildDefaultOverview(project, techStack)
+    : buildDefaultOverview(project, techStack)
 
   const achievements = custom?.achievements?.length
     ? custom.achievements
-    : preset.achievements?.length
-      ? preset.achievements
+    : legacy.achievements?.length
+      ? legacy.achievements
       : overview
 
   const timeline = custom?.timeline?.length
     ? custom.timeline
-    : preset.timeline?.length
-      ? preset.timeline
-      : [
+    : [
         { date: formatMonth(project.createdAt), title: '项目启动' },
-        { date: formatMonth(project.updatedAt || project.createdAt), title: '核心开发' },
-        { date: 'Next', title: '持续迭代' },
+        { date: formatMonth(project.updatedAt || project.createdAt), title: '最近更新' },
       ]
 
+  // Do not invent narrative challenges when DB/custom has none — legacy preset only as COMPAT fill
   const challenges = custom?.challenges?.length
     ? custom.challenges
-    : preset.challenges?.length
-      ? preset.challenges
-      : [
-        {
-          title: '体验一致性',
-          challenge: '多模块协作下，交互与视觉容易出现割裂感。',
-          solution: '统一设计 token 与组件规范，关键页面复用同一套布局模板。',
-        },
-        {
-          title: '交付效率',
-          challenge: '需求变化快，手工维护文档与实现容易脱节。',
-          solution: '内容结构化存储 + 模板化详情页，减少重复开发成本。',
-        },
-        {
-          title: '可维护性',
-          challenge: '技术栈多样，新人上手与排错成本偏高。',
-          solution: '模块边界清晰、日志可追踪，并为关键链路补充最小测试。',
-        },
-      ]
+    : legacy.challenges?.length
+      ? legacy.challenges
+      : []
 
   const roadmap = custom?.roadmap?.length
     ? custom.roadmap
-    : preset.roadmap?.length
-      ? preset.roadmap
-      : [
-        { version: 'V1.0', status: 'completed' as const, statusLabel: '已完成', items: ['核心功能', '基础体验', '上线验证'] },
-        { version: 'V2.0', status: 'active' as const, statusLabel: '进行中', items: ['体验优化', '数据能力', '运营支持'] },
-        { version: 'V3.0', status: 'planned' as const, statusLabel: '规划中', items: ['智能化', '生态扩展', '商业化'] },
-      ]
+    : legacy.roadmap?.length
+      ? legacy.roadmap
+      : []
 
   const architecture = custom?.architecture?.length
     ? custom.architecture
-    : preset.architecture?.length
-      ? preset.architecture
-      : buildArchitectureLayers(techStack)
+    : techStack.length > 0
+      ? buildArchitectureLayers(techStack)
+      : legacy.architecture?.length
+        ? legacy.architecture
+        : buildArchitectureLayers(techStack)
 
   const screenshots = custom?.screenshots?.length
     ? custom.screenshots
-    : preset.screenshots?.length
-      ? preset.screenshots
+    : legacy.screenshots?.length
+      ? legacy.screenshots
       : []
 
   const backgroundImage = custom?.background?.imageUrl
-    || preset.background?.imageUrl
     || resolvedCover
+    || legacy.background?.imageUrl
 
   const pitch = mergePitch(
     project,
     mergedBackgroundParagraphs,
     achievements,
     challenges,
-    preset,
+    legacy,
     custom,
   )
 
   return {
-    heroEyebrow: custom?.heroEyebrow || preset.heroEyebrow,
-    heroFloats: custom?.heroFloats || preset.heroFloats,
+    heroEyebrow: custom?.heroEyebrow || legacy.heroEyebrow,
+    heroFloats: custom?.heroFloats || legacy.heroFloats,
     pitch,
     overview,
     background: {
@@ -446,7 +446,7 @@ function mergeShowcase(
     challenges,
     achievements,
     roadmap,
-    cta: custom?.cta || preset.cta || {
+    cta: custom?.cta || legacy.cta || {
       title: `准备好体验 ${project.title} 了吗？`,
       subtitle: project.demoUrl
         ? '点击演示链接，亲自感受项目的核心能力与交互细节。'

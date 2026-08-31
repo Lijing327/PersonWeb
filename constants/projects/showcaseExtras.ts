@@ -7,7 +7,9 @@ export interface ShowcaseProject extends Project {
   detailPath?: string
 }
 
-/** 不在后端 Projects 表、但需要出现在案例墙的产品型项目 */
+/** 不在后端 Projects 表、但需要出现在案例墙的产品型项目（DERIVED / COMPAT bridge → Product view）
+ * MindTrace：案例墙回答「做过什么能力」的入口，详情落在产品页回答「怎么用」。
+ */
 export const SHOWCASE_PROJECT_EXTRAS: ShowcaseProject[] = [
   {
     id: 'mindtrace',

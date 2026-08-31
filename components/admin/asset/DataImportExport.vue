@@ -137,15 +137,11 @@ const importFile = async (file: File) => {
       ? 'http://localhost:5234/api'
       : config.public.apiBase
 
-    const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null
-
+    // Admin Web uses Nitro cookie auth; do not inject localStorage Bearer.
     const response = await $fetch<{ code: number; message: string; data: any }>('/InvestmentImport/import', {
       baseURL: baseUrl,
       method: 'POST',
       body: formData,
-      headers: token ? {
-        Authorization: `Bearer ${token}`
-      } : {}
     })
 
     if (response.code !== undefined && response.code !== 0) {
@@ -183,14 +179,10 @@ const exportData = async (type: 'investments' | 'transactions' | 'stats') => {
       ? 'http://localhost:5234/api'
       : config.public.apiBase
 
-    const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null
-
     const url = `/InvestmentExport/${type}/csv`
+    // Admin Web uses Nitro cookie auth; do not inject localStorage Bearer.
     const response = await fetch(`${baseUrl}${url}`, {
       method: 'GET',
-      headers: token ? {
-        Authorization: `Bearer ${token}`
-      } : {}
     })
 
     if (!response.ok) {
