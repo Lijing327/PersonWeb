@@ -35,7 +35,7 @@ export const PROJECT_COVER_PATHS: Record<ProjectCoverKey, string> = {
   'ai-assistant': `${PROJECT_COVER_BASE}/ai-assistant.webp`,
   'tool-market': `${PROJECT_COVER_BASE}/tool-market.webp`,
   'theme-store': `${PROJECT_COVER_BASE}/theme-store.webp`,
-  'love-cube': `${PROJECT_COVER_BASE}/love-cube.webp`,
+  'love-cube': `${PROJECT_COVER_BASE}/variant-c.svg`,
   'investment-system': `${PROJECT_COVER_BASE}/investment-system.webp`,
   'iot-control': `${PROJECT_COVER_BASE}/iot-control.webp`,
   'finance-assistant': `${PROJECT_COVER_BASE}/finance-assistant.webp`,
@@ -101,6 +101,9 @@ function isPlaceholderCoverUrl(coverUrl: string | undefined): boolean {
   }
 
   if (!normalized.startsWith(`${PROJECT_COVER_BASE}/`.toLowerCase())) {
+    if (/^\/images\/projects\/[^/]+\.(png|jpe?g|webp)$/i.test(normalized)) {
+      return true
+    }
     return false
   }
 

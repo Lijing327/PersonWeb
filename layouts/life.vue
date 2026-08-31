@@ -1,5 +1,5 @@
 <template>
-  <div class="life-shell">
+  <div id="life-top" class="life-shell">
     <LifeHeader />
     <main class="life-shell-main">
       <slot />
@@ -16,6 +16,14 @@ import LifeFooter from '~/components/life/LifeFooter.vue'
 useHead({
   htmlAttrs: {
     'data-life-world': 'true'
-  }
+  },
+  link: [
+    { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+    { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+    {
+      rel: 'stylesheet',
+      href: 'https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600&display=swap'
+    }
+  ]
 })
 </script>

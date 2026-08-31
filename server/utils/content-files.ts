@@ -111,6 +111,7 @@ export type LifeNowItem = {
   title?: string
   description: string
   href?: string
+  icon?: string
 }
 
 export type LifeNowContent = {
@@ -176,7 +177,7 @@ export type LifeHomeContent = {
     now: { number: string, title: string }
     moments: { number: string, title: string }
     notes: { number: string, title: string }
-    about: { title: string }
+    about: { number: string, title: string }
   }
   empty: {
     moments: string
@@ -212,7 +213,7 @@ export const readLifeHome = (): LifeHomeContent => {
   const nowSection = asSection(sections.now, { number: '02', title: '最近在' })
   const momentsSection = asSection(sections.moments, { number: '03', title: '最近' })
   const notesSection = asSection(sections.notes, { number: '04', title: '随笔' })
-  const aboutSection = asSection(sections.about, { title: '关于我' })
+  const aboutSection = asSection(sections.about, { number: '05', title: '关于我' })
 
   return {
     hero: {
@@ -226,7 +227,7 @@ export const readLifeHome = (): LifeHomeContent => {
       now: nowSection,
       moments: momentsSection,
       notes: notesSection,
-      about: { title: aboutSection.title }
+      about: aboutSection
     },
     empty: {
       moments: asString(empty.moments),
@@ -258,7 +259,8 @@ export const readLifeNow = (): LifeNowContent => {
           category: asString(row.category) || title,
           title,
           description,
-          href: asString(row.href) || undefined
+          href: asString(row.href) || undefined,
+          icon: asString(row.icon) || undefined
         }
       })
       .filter((item): item is LifeNowItem => item !== null)

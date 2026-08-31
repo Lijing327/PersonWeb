@@ -34,29 +34,203 @@
       </div>
     </header>
 
-    <main>
-      <HomeHero
-        :stats="overview.stats"
-        :loading="loading"
-      />
-      <HomeProducts
-        :projects="overview.featuredProjects"
-        :loading="loading"
-      />
-      <HomeTimeline
-        :featured-article="overview.featuredArticle"
-        :articles="overview.latestArticles"
-        :loading="loading"
-      />
-      <HomeAbout
-        :journey="overview.journey"
-        :loading="loading"
-      />
-      <LazyHomeCTA />
-      <LazyHomeBuilding
-        :projects="overview.nowBuilding"
-        :loading="loading"
-      />
+    <main class="work-main">
+      <div class="work-deco" aria-hidden="true">
+        <div class="work-deco-grid" />
+        <div class="work-deco-orbit" />
+        <div class="work-deco-dots" />
+      </div>
+
+      <div class="work-shell">
+        <section class="work-section work-hero" aria-labelledby="work-hero-title">
+          <div class="work-split">
+            <div class="work-hero-copy">
+              <p class="work-hero-kicker">个人工作站</p>
+              <h1 id="work-hero-title" class="work-hero-title">溪午听风</h1>
+              <p class="work-hero-en">Aven</p>
+              <p class="work-hero-role">AI 应用 · 产品开发 · 全栈工程</p>
+              <p class="work-hero-value">
+                把想法做成可上线、可复用、能解决问题的数字产品。
+              </p>
+              <div class="work-hero-actions">
+                <a href="#featured-projects" class="work-hero-btn work-hero-btn--primary">查看项目</a>
+                <NuxtLink to="/about" class="work-hero-btn work-hero-btn--secondary">关于我</NuxtLink>
+              </div>
+              <div class="work-hero-links">
+                <a href="https://github.com/Lijing327" target="_blank" rel="noopener noreferrer">GitHub</a>
+                <a href="mailto:linxiwanting@gmail.com">Email</a>
+              </div>
+            </div>
+
+            <aside class="work-hero-panel" aria-label="工作身份摘要">
+              <div class="work-hero-panel-top">
+                <div class="work-hero-panel-block">
+                  <h3>Focus</h3>
+                  <ul class="work-focus-list">
+                    <li v-for="item in focusItems" :key="item.label">
+                      <component :is="item.icon" class="work-focus-icon" aria-hidden="true" />
+                      {{ item.label }}
+                    </li>
+                  </ul>
+                </div>
+                <div class="work-hero-panel-block">
+                  <h3>Status</h3>
+                  <ul class="work-status-list">
+                    <li v-for="item in statusItems" :key="item">
+                      <span class="work-status-dot" aria-hidden="true" />
+                      {{ item }}
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="work-hero-panel-block">
+                <h3>Tools</h3>
+                <div class="work-tool-tags">
+                  <span v-for="tool in toolItems" :key="tool" class="work-tool-tag">{{ tool }}</span>
+                </div>
+              </div>
+
+              <div v-if="currentBuild" class="work-hero-current">
+                <span class="work-hero-current-label">Current</span>
+                <span class="work-hero-current-text">{{ currentBuild.title }} · 持续迭代中</span>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section id="featured-projects" class="work-section" aria-labelledby="work-featured-title">
+          <div class="work-split">
+            <header class="work-aside">
+              <span class="work-section-num" aria-hidden="true">01</span>
+              <p class="work-aside-label">Selected Work</p>
+              <h2 id="work-featured-title" class="work-aside-title">精选项目</h2>
+              <p class="work-aside-desc">代表性的产品与工程实践。</p>
+              <NuxtLink to="/projects" class="work-aside-link">查看全部项目 →</NuxtLink>
+            </header>
+
+            <div class="work-featured-grid">
+              <p v-if="loading" class="work-muted">正在整理项目。</p>
+              <p v-else-if="featuredProjects.length === 0" class="work-muted">
+                项目还在整理，请前往案例页查看。
+              </p>
+              <NuxtLink
+                v-for="project in featuredProjects"
+                v-else
+                :key="project.id"
+                :to="projectHref(project)"
+                class="work-project-card"
+              >
+                <div
+                  class="work-project-cover"
+                  :class="{ 'is-fallback': coverFailed.has(project.id) }"
+                >
+                  <img
+                    v-if="!coverFailed.has(project.id)"
+                    :src="projectCover(project)"
+                    alt=""
+                    loading="lazy"
+                    @error="onCoverError(project.id, $event, project)"
+                  >
+                </div>
+                <div class="work-project-body">
+                  <span class="work-project-title">{{ project.title }}</span>
+                  <p class="work-project-desc">{{ oneLine(project.description, 64) }}</p>
+                  <div v-if="projectTags(project).length" class="work-project-tags">
+                    <span v-for="tag in projectTags(project)" :key="tag" class="work-project-tag">{{ tag }}</span>
+                  </div>
+                  <p class="work-project-role">{{ projectRole(project) }}</p>
+                </div>
+                <span class="work-project-arrow" aria-hidden="true">↗</span>
+              </NuxtLink>
+            </div>
+          </div>
+        </section>
+
+        <section id="capabilities" class="work-section" aria-labelledby="work-cap-title">
+          <div class="work-split">
+            <header class="work-aside">
+              <span class="work-section-num" aria-hidden="true">02</span>
+              <p class="work-aside-label">Capabilities</p>
+              <h2 id="work-cap-title" class="work-aside-title">能力范围</h2>
+              <p class="work-aside-desc">产品、AI、工程与交付。</p>
+              <NuxtLink to="/about" class="work-aside-link">查看能力详情 →</NuxtLink>
+            </header>
+
+            <div class="work-cap-grid">
+              <article v-for="cap in capabilityAreas" :key="cap.title" class="work-cap-card">
+                <component :is="cap.icon" class="work-cap-icon" aria-hidden="true" />
+                <h3>{{ cap.title }}</h3>
+                <ul>
+                  <li v-for="item in cap.bullets" :key="item">{{ item }}</li>
+                </ul>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section id="more-projects" class="work-section" aria-labelledby="work-more-title">
+          <div class="work-split">
+            <header class="work-aside">
+              <span class="work-section-num" aria-hidden="true">03</span>
+              <p class="work-aside-label">More Work</p>
+              <h2 id="work-more-title" class="work-aside-title">更多项目</h2>
+              <p class="work-aside-desc">其它产品、工具与实验。</p>
+              <NuxtLink to="/projects" class="work-aside-link">查看更多 →</NuxtLink>
+            </header>
+
+            <div class="work-more-grid">
+              <p v-if="!loading && moreProjects.length === 0" class="work-muted">
+                更多项目见案例页。
+              </p>
+              <article
+                v-for="(project, index) in moreProjects"
+                v-else
+                :key="project.id"
+                class="work-more-item"
+              >
+                <span class="work-more-index">{{ String(index + 1).padStart(2, '0') }}</span>
+                <div class="work-more-main">
+                  <NuxtLink :to="projectHref(project)">{{ project.title }}</NuxtLink>
+                  <p>{{ oneLine(project.description, 48) }}</p>
+                  <span class="work-more-meta">{{ moreItemMeta(project) }}</span>
+                </div>
+                <NuxtLink :to="projectHref(project)" class="work-more-arrow" aria-label="查看详情">→</NuxtLink>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section id="contact" class="work-section" aria-labelledby="work-contact-title">
+          <div class="work-split">
+            <header class="work-aside">
+              <span class="work-section-num" aria-hidden="true">04</span>
+              <p class="work-aside-label">Contact</p>
+              <h2 id="work-contact-title" class="work-aside-title">联系我</h2>
+              <p class="work-aside-desc">合作、咨询或交流，欢迎联系。</p>
+            </header>
+
+            <div class="work-contact-list">
+              <a href="mailto:linxiwanting@gmail.com" class="work-contact-row">
+                <span class="work-contact-label">Email</span>
+                <span class="work-contact-value">linxiwanting@gmail.com</span>
+                <span class="work-contact-arrow" aria-hidden="true">→</span>
+              </a>
+              <a href="https://github.com/Lijing327" target="_blank" rel="noopener noreferrer" class="work-contact-row">
+                <span class="work-contact-label">GitHub</span>
+                <span class="work-contact-value">github.com/Lijing327</span>
+                <span class="work-contact-arrow" aria-hidden="true">→</span>
+              </a>
+              <NuxtLink to="/contact" class="work-contact-row">
+                <span class="work-contact-label">微信</span>
+                <span class="work-contact-value">扫码添加</span>
+                <span class="work-contact-arrow" aria-hidden="true">→</span>
+              </NuxtLink>
+              <p class="work-contact-note">工作日 24h 内回复</p>
+            </div>
+          </div>
+        </section>
+      </div>
     </main>
 
     <footer class="home-footer">
@@ -80,11 +254,14 @@
 </template>
 
 <script setup lang="ts">
+import { h } from 'vue'
 import NavMoreMenu from '~/components/layout/NavMoreMenu.vue'
 import SiteBrandLogo from '~/components/layout/SiteBrandLogo.vue'
+import { resolveProjectCoverUrl } from '~/constants/projects/covers'
+import type { HomeProjectCard } from '~/types/home'
 
 definePageMeta({
-  layout: false
+  layout: false,
 })
 
 const { overview, loading } = useHomeOverview()
@@ -104,13 +281,185 @@ const homePrimaryForMenu = computed(() =>
   navItems.map((item) => ({ label: item.label, href: item.href })),
 )
 
+const focusIcon = (paths: string[]) => ({
+  render: () => h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.6' },
+    paths.map((d) => h('path', { d }))),
+})
+
+const focusItems = [
+  { label: 'AI 应用开发', icon: focusIcon(['M12 3l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4l2-4z']) },
+  { label: '产品设计', icon: focusIcon(['M4 6h16v12H4z', 'M8 10h8']) },
+  { label: '全栈工程', icon: focusIcon(['M8 6h8l2 4v8H6V10l2-4z']) },
+  { label: '自动化', icon: focusIcon(['M12 6v12', 'M6 12h12', 'M8 8l8 8', 'M16 8l-8 8']) },
+]
+
+const statusItems = [
+  '持续开发中',
+  '可交流合作',
+  '可远程协作',
+  'Asia/Shanghai · 24h 内回复',
+]
+
+const toolItems = ['Vue', 'Nuxt', 'TypeScript', '.NET', 'Python', 'OpenAI API', 'Docker']
+
+const capabilityAreas = [
+  {
+    title: '产品',
+    bullets: ['需求拆解', '产品定义', '功能设计', '迭代优化'],
+    icon: {
+      render: () => h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.6' }, [
+        h('rect', { x: '4', y: '5', width: '16', height: '14', rx: '2' }),
+        h('path', { d: 'M8 9h8M8 13h5' }),
+      ]),
+    },
+  },
+  {
+    title: 'AI 应用',
+    bullets: ['LLM 集成', 'Prompt 工程', 'RAG / 知识库', 'AI Agent / Workflow'],
+    icon: {
+      render: () => h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.6' }, [
+        h('circle', { cx: '12', cy: '12', r: '3' }),
+        h('path', { d: 'M12 3v2M12 19v2M3 12h2M19 12h2' }),
+      ]),
+    },
+  },
+  {
+    title: '工程实现',
+    bullets: ['前端开发', '后端开发', 'API 与数据层', '性能优化与可观测性'],
+    icon: {
+      render: () => h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.6' }, [
+        h('path', { d: 'M8 6h8l2 4v8H6V10l2-4z' }),
+        h('path', { d: 'M9 14h6' }),
+      ]),
+    },
+  },
+  {
+    title: '交付上线',
+    bullets: ['部署与运维', 'CI/CD', '测试与质量保障', '迭代优化与持续交付'],
+    icon: {
+      render: () => h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.6' }, [
+        h('path', { d: 'M12 3l8 4v10l-8 4-8-4V7l8-4z' }),
+        h('path', { d: 'M12 12l8-4M12 12v9M12 12L4 8' }),
+      ]),
+    },
+  },
+] as const
+
+const coverFailed = ref(new Set<string>())
+const coverRetried = ref(new Set<string>())
+
+const allProjects = computed(() => overview.value.featuredProjects || [])
+
+const featuredProjects = computed(() => allProjects.value.slice(0, 3))
+
+const currentBuild = computed(() => {
+  const item = overview.value.nowBuilding?.[0]
+  if (!item) return null
+  return { title: item.title }
+})
+
+const moreProjects = computed(() => {
+  const selectedIds = new Set(featuredProjects.value.map((item) => item.id))
+  const restFeatured = allProjects.value.slice(3).filter((item) => !selectedIds.has(item.id))
+
+  const fromBuilding = (overview.value.nowBuilding || [])
+    .filter((item) => !selectedIds.has(item.id))
+    .map((item) => ({
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      techStack: item.techStack,
+      coverUrl: null,
+      demoUrl: null,
+      githubUrl: null,
+      status: item.status,
+      viewCount: 0,
+    } satisfies HomeProjectCard))
+
+  const seen = new Set<string>()
+  const merged: HomeProjectCard[] = []
+
+  for (const project of [...restFeatured, ...fromBuilding]) {
+    if (!project.id || seen.has(project.id)) continue
+    seen.add(project.id)
+    merged.push(project)
+    if (merged.length >= 6) break
+  }
+
+  return merged
+})
+
+const projectHref = (project: HomeProjectCard) => {
+  if (project.id) return `/projects/${project.id}`
+  return '/projects'
+}
+
+const projectCover = (project: HomeProjectCard) => resolveProjectCoverUrl(project)
+
+const onCoverError = (projectId: string, event: Event, project: HomeProjectCard) => {
+  const target = event.target as HTMLImageElement | null
+  if (!target) return
+
+  const retryKey = `${projectId}:retry`
+  if (!coverRetried.value.has(retryKey)) {
+    coverRetried.value = new Set([...coverRetried.value, retryKey])
+    const remapped = resolveProjectCoverUrl({ ...project, coverUrl: undefined })
+    if (remapped !== target.src) {
+      target.src = remapped
+      return
+    }
+  }
+
+  coverFailed.value = new Set([...coverFailed.value, projectId])
+}
+
+const oneLine = (text?: string, max = 56) => {
+  if (!text) return ''
+  const trimmed = text.replace(/\s+/g, ' ').trim()
+  const stop = trimmed.search(/[。.!！]/)
+  if (stop > 10 && stop < max) return trimmed.slice(0, stop + 1)
+  return trimmed.length > max ? `${trimmed.slice(0, max).trim()}…` : trimmed
+}
+
+const projectTags = (project: HomeProjectCard) => (project.techStack || []).slice(0, 3)
+
+const projectRole = (project: HomeProjectCard) => {
+  const tech = (project.techStack || []).join(' ').toLowerCase()
+  const parts = ['产品设计']
+
+  if (tech.includes('openai') || tech.includes('llm') || tech.includes('ai')) {
+    parts.push('AI 集成')
+  }
+
+  parts.push('全栈开发')
+
+  if (project.demoUrl) {
+    parts.push('发布上线')
+  } else {
+    parts.push('持续迭代')
+  }
+
+  return parts.join(' / ')
+}
+
+const projectStatus = (project: HomeProjectCard) => {
+  if (project.demoUrl || project.status === 'Completed') return '已上线'
+  if (project.status === 'Active') return '持续迭代'
+  if (project.status === 'Archived') return '已归档'
+  return '开发中'
+}
+
+const moreItemMeta = (project: HomeProjectCard) => {
+  const tags = projectTags(project)
+  if (tags.length) return tags.join(' · ')
+  return projectStatus(project)
+}
+
 onMounted(() => {
   const sections = [
-    { id: 'products', key: 'products' },
-    { id: 'writing', key: 'blog' },
-    { id: 'about', key: 'about' },
+    { id: 'featured-projects', key: 'projects' },
+    { id: 'more-projects', key: 'projects' },
     { id: 'contact', key: 'about' },
-    { id: 'building', key: 'about' }
   ]
 
   const updateActiveNav = () => {
@@ -145,19 +494,18 @@ useHead({
     {
       key: 'description',
       name: 'description',
-      content: '溪午听风的个人品牌官网，专注 AI 应用开发、企业数字化与个人产品构建，持续打造真正有价值的数字资产。'
+      content: '溪午听风的个人品牌官网，专注 AI 应用开发、企业数字化与个人产品构建，持续打造真正有价值的数字资产。',
     },
-    { name: 'theme-color', content: '#081631' }
-  ]
+    { name: 'theme-color', content: '#081631' },
+  ],
 })
 </script>
 
 <style scoped>
+@import '~/assets/css/work-home.css';
+
 .home-page {
   --home-bg: var(--color-bg);
-  --home-hero-bg: #07152f;
-  --home-hero-frame-top: rgba(12, 31, 72, 0.94);
-  --home-hero-frame-bottom: rgba(7, 18, 45, 0.96);
   --home-card: rgba(93, 126, 215, 0.12);
   --home-card-hover: rgba(111, 145, 235, 0.17);
   --home-border: var(--site-shell-border-soft);
@@ -168,11 +516,8 @@ useHead({
   --home-accent: #91aaff;
   --home-radius: var(--radius-lg);
   --home-radius-lg: var(--radius-xl);
-  --home-shadow-soft: var(--shadow-card);
-  --home-shadow-glow: var(--shadow-glow);
   min-height: 100vh;
   color: var(--home-text-main);
-  overflow: hidden;
 }
 
 .home-page :global(a) {
@@ -206,12 +551,11 @@ useHead({
   padding: 0 2.45rem 0 3.15rem;
   border: 1px solid var(--home-border);
   border-radius: 1.85rem 1.85rem 0 0;
-  background: rgba(8, 21, 49, 0.68);
+  background: rgba(8, 21, 49, 0.72);
   backdrop-filter: blur(22px);
   -webkit-backdrop-filter: blur(22px);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
   pointer-events: auto;
-  will-change: transform;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -258,8 +602,8 @@ useHead({
 
 .home-nav a {
   position: relative;
-  min-width: 4.6rem;
-  padding: 1rem 0;
+  min-width: 3.8rem;
+  padding: 0.85rem 0.35rem;
   color: var(--home-text-muted);
   text-align: center;
   font-size: 0.96rem;
@@ -272,19 +616,20 @@ useHead({
 }
 
 .home-nav a.is-active {
-  border-radius: 0.7rem;
-  background: linear-gradient(180deg, rgba(67, 103, 255, 0.12), rgba(67, 103, 255, 0.02));
+  border-radius: 0.45rem;
+  background: rgba(67, 103, 255, 0.07);
 }
 
 .home-nav a.is-active::after {
   content: '';
   position: absolute;
-  left: 1.55rem;
-  right: 1.55rem;
-  bottom: 0.72rem;
-  height: 2px;
-  background: #8ea0ff;
-  box-shadow: 0 0 16px rgba(126, 148, 255, 0.86);
+  left: 50%;
+  bottom: 0.55rem;
+  width: 1.25rem;
+  height: 1.5px;
+  transform: translateX(-50%);
+  background: rgba(142, 160, 255, 0.9);
+  border-radius: 1px;
 }
 
 .home-header-actions {
@@ -298,8 +643,7 @@ useHead({
 }
 
 .home-icon-button,
-.home-platform-button,
-:deep(.home-button) {
+.home-platform-button {
   min-height: 3rem;
   display: inline-flex;
   align-items: center;
@@ -323,106 +667,20 @@ useHead({
   fill: currentColor;
 }
 
-.home-platform-button,
-:deep(.home-button) {
+.home-platform-button {
   padding: 0 1.55rem;
   font-size: 0.9rem;
   font-weight: 690;
-}
-
-.home-platform-button,
-:deep(.home-button-primary) {
   border-color: rgba(112, 157, 255, 0.44);
   background: linear-gradient(135deg, rgba(39, 105, 255, 0.95), rgba(92, 80, 225, 0.92));
   box-shadow: 0 14px 36px rgba(45, 100, 255, 0.25);
 }
 
-:deep(.home-button-secondary) {
-  color: var(--home-text-muted);
-}
-
 .home-icon-button:hover,
-.home-platform-button:hover,
-:deep(.home-button:hover) {
+.home-platform-button:hover {
   transform: translateY(-0.14rem);
   border-color: var(--home-border-strong);
-  background: rgba(255, 255, 255, 0.08);
   box-shadow: 0 18px 38px rgba(36, 82, 210, 0.18);
-}
-
-.home-section {
-  position: relative;
-  padding: clamp(5rem, 9vw, 8rem) 0;
-}
-
-:deep(.home-section-heading) {
-  max-width: 40rem;
-  margin-bottom: 2.6rem;
-}
-
-:deep(.home-section-kicker) {
-  margin: 0;
-  color: var(--home-accent);
-  font-size: 0.78rem;
-  font-weight: 760;
-}
-
-:deep(.home-section-heading h2) {
-  margin: 0.8rem 0 0;
-  color: var(--home-text-main);
-  font-size: clamp(2.3rem, 5vw, 4.6rem);
-  font-weight: 770;
-  line-height: 1.02;
-}
-
-:deep(.home-section-heading p:last-child) {
-  margin: 1rem 0 0;
-  color: var(--home-text-muted);
-  font-size: 1.04rem;
-  line-height: 1.8;
-}
-
-:deep(.home-eyebrow) {
-  width: fit-content;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  margin: 0;
-  padding: 0.52rem 0.8rem;
-  border: 1px solid var(--home-border);
-  border-radius: 999px;
-  color: var(--home-text-muted);
-  background: rgba(255, 255, 255, 0.035);
-  font-size: 0.84rem;
-}
-
-:deep(.home-eyebrow-dot) {
-  width: 0.42rem;
-  height: 0.42rem;
-  border-radius: 50%;
-  background: #38e6a5;
-  box-shadow: 0 0 16px rgba(56, 230, 165, 0.72);
-}
-
-:deep(.reveal-up) {
-  will-change: transform, opacity;
-  animation: homeRevealUp 0.8s ease both;
-}
-
-:deep(.reveal-delay-1) {
-  animation-delay: 0.08s;
-}
-
-:deep(.reveal-delay-2) {
-  animation-delay: 0.16s;
-}
-
-:deep(.reveal-delay-3) {
-  animation-delay: 0.24s;
-}
-
-:deep(.reveal-delay-4) {
-  animation-delay: 0.32s;
 }
 
 .home-footer {
@@ -455,17 +713,6 @@ useHead({
 
 .home-footer-links a:hover {
   color: var(--home-text-main);
-}
-
-@keyframes homeRevealUp {
-  from {
-    opacity: 0;
-    transform: translateY(1.4rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 @media (max-width: 1100px) {

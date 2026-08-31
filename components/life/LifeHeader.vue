@@ -1,7 +1,10 @@
 <template>
   <header class="life-header">
     <div class="life-header-inner">
-      <NuxtLink to="/life" class="life-header-brand">溪午听风</NuxtLink>
+      <NuxtLink to="/life" class="life-header-brand">
+        <LifeIcon name="branch" class="life-header-mark" />
+        溪午听风
+      </NuxtLink>
 
       <nav class="life-header-nav" aria-label="生活站导航">
         <NuxtLink to="/life" :class="{ 'is-active': isHome }">首页</NuxtLink>
@@ -10,7 +13,7 @@
       </nav>
 
       <nav class="life-header-switch" aria-label="切换站点">
-        <NuxtLink to="/work">Work ↗</NuxtLink>
+        <NuxtLink to="/work">Work</NuxtLink>
         <NuxtLink to="/">入口</NuxtLink>
       </nav>
     </div>

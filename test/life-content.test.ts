@@ -6,7 +6,9 @@ import {
 } from '../constants/life-content'
 import {
   parseYamlSafe,
+  readLifeHome,
   readLifeMoments,
+  readLifeNow,
   readMarkdownCollection,
 } from '../server/utils/content-files'
 
@@ -34,6 +36,22 @@ describe('Life markdown collection', () => {
     expect(notes.some(item => item.slug === 'profile')).toBe(false)
     expect(notes.some(item => item.path === '/life/profile')).toBe(false)
     expect(notes.some(item => item._path === '/life/profile')).toBe(false)
+  })
+})
+
+describe('Life home content', () => {
+  it('keeps magazine sections content-driven', () => {
+    const home = readLifeHome()
+    expect(home.hero.name).toBe('溪午听风')
+    expect(home.hero.lines.length).toBeGreaterThan(0)
+    expect(home.sections.now.number).toBe('02')
+    expect(home.sections.about.number).toBe('05')
+    expect(home.sections.about.title).toBe('关于我')
+    expect(home.closing).toBeTruthy()
+
+    const now = readLifeNow()
+    expect(now.items.length).toBeGreaterThanOrEqual(3)
+    expect(now.items.every(item => item.title && item.description)).toBe(true)
   })
 })
 

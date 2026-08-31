@@ -1,9 +1,12 @@
 items:
   - title: "运动"
     description: "最近在减脂、增肌，健身和游泳来回切。"
+    icon: sneaker
 
   - title: "三国杀"
     description: "最近桌游比较喜欢这个，有空就玩几局。"
+    icon: cards
 
   - title: "骑车"
-    description: "最近又开始惦记自行车了，准备再看看一两辆。"
+    description: "最近又开始骑自行车了，准备再看看一两辆。"
+    icon: bike
