@@ -1,4 +1,13 @@
 /**
+ * LEGACY / DEPRECATED (Phase 4B-3)
+ *
+ * Articles body SoT is Git (`content/articles`).
+ * Do NOT use this script to write MySQL article bodies.
+ * Prefer: edit Markdown under content/articles + PR / Git history.
+ *
+ * Kept only for emergency historical reference — not a production write path.
+ */
+/**
  * LEGACY migration helper (Phase 6):
  * Work markdown dirs content/blog|projects|tools were removed (empty + no runtime consumers).
  * This script remains for one-off imports if you restore markdown into those paths.

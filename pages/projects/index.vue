@@ -625,7 +625,9 @@ const loadGithubStats = async () => {
 
   await Promise.allSettled(
     uncachedRepos.map(async (repo) => {
-      const stats = await api.get<{ total: number; week: number }[]>(`/github/stats?repo=${repo}`)
+      const stats = await api.get<{ total: number; week: number }[]>(`/github/stats?repo=${repo}`, {
+        silent: true,
+      })
       if (Array.isArray(stats)) {
         githubStatsCache.value[repo] = stats
       }

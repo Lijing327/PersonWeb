@@ -42,8 +42,7 @@ export default defineEventHandler(async (event) => {
 function isProtectedPath(path: string): boolean {
   // 定义需要保护的路径模式
   const protectedPatterns = [
-    '^/api/modules/[^/]+/protected', // 受保护的模块API
-    '^/admin/modules/[^/]+/settings' // 模块设置页面
+    '^/api/modules/[^/]+/protected', // 受保护的模块 API
   ]
 
   return protectedPatterns.some(pattern => {

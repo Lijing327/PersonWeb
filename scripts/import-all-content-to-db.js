@@ -1,4 +1,8 @@
 /**
+ * LEGACY / DEPRECATED (Phase 4B-3)
+ * Do NOT import article Markdown into MySQL. Articles SoT is Git.
+ * Life/cognition imports may still be relevant — review before use.
+ *
  * LEGACY migration helper (Phase 6):
  * content/blog|projects|tools directories were removed as empty orphans.
  * Life/cognition/ai paths remain. Script kept for optional one-off restores.

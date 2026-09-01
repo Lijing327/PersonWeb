@@ -167,24 +167,21 @@
               <template #icon>
                 <i class="fas fa-tools"></i>
               </template>
-              工具管理
+              工具运营
             </n-button>
 
-            <n-button block @click="navigateTo('/admin/documents')">
+            <n-button block @click="navigateTo('/admin/document-agent')">
               <template #icon>
                 <i class="fas fa-book"></i>
               </template>
-              文档管理
+              文档知识库
             </n-button>
 
             <n-divider />
 
-            <n-button block type="primary" @click="navigateTo('/admin/ai/content')">
-              <template #icon>
-                <i class="fas fa-magic"></i>
-              </template>
-              AI 内容生成
-            </n-button>
+            <n-alert type="info" :bordered="false">
+              站点 Work 展示文案（About / Home / AI 身份）请在 <code>content/work/</code> 中维护，后台不提供正文编辑。
+            </n-alert>
           </div>
         </n-card>
 
@@ -195,10 +192,10 @@
           </template>
 
           <div class="text-sm text-gray-600 dark:text-gray-400 space-y-2">
-            <p>• AI 生成内容默认进入草稿，需人工审核后发布</p>
-            <p>• 支持查看文章来源类型（手动创建/AI生成）</p>
-            <p>• 草稿内容可以编辑优化后发布</p>
-            <p>• 已发布内容支持版本管理</p>
+            <p>• 文章 / 项目正文：DB 仍为当前 SoT，生产入口为 Git / content / 导入脚本</p>
+            <p>• Work 展示文案：content/work/ 为唯一 SoT</p>
+            <p>• 后台仅观察发布状态、来源类型与访问表现</p>
+            <p>• 版本历史只读对比，不支持从后台恢复正文</p>
           </div>
         </n-card>
       </div>
@@ -207,7 +204,7 @@
 </template>
 
 <script setup lang="ts">
-import { NCard, NSpin, NTag, NButton, NDivider } from 'naive-ui'
+import { NCard, NSpin, NTag, NButton, NDivider, NAlert } from 'naive-ui'
 import { useSafeMessage } from '~/composables/useNaiveUI'
 
 definePageMeta({
@@ -261,12 +258,12 @@ const formatTime = (time: string) => {
   })
 }
 
-// 跳转到内容
+// 跳转到内容运营列表（只读观察，不进入 CMS 编辑）
 const navigateToContent = (item: any) => {
   if (item.type === 'article' || !item.type) {
-    navigateTo(`/admin/articles/edit/${item.id}`)
+    navigateTo('/admin/articles')
   } else if (item.type === 'project') {
-    navigateTo(`/admin/projects/edit/${item.id}`)
+    navigateTo('/admin/projects')
   }
 }
 

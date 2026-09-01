@@ -32,14 +32,8 @@
     <!-- 页脚 -->
     <Footer />
     
-    <!-- AI 智能助手（独立，不放入抽屉） -->
-    <AIAssistant v-if="showPrimaryFloatingAssistant" />
-    
-    <!-- 智能客服（前台访客使用） -->
-    <SupportChat v-if="showSecondaryFloatingTools" />
-    
-    <!-- 访客互动功能 -->
-    <VisitorInteractionPanel v-if="showSecondaryFloatingTools" />
+    <!-- Work 统一浮动帮助入口（问 AI / 联系 / 留言） -->
+    <WorkAssistantHub v-if="showWorkAssistantHub" />
     
     <!-- 访客互动式玩法（包含在抽屉中） -->
     <VisitorBehaviorListener v-if="showDesktopEnhancements" />
@@ -66,16 +60,13 @@ import {
 
 const ParticleBackground = defineAsyncComponent(() => import('~/components/effects/ParticleBackground.vue'))
 const MouseTrail = defineAsyncComponent(() => import('~/components/effects/MouseTrail.vue'))
-const AIAssistant = defineAsyncComponent(() => import('~/components/ai/AIAssistant.vue'))
-const SupportChat = defineAsyncComponent(() => import('~/components/ai/SupportChat.vue'))
-const VisitorInteractionPanel = defineAsyncComponent(() => import('~/components/VisitorInteractionPanel.vue'))
+const WorkAssistantHub = defineAsyncComponent(() => import('~/components/work/WorkAssistantHub.vue'))
 const VisitorBehaviorListener = defineAsyncComponent(() => import('~/components/VisitorBehaviorListener.vue'))
 const VisitorSidebarDrawer = defineAsyncComponent(() => import('~/components/VisitorSidebarDrawer.vue'))
 const route = useRoute()
 
 const shouldMountDeferredUi = ref(false)
 const isLowPowerMode = ref(false)
-const isCompactFloatingMode = ref(false)
 
 const effectOpts = computed(() => ({
   deferred: shouldMountDeferredUi.value,
@@ -88,12 +79,9 @@ const showDesktopEnhancements = computed(() =>
 const showParticleLayer = computed(() =>
   shouldShowWorkParticleLayer(route.path || '/', effectOpts.value),
 )
-const showFloatingAssistants = computed(() =>
+/** 单一浮动入口：详情阅读页 / 低功耗下不挂载 */
+const showWorkAssistantHub = computed(() =>
   shouldShowWorkDeferredChrome(route.path || '/', effectOpts.value),
-)
-const showPrimaryFloatingAssistant = computed(() => showFloatingAssistants.value)
-const showSecondaryFloatingTools = computed(
-  () => showFloatingAssistants.value && !isCompactFloatingMode.value,
 )
 
 let deferredMountTimer: number | null = null
@@ -101,7 +89,6 @@ let deferredMountTimer: number | null = null
 const detectLowPowerMode = () => {
   const coarsePointer = window.matchMedia('(pointer: coarse)').matches
   const narrowScreen = window.innerWidth < 1024
-  const compactViewport = window.innerWidth < 1480 || window.innerHeight < 920
   const saveData = 'connection' in navigator && (navigator as Navigator & {
     connection?: { saveData?: boolean }
   }).connection?.saveData === true
@@ -111,7 +98,6 @@ const detectLowPowerMode = () => {
   const lowMemory = lowMemoryValue > 0 && lowMemoryValue <= 4
 
   isLowPowerMode.value = coarsePointer || narrowScreen || saveData || lowMemory
-  isCompactFloatingMode.value = compactViewport
 }
 
 const scheduleDeferredWidgets = () => {

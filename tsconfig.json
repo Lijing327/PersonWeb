@@ -1,3 +1,17 @@
 {
-  "extends": "./.nuxt/tsconfig.json"
+  "extends": "./.nuxt/tsconfig.json",
+  "exclude": [
+    "dist",
+    ".data",
+    "scripts",
+    "node/scripts",
+    "backend",
+    "ai-service",
+    "database",
+    "docs",
+    "examples",
+    "test",
+    "server/tests",
+    "node_modules"
+  ]
 }

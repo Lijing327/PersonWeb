@@ -54,6 +54,14 @@ export default defineNuxtConfig({
       // 默认使用同源 /api，避免线上未配置时错误回退到 localhost
       apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api',
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://xifg.com.cn',
+      /**
+       * Articles SoT: mysql | git
+       * Default: git (Phase 4B-3).
+       * mysql = LEGACY_ROLLBACK_ONLY — keep for one release cycle, then remove.
+       */
+      articlesSot: process.env.CONTENT_ARTICLES_SOT
+        || process.env.NUXT_PUBLIC_ARTICLES_SOT
+        || 'git',
     }
   },
 
@@ -160,7 +168,6 @@ export default defineNuxtConfig({
       ignore: [
         '/blog/**',
         '/projects/**',
-        '/admin/articles/edit/**',
         '/admin/side-projects/projects/**'
       ],
       // 忽略预渲染错误

@@ -1,6 +1,6 @@
 /**
- * AI 解决方案页面数据配置。
- * 页面只负责展示，内容、案例状态和跳转路径统一在这里维护。
+ * AI 解决方案页配置类型。
+ * PRIMARY SoT: content/work/ai.yml via /api/content/work/ai
  */
 
 export interface SolutionScenario {
@@ -8,14 +8,14 @@ export interface SolutionScenario {
   title: string
   icon: string
   description: string
-  examples: string[]
+  examples?: string[]
 }
 
 export interface Capability {
   id: string
   title: string
   icon: string
-  features: string[]
+  features?: string[]
 }
 
 export interface FeaturedProject {
@@ -23,8 +23,8 @@ export interface FeaturedProject {
   title: string
   icon: string
   description: string
-  highlights: string[]
-  status: string
+  highlights?: string[]
+  status?: string
   path: string | null
 }
 
@@ -39,11 +39,38 @@ export interface CooperationStep {
   description: string
 }
 
+export interface WorkAssistantCopy {
+  hub: {
+    title: string
+    triggerLabel: string
+    items: Array<{
+      id: string
+      title: string
+      description: string
+      icon: string
+      action: string
+    }>
+  }
+  chat: {
+    name: string
+    statusOnline: string
+    statusThinking: string
+    welcome: {
+      eyebrow: string
+      title: string
+      description: string
+    }
+    quickActions: Array<{ text: string, icon: string }>
+    systemAbout: string
+  }
+}
+
 export interface AiSolutionsPageConfig {
   badge: { text: string }
   title: string
   subtitle: string
   description: string
+  heroActions: Array<{ label: string, href?: string, to?: string, variant?: string }>
   seo: {
     title: string
     description: string
@@ -73,152 +100,10 @@ export interface AiSolutionsPageConfig {
     cooperation: string
     cooperationIcon: string
   }
+  assistant: WorkAssistantCopy
 }
 
-export const useAiSolutionsData = (): AiSolutionsPageConfig => ({
-  badge: { text: '从业务问题出发，而不是从模型出发' },
-  title: '把 AI 从想法，做成真正可用的产品',
-  subtitle: '为个人创作者、小团队与中小企业设计并交付可落地的 AI 应用',
-  description:
-    '从需求梳理、原型验证到前后端开发与上线，我会把模型能力嵌入真实工作流，重点解决效率、知识检索、内容生产和产品智能化问题。每个方案都以可验证、可维护和可持续迭代为交付标准。',
-
-  seo: {
-    title: 'AI 解决方案与应用开发 | 溪午听风',
-    description: '面向个人创作者、小团队与中小企业的 AI 应用开发服务，覆盖智能体、知识库问答、流程自动化、AI 工具与现有系统集成。'
-  },
-
-  scenarios: [
-    {
-      id: 'workflow-efficiency',
-      title: '重复流程占用大量时间',
-      icon: 'fas fa-arrows-rotate',
-      description: '把资料整理、表单处理、报告生成和跨系统操作组合成可追踪的自动化流程。',
-      examples: ['数据整理与归类', '内容生成与审核', '定时任务与结果通知']
-    },
-    {
-      id: 'knowledge-search',
-      title: '资料很多，但查找与复用困难',
-      icon: 'fas fa-book-open',
-      description: '让团队文档、产品资料和历史经验变成能够检索、追问并标注来源的知识库。',
-      examples: ['内部知识问答', '产品资料检索', '回答来源与权限控制']
-    },
-    {
-      id: 'product-intelligence',
-      title: '现有产品需要接入 AI',
-      icon: 'fas fa-puzzle-piece',
-      description: '在网站、管理后台或业务系统中增加真正融入使用路径的 AI 能力。',
-      examples: ['网站智能助手', '后台内容辅助', '业务接口与模型联动']
-    },
-    {
-      id: 'idea-to-mvp',
-      title: '有 AI 想法，但缺少落地路径',
-      icon: 'fas fa-rocket',
-      description: '先验证最关键的业务假设，再用小步迭代的方式完成可演示、可使用的 MVP。',
-      examples: ['需求与边界梳理', '交互原型验证', 'MVP 开发与上线']
-    }
-  ],
-
-  capabilities: [
-    {
-      id: 'agent-system',
-      title: '智能体系统开发',
-      icon: 'fas fa-robot',
-      features: ['单智能体与多角色协作设计', '任务拆解、工具调用与状态流转', '短期上下文与长期记忆管理', '异常处理、人工确认与运行日志']
-    },
-    {
-      id: 'ai-tools',
-      title: 'AI 工具与业务助手',
-      icon: 'fas fa-wand-magic-sparkles',
-      features: ['内容生成、改写、分类与提取', '表单、文件与结构化数据处理', '业务规则与模型能力混合编排', 'Web 应用与管理后台完整交付']
-    },
-    {
-      id: 'knowledge-qa',
-      title: '知识库智能问答',
-      icon: 'fas fa-database',
-      features: ['文档、网页与业务数据接入', '分段、索引、召回与答案生成', '多轮问答、来源引用与权限隔离', '内容更新、质量评估与反馈闭环']
-    },
-    {
-      id: 'integration',
-      title: 'AI 与现有系统集成',
-      icon: 'fas fa-plug',
-      features: ['网站助手、客服与线索收集', '管理后台内容与数据辅助', '对接现有 API、数据库与权限体系', '监控、限流、缓存与成本控制']
-    }
-  ],
-
-  featuredProjects: [
-    {
-      id: 'name-tool',
-      title: '智能取名助手',
-      icon: 'fas fa-signature',
-      description: '基于业务规则与大模型的取名工具，支持行业、风格、关键词和禁用词等多维约束。',
-      highlights: ['Prompt 模板化管理', '多轮生成与结果去重', '支持品牌名、产品名等场景扩展'],
-      status: '可在线体验',
-      path: '/tools/name'
-    },
-    {
-      id: 'website-chat',
-      title: '网站 AI 聊天助手',
-      icon: 'fas fa-comments',
-      description: '面向访客咨询与产品介绍的对话式助手，展示完整的聊天交互与上下文能力。',
-      highlights: ['系统指令与用户消息分层', '支持上下文与历史消息', '可接入知识库与业务接口'],
-      status: '可在线体验',
-      path: '/ai/chat-bot'
-    },
-    {
-      id: 'knowledge-system',
-      title: '个人知识库与内容中枢',
-      icon: 'fas fa-book',
-      description: '将分散的文章、笔记和资料统一组织，为语义检索与知识问答建立内容基础。',
-      highlights: ['统一的内容分类与检索入口', '支持结构化知识沉淀', '可扩展为 RAG 问答与内容助手'],
-      status: '持续建设中',
-      path: '/knowledge'
-    }
-  ],
-
-  techStackCategories: [
-    {
-      name: '模型与智能层',
-      icon: 'fas fa-brain',
-      items: ['OpenAI 与主流国产模型接入', 'Prompt、结构化输出与工具调用', '模型路由、缓存与成本控制', '效果评估与失败兜底']
-    },
-    {
-      name: '服务与数据层',
-      icon: 'fas fa-server',
-      items: ['Python / .NET Web API / Nitro', '关系数据库、向量检索与缓存', '任务编排、队列与定时任务', '鉴权、日志、限流与敏感数据保护']
-    },
-    {
-      name: '产品与交互层',
-      icon: 'fas fa-desktop',
-      items: ['Vue 3 / Nuxt 3 / TypeScript', '对话、流式响应与人工确认交互', '管理后台、配置面板与结果可视化', '响应式页面与部署交付']
-    }
-  ],
-
-  cooperationSteps: [
-    { title: '需求沟通', description: '梳理目标用户、现有流程、数据来源与成功标准，判断 AI 是否真的适合这个问题。' },
-    { title: '方案与原型', description: '拆分业务规则与模型能力，明确数据边界、技术路线、交付范围和阶段计划。' },
-    { title: '开发与验证', description: '优先完成关键链路，通过真实样例验证效果，并在阶段节点演示和确认。' },
-    { title: '上线与迭代', description: '交付代码、配置与使用说明，完善监控和兜底机制，再根据真实反馈持续优化。' }
-  ],
-
-  cta: {
-    text: '如果你已经有一个具体场景，或只有一个还不够清晰的想法，<br>都可以先聊聊问题本身，再判断应该做什么、做到哪一步。',
-    primaryButton: { text: '沟通你的需求', path: '/contact', icon: 'fas fa-arrow-right' },
-    secondaryButton: { text: '先看实践案例', anchor: '#projects', icon: 'fas fa-arrow-down' }
-  },
-
-  sectionTitles: {
-    scenarios: '哪些问题适合用 AI 解决',
-    scenariosIcon: 'fas fa-compass',
-    scenariosNote: '先判断问题，再选择模型与技术',
-    capabilities: '我能为你构建哪些 AI 能力',
-    capabilitiesIcon: 'fas fa-lightbulb',
-    projects: '可以查看的 AI 项目与实践',
-    projectsIcon: 'fas fa-diagram-project',
-    projectsNote: '优先展示真实可访问、可验证的站内实践',
-    projectsDescription: '这些项目仍在持续迭代，但核心链路已经可以体验，相关能力也能复用到新的业务场景中。',
-    techStack: '技术实现与交付保障',
-    techStackIcon: 'fas fa-code',
-    cooperation: '从想法到上线的合作流程',
-    cooperationIcon: 'fas fa-handshake'
-  }
-})
+/** 从 Work SoT 加载 AI 方案页（含 assistant UI 文案）。 */
+export async function fetchAiSolutionsData(): Promise<AiSolutionsPageConfig> {
+  return await $fetch<AiSolutionsPageConfig>('/api/content/work/ai')
+}

@@ -127,29 +127,39 @@ async function collectDynamicFromApi(apiBase) {
   }
   const errors = []
 
-  // Articles (paginate)
+  // Articles — Git SoT (Phase 4B-3). Only /blog/{slug} for published.
   try {
-    let page = 1
-    const pageSize = 100
-    let total = Infinity
-    while ((page - 1) * pageSize < total && page <= 50) {
-      const data = await fetchJson(`${base}/Articles?page=${page}&pageSize=${pageSize}`)
-      const list = data?.List || data?.list || []
-      total = Number(data?.Total ?? data?.total ?? list.length)
-      for (const article of list) {
-        const status = article.Status ?? article.status
-        // Only include clearly published when status is present; otherwise include (matches public list behavior)
-        if (status !== undefined && status !== null && Number(status) !== 1 && status !== 'published') {
-          continue
+    const articlesDir = path.join(__dirname, '../../content/articles')
+    const takedownSlugs = new Set()
+    // Best-effort: load takedown from content_ops when DB env is present
+    try {
+      const mysql = require('mysql2/promise')
+      const host = process.env.DB_HOST
+      const user = process.env.DB_USER
+      const database = process.env.DB_NAME
+      if (host && user && database) {
+        const pool = await mysql.createPool({
+          host,
+          user,
+          password: process.env.DB_PASSWORD || '',
+          database,
+          connectionLimit: 1,
+        })
+        try {
+          const [rows] = await pool.query(
+            `SELECT slug FROM content_ops WHERE entity_type = 'article' AND takedown = 1`,
+          )
+          for (const row of rows) takedownSlugs.add(String(row.slug))
+        } finally {
+          await pool.end()
         }
-        const slug = article.Slug || article.slug
-        const id = article.Id || article.id
-        const segment = slug || id
-        if (segment) paths.push(`/blog/${segment}`)
       }
-      if (!list.length) break
-      page += 1
+    } catch (e) {
+      errors.push(`articles-takedown: ${e.message || e}`)
     }
+
+    const articlePaths = collectArticlePathsFromGit(articlesDir, takedownSlugs)
+    paths.push(...articlePaths)
     sources.articles = true
   } catch (e) {
     errors.push(`articles: ${e.message || e}`)
@@ -214,6 +224,52 @@ async function collectDynamicFromApi(apiBase) {
   return { paths, sources, errors }
 }
 
+function collectArticlePathsFromGit(contentArticlesDir, takedownSlugs = new Set()) {
+  if (!fs.existsSync(contentArticlesDir)) return []
+  const { parse: parseYaml } = require('yaml')
+  const paths = []
+  for (const name of fs.readdirSync(contentArticlesDir)) {
+    if (!name.endsWith('.md')) continue
+    const slug = name.replace(/\.md$/i, '')
+    if (!slug || slug.startsWith('_')) continue
+    if (takedownSlugs.has(slug)) continue
+    try {
+      const raw = fs.readFileSync(path.join(contentArticlesDir, name), 'utf8')
+      const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/)
+      if (!match) continue
+      const data = parseYaml(match[1]) || {}
+      const status = String(data.status || '').trim()
+      if (status !== 'published') continue
+      const fmSlug = String(data.slug || slug).trim()
+      if (fmSlug !== slug) continue
+      paths.push(`/blog/${slug}`)
+    } catch {
+      // skip broken files
+    }
+  }
+  return paths
+}
+
+/**
+ * Diff API-derived article sitemap paths vs Git content paths.
+ * Does not switch production sitemap — Phase 4B-2 readiness only.
+ */
+function diffArticleSitemapPaths(apiPaths, gitPaths) {
+  const apiSet = new Set(apiPaths.filter((p) => p.startsWith('/blog/')))
+  const gitSet = new Set(gitPaths.filter((p) => p.startsWith('/blog/')))
+  const onlyInApi = [...apiSet].filter((p) => !gitSet.has(p)).sort()
+  const onlyInGit = [...gitSet].filter((p) => !apiSet.has(p)).sort()
+  const shared = [...apiSet].filter((p) => gitSet.has(p)).sort()
+  return {
+    apiCount: apiSet.size,
+    gitCount: gitSet.size,
+    sharedCount: shared.length,
+    onlyInApi,
+    onlyInGit,
+    equal: onlyInApi.length === 0 && onlyInGit.length === 0,
+  }
+}
+
 function buildSitemapXml(siteUrl, paths, lastmod = new Date().toISOString().slice(0, 10)) {
   const site = stripTrailingSlash(siteUrl)
   const unique = uniqPaths(paths)
@@ -249,6 +305,8 @@ module.exports = {
   uniqPaths,
   collectLifeNotePaths,
   collectDynamicFromApi,
+  collectArticlePathsFromGit,
+  diffArticleSitemapPaths,
   buildSitemapXml,
   stripTrailingSlash,
 }

@@ -171,10 +171,9 @@ function getCategoryName(category: string): string {
   return categoryMap[category] || category
 }
 
-// 打开设置
+// 打开模块配置中枢（站点级 .NET 模块开关，非 per-key 插件设置页）
 function openSettings() {
-  // 导航到模块设置页面
-  navigateTo(`/admin/modules/${props.module.key}/settings`)
+  navigateTo('/admin/settings/modules')
 }
 
 // 购买模块

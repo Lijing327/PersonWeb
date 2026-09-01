@@ -81,7 +81,7 @@
 
 <script setup lang="ts">
 import MarkdownIt from 'markdown-it'
-import { fetchBackendApi, isNotFoundError } from '~/composables/useBackendFetch'
+import { isNotFoundError } from '~/composables/useBackendFetch'
 import { usePageSeo, useJsonLd, toAbsoluteUrl } from '~/composables/usePageSeo'
 import '~/assets/css/blog.css'
 
@@ -97,23 +97,15 @@ const md = new MarkdownIt({
 })
 
 const idOrSlug = String(route.params.id || '')
+const { getArticleByIdOrSlug, recordArticleView } = useArticlesRepository()
 
 const { data: article, pending, error } = await useAsyncData(
   `blog-article-${idOrSlug}`,
   async () => {
-    const isNumeric = /^\d+$/.test(idOrSlug)
     try {
-      if (isNumeric) {
-        return await fetchBackendApi<any>(`/Articles/${idOrSlug}`)
-      }
-      try {
-        return await fetchBackendApi<any>(`/Articles/slug/${idOrSlug}`)
-      } catch (slugError) {
-        if (!isNotFoundError(slugError)) throw slugError
-        return await fetchBackendApi<any>(`/Articles/${idOrSlug}`)
-      }
+      return await getArticleByIdOrSlug(idOrSlug)
     } catch (e) {
-      if (isNotFoundError(e)) {
+      if (isNotFoundError(e) || (e as any)?.statusCode === 404) {
         throw createError({ statusCode: 404, statusMessage: 'Not Found' })
       }
       throw createError({ statusCode: 502, statusMessage: 'Upstream error' })
@@ -128,6 +120,12 @@ if (error.value && isNotFoundError(error.value)) {
 if (!article.value && !pending.value) {
   throw createError({ statusCode: 404, statusMessage: 'Not Found' })
 }
+
+// Client-only view count — avoids SSR + hydration double increment
+onMounted(() => {
+  const slug = article.value?.slug
+  if (slug) recordArticleView(slug)
+})
 
 const renderArticle = (contentMd: string) => {
   const tokens = md.parse(contentMd, {})
@@ -199,9 +197,9 @@ const scrollTo = (id: string) => {
 }
 
 usePageSeo(() => ({
-  title: `${article.value?.title || '文章'} - 溪午听风`,
-  description: article.value?.summary || article.value?.description || '溪午听风的技术文章。',
-  path: `/blog/${idOrSlug}`,
+  title: `${article.value?.seoTitle || article.value?.title || '文章'} - 溪午听风`,
+  description: article.value?.seoDescription || article.value?.summary || article.value?.description || '溪午听风的技术文章。',
+  path: article.value?.canonicalUrl || `/blog/${article.value?.slug || idOrSlug}`,
   image: article.value?.coverUrl || null,
   type: 'article',
   world: 'work',
@@ -209,17 +207,18 @@ usePageSeo(() => ({
 
 useJsonLd(() => {
   if (!article.value) return null
+  const path = article.value.canonicalUrl || `/blog/${article.value.slug || idOrSlug}`
   return {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     headline: article.value.title,
-    description: article.value.summary || article.value.description || undefined,
+    description: article.value.seoDescription || article.value.summary || article.value.description || undefined,
     datePublished: article.value.publishTime || article.value.createdAt || undefined,
     author: {
       '@type': 'Person',
       name: '溪午听风',
     },
-    mainEntityOfPage: toAbsoluteUrl(`/blog/${idOrSlug}`),
+    mainEntityOfPage: toAbsoluteUrl(path),
     image: article.value.coverUrl ? toAbsoluteUrl(article.value.coverUrl) : undefined,
   }
 })

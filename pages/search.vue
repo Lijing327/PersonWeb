@@ -538,7 +538,7 @@ const performSearch = async () => {
                        selectedType.value === 'tools' ? 'tools' :
                        selectedType.value === 'themes' ? 'themes' : 'all'
 
-    const res = await api.get<SearchResults>('/Search', {
+    const res = await api.get<SearchResults>('/api/search', {
       params: {
         keyword: searchQuery.value.trim(),
         type: backendType,

@@ -5,8 +5,8 @@
         <NuxtLink to="/work" class="home-brand" aria-label="溪午听风工作站首页">
           <SiteBrandLogo variant="favicon" />
           <span class="home-brand-text">
-            <strong>溪午听风</strong>
-            <small>个人数字资产 | AI 产品实验室</small>
+            <strong>{{ home.brand.name }}</strong>
+            <small>{{ home.brand.tagline }}</small>
           </span>
         </NuxtLink>
 
@@ -51,20 +51,37 @@
         <section class="work-section work-hero" aria-labelledby="work-hero-title">
           <div class="work-split">
             <div class="work-hero-copy">
-              <p class="work-hero-kicker">个人工作站</p>
-              <h1 id="work-hero-title" class="work-hero-title">溪午听风</h1>
-              <p class="work-hero-en">Aven</p>
-              <p class="work-hero-role">AI 应用 · 产品开发 · 全栈工程</p>
+              <p class="work-hero-kicker">{{ home.hero.kicker }}</p>
+              <h1 id="work-hero-title" class="work-hero-title">{{ home.hero.title }}</h1>
+              <p class="work-hero-en">{{ home.hero.englishName }}</p>
+              <p class="work-hero-role">{{ home.hero.role }}</p>
               <p class="work-hero-value">
-                专业工作名片：我是谁、能做什么、做过什么、做出了哪些可用产品，以及如何联系。
+                {{ home.hero.value }}
               </p>
               <div class="work-hero-actions">
-                <a href="#featured-projects" class="work-hero-btn work-hero-btn--primary">查看案例</a>
-                <NuxtLink to="/products" class="work-hero-btn work-hero-btn--secondary">可用产品</NuxtLink>
+                <template v-for="action in home.hero.actions" :key="action.label">
+                  <a
+                    v-if="action.href"
+                    :href="action.href"
+                    class="work-hero-btn"
+                    :class="action.variant === 'primary' ? 'work-hero-btn--primary' : 'work-hero-btn--secondary'"
+                  >{{ action.label }}</a>
+                  <NuxtLink
+                    v-else-if="action.to"
+                    :to="action.to"
+                    class="work-hero-btn"
+                    :class="action.variant === 'primary' ? 'work-hero-btn--primary' : 'work-hero-btn--secondary'"
+                  >{{ action.label }}</NuxtLink>
+                </template>
               </div>
               <div class="work-hero-links">
-                <a href="https://github.com/Lijing327" target="_blank" rel="noopener noreferrer">GitHub</a>
-                <a href="mailto:linxiwanting@gmail.com">Email</a>
+                <a
+                  v-for="link in home.hero.links"
+                  :key="link.label"
+                  :href="link.href"
+                  :target="link.external ? '_blank' : undefined"
+                  :rel="link.external ? 'noopener noreferrer' : undefined"
+                >{{ link.label }}</a>
               </div>
             </div>
 
@@ -82,7 +99,7 @@
                 <div class="work-hero-panel-block">
                   <h3>Status</h3>
                   <ul class="work-status-list">
-                    <li v-for="item in statusItems" :key="item">
+                    <li v-for="item in home.panel.status" :key="item">
                       <span class="work-status-dot" aria-hidden="true" />
                       {{ item }}
                     </li>
@@ -93,13 +110,13 @@
               <div class="work-hero-panel-block">
                 <h3>Tools</h3>
                 <div class="work-tool-tags">
-                  <span v-for="tool in toolItems" :key="tool" class="work-tool-tag">{{ tool }}</span>
+                  <span v-for="tool in home.panel.tools" :key="tool" class="work-tool-tag">{{ tool }}</span>
                 </div>
               </div>
 
               <div v-if="currentBuild" class="work-hero-current">
                 <span class="work-hero-current-label">Current</span>
-                <span class="work-hero-current-text">{{ currentBuild.title }} · 持续迭代中</span>
+                <span class="work-hero-current-text">{{ currentBuild.title }} · {{ home.panel.currentSuffix }}</span>
               </div>
             </aside>
           </div>
@@ -108,11 +125,13 @@
         <section id="featured-projects" class="work-section" aria-labelledby="work-featured-title">
           <div class="work-split">
             <header class="work-aside">
-              <span class="work-section-num" aria-hidden="true">01</span>
-              <p class="work-aside-label">Selected Work</p>
-              <h2 id="work-featured-title" class="work-aside-title">精选项目</h2>
-              <p class="work-aside-desc">代表性的产品与工程实践。</p>
-              <NuxtLink to="/projects" class="work-aside-link">查看全部项目 →</NuxtLink>
+              <span class="work-section-num" aria-hidden="true">{{ home.sections.featured.number }}</span>
+              <p class="work-aside-label">{{ home.sections.featured.label }}</p>
+              <h2 id="work-featured-title" class="work-aside-title">{{ home.sections.featured.title }}</h2>
+              <p class="work-aside-desc">{{ home.sections.featured.description }}</p>
+              <NuxtLink :to="home.sections.featured.linkTo || '/projects'" class="work-aside-link">
+                {{ home.sections.featured.linkText }}
+              </NuxtLink>
             </header>
 
             <div class="work-featured-grid">
@@ -156,11 +175,13 @@
         <section id="capabilities" class="work-section" aria-labelledby="work-cap-title">
           <div class="work-split">
             <header class="work-aside">
-              <span class="work-section-num" aria-hidden="true">02</span>
-              <p class="work-aside-label">Capabilities</p>
-              <h2 id="work-cap-title" class="work-aside-title">能力范围</h2>
-              <p class="work-aside-desc">产品、AI、工程与交付。</p>
-              <NuxtLink to="/about" class="work-aside-link">查看能力详情 →</NuxtLink>
+              <span class="work-section-num" aria-hidden="true">{{ home.sections.capabilities.number }}</span>
+              <p class="work-aside-label">{{ home.sections.capabilities.label }}</p>
+              <h2 id="work-cap-title" class="work-aside-title">{{ home.sections.capabilities.title }}</h2>
+              <p class="work-aside-desc">{{ home.sections.capabilities.description }}</p>
+              <NuxtLink :to="home.sections.capabilities.linkTo || '/about'" class="work-aside-link">
+                {{ home.sections.capabilities.linkText }}
+              </NuxtLink>
             </header>
 
             <div class="work-cap-grid">
@@ -178,11 +199,13 @@
         <section id="more-projects" class="work-section" aria-labelledby="work-more-title">
           <div class="work-split">
             <header class="work-aside">
-              <span class="work-section-num" aria-hidden="true">03</span>
-              <p class="work-aside-label">More Work</p>
-              <h2 id="work-more-title" class="work-aside-title">更多项目</h2>
-              <p class="work-aside-desc">其它产品、工具与实验。</p>
-              <NuxtLink to="/projects" class="work-aside-link">查看更多 →</NuxtLink>
+              <span class="work-section-num" aria-hidden="true">{{ home.sections.more.number }}</span>
+              <p class="work-aside-label">{{ home.sections.more.label }}</p>
+              <h2 id="work-more-title" class="work-aside-title">{{ home.sections.more.title }}</h2>
+              <p class="work-aside-desc">{{ home.sections.more.description }}</p>
+              <NuxtLink :to="home.sections.more.linkTo || '/projects'" class="work-aside-link">
+                {{ home.sections.more.linkText }}
+              </NuxtLink>
             </header>
 
             <div class="work-more-grid">
@@ -210,29 +233,32 @@
         <section id="contact" class="work-section" aria-labelledby="work-contact-title">
           <div class="work-split">
             <header class="work-aside">
-              <span class="work-section-num" aria-hidden="true">04</span>
-              <p class="work-aside-label">Contact</p>
-              <h2 id="work-contact-title" class="work-aside-title">联系我</h2>
-              <p class="work-aside-desc">合作、咨询或交流，欢迎联系。</p>
+              <span class="work-section-num" aria-hidden="true">{{ home.sections.contact.number }}</span>
+              <p class="work-aside-label">{{ home.sections.contact.label }}</p>
+              <h2 id="work-contact-title" class="work-aside-title">{{ home.sections.contact.title }}</h2>
+              <p class="work-aside-desc">{{ home.sections.contact.description }}</p>
             </header>
 
             <div class="work-contact-list">
-              <a href="mailto:linxiwanting@gmail.com" class="work-contact-row">
-                <span class="work-contact-label">Email</span>
-                <span class="work-contact-value">linxiwanting@gmail.com</span>
-                <span class="work-contact-arrow" aria-hidden="true">→</span>
-              </a>
-              <a href="https://github.com/Lijing327" target="_blank" rel="noopener noreferrer" class="work-contact-row">
-                <span class="work-contact-label">GitHub</span>
-                <span class="work-contact-value">github.com/Lijing327</span>
-                <span class="work-contact-arrow" aria-hidden="true">→</span>
-              </a>
-              <NuxtLink to="/contact" class="work-contact-row">
-                <span class="work-contact-label">微信</span>
-                <span class="work-contact-value">扫码添加</span>
-                <span class="work-contact-arrow" aria-hidden="true">→</span>
-              </NuxtLink>
-              <p class="work-contact-note">工作日 24h 内回复</p>
+              <template v-for="row in home.contact.rows" :key="row.label">
+                <a
+                  v-if="row.href"
+                  :href="row.href"
+                  class="work-contact-row"
+                  :target="row.external ? '_blank' : undefined"
+                  :rel="row.external ? 'noopener noreferrer' : undefined"
+                >
+                  <span class="work-contact-label">{{ row.label }}</span>
+                  <span class="work-contact-value">{{ row.value || row.label }}</span>
+                  <span class="work-contact-arrow" aria-hidden="true">→</span>
+                </a>
+                <NuxtLink v-else-if="row.to" :to="row.to" class="work-contact-row">
+                  <span class="work-contact-label">{{ row.label }}</span>
+                  <span class="work-contact-value">{{ row.value || row.label }}</span>
+                  <span class="work-contact-arrow" aria-hidden="true">→</span>
+                </NuxtLink>
+              </template>
+              <p class="work-contact-note">{{ home.contact.note }}</p>
             </div>
           </div>
         </section>
@@ -244,23 +270,37 @@
         <div class="home-footer-brand">
           <SiteBrandLogo variant="favicon" />
           <div>
-            <strong>溪午听风</strong>
-            <p>专注 AI 应用、个人产品与数字资产构建。</p>
+            <strong>{{ home.footer.name }}</strong>
+            <p>{{ home.footer.description }}</p>
           </div>
         </div>
         <div class="home-footer-links">
-          <a href="https://github.com/Lijing327" target="_blank" rel="noreferrer">GitHub</a>
+          <a
+            v-for="row in home.contact.rows.filter(r => r.href && r.external)"
+            :key="row.label"
+            :href="row.href"
+            target="_blank"
+            rel="noreferrer"
+          >{{ row.label }}</a>
           <NuxtLink to="/contact">微信</NuxtLink>
-          <a href="mailto:linxiwanting@gmail.com">邮箱</a>
+          <a
+            v-for="row in home.contact.rows.filter(r => r.href && !r.external)"
+            :key="`mail-${row.label}`"
+            :href="row.href"
+          >邮箱</a>
           <a :href="SITE_LEGAL.icpQueryUrl" target="_blank" rel="noopener noreferrer">{{ SITE_LEGAL.icp }}</a>
         </div>
       </div>
     </footer>
+
+    <ClientOnly>
+      <WorkAssistantHub />
+    </ClientOnly>
   </div>
 </template>
 
 <script setup lang="ts">
-import { h } from 'vue'
+import { defineAsyncComponent, h } from 'vue'
 import NavMoreMenu from '~/components/layout/NavMoreMenu.vue'
 import SiteBrandLogo from '~/components/layout/SiteBrandLogo.vue'
 import { resolveProjectCoverUrl } from '~/constants/projects/covers'
@@ -269,9 +309,24 @@ import { WORK_PRIMARY_NAV } from '~/constants/work-ia'
 import { isWorkNavActive } from '~/utils/work-nav-active'
 import type { HomeProjectCard } from '~/types/home'
 
+const WorkAssistantHub = defineAsyncComponent(() => import('~/components/work/WorkAssistantHub.vue'))
+
 definePageMeta({
   layout: false,
 })
+
+const { data: homeData } = await useAsyncData('work-home', () =>
+  $fetch('/api/content/work/home'),
+)
+const { data: capabilitiesData } = await useAsyncData('work-capabilities', () =>
+  $fetch<{ areas: Array<{ id: string, title: string, bullets: string[] }> }>('/api/content/work/capabilities'),
+)
+
+if (!homeData.value) {
+  throw createError({ statusCode: 500, statusMessage: 'Work home content missing' })
+}
+
+const home = computed(() => homeData.value!)
 
 const { overview, loading } = useHomeOverview()
 const route = useRoute()
@@ -288,69 +343,40 @@ const homePrimaryForMenu = computed(() =>
   navItems.map((item) => ({ label: item.label, href: item.href })),
 )
 
+/** PRESENTATION：SVG 图标留在页面，文案来自 content */
 const focusIcon = (paths: string[]) => ({
   render: () => h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.6' },
     paths.map((d) => h('path', { d }))),
 })
 
-const focusItems = [
-  { label: 'AI 应用开发', icon: focusIcon(['M12 3l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4l2-4z']) },
-  { label: '产品设计', icon: focusIcon(['M4 6h16v12H4z', 'M8 10h8']) },
-  { label: '全栈工程', icon: focusIcon(['M8 6h8l2 4v8H6V10l2-4z']) },
-  { label: '自动化', icon: focusIcon(['M12 6v12', 'M6 12h12', 'M8 8l8 8', 'M16 8l-8 8']) },
-]
+const focusIconMap: Record<string, ReturnType<typeof focusIcon>> = {
+  'AI 应用开发': focusIcon(['M12 3l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4l2-4z']),
+  '产品设计': focusIcon(['M4 6h16v12H4z', 'M8 10h8']),
+  '全栈工程': focusIcon(['M8 6h8l2 4v8H6V10l2-4z']),
+  '自动化': focusIcon(['M12 6v12', 'M6 12h12', 'M8 8l8 8', 'M16 8l-8 8']),
+}
 
-const statusItems = [
-  '持续开发中',
-  '可交流合作',
-  '可远程协作',
-  'Asia/Shanghai · 24h 内回复',
-]
+const focusItems = computed(() =>
+  home.value.panel.focus.map((label) => ({
+    label,
+    icon: focusIconMap[label] || focusIcon(['M12 6v12', 'M6 12h12']),
+  })),
+)
 
-const toolItems = ['Vue', 'Nuxt', 'TypeScript', '.NET', 'Python', 'OpenAI API', 'Docker']
+const capabilityIconMap: Record<string, ReturnType<typeof focusIcon>> = {
+  '产品': focusIcon(['M4 5h16v14H4z', 'M8 9h8M8 13h5']),
+  'AI 应用': focusIcon(['M12 3v2M12 19v2M3 12h2M19 12h2']),
+  '工程实现': focusIcon(['M8 6h8l2 4v8H6V10l2-4z', 'M9 14h6']),
+  '交付上线': focusIcon(['M12 3l8 4v10l-8 4-8-4V7l8-4z', 'M12 12l8-4M12 12v9M12 12L4 8']),
+}
 
-const capabilityAreas = [
-  {
-    title: '产品',
-    bullets: ['需求拆解', '产品定义', '功能设计', '迭代优化'],
-    icon: {
-      render: () => h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.6' }, [
-        h('rect', { x: '4', y: '5', width: '16', height: '14', rx: '2' }),
-        h('path', { d: 'M8 9h8M8 13h5' }),
-      ]),
-    },
-  },
-  {
-    title: 'AI 应用',
-    bullets: ['LLM 集成', 'Prompt 工程', 'RAG / 知识库', 'AI Agent / Workflow'],
-    icon: {
-      render: () => h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.6' }, [
-        h('circle', { cx: '12', cy: '12', r: '3' }),
-        h('path', { d: 'M12 3v2M12 19v2M3 12h2M19 12h2' }),
-      ]),
-    },
-  },
-  {
-    title: '工程实现',
-    bullets: ['前端开发', '后端开发', 'API 与数据层', '性能优化与可观测性'],
-    icon: {
-      render: () => h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.6' }, [
-        h('path', { d: 'M8 6h8l2 4v8H6V10l2-4z' }),
-        h('path', { d: 'M9 14h6' }),
-      ]),
-    },
-  },
-  {
-    title: '交付上线',
-    bullets: ['部署与运维', 'CI/CD', '测试与质量保障', '迭代优化与持续交付'],
-    icon: {
-      render: () => h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.6' }, [
-        h('path', { d: 'M12 3l8 4v10l-8 4-8-4V7l8-4z' }),
-        h('path', { d: 'M12 12l8-4M12 12v9M12 12L4 8' }),
-      ]),
-    },
-  },
-] as const
+const capabilityAreas = computed(() =>
+  (capabilitiesData.value?.areas || []).map((area) => ({
+    title: area.title,
+    bullets: area.bullets,
+    icon: capabilityIconMap[area.title] || focusIcon(['M12 6v12', 'M6 12h12']),
+  })),
+)
 
 const coverFailed = ref(new Set<string>())
 const coverRetried = ref(new Set<string>())
@@ -463,8 +489,8 @@ const moreItemMeta = (project: HomeProjectCard) => {
 }
 
 usePageSeo({
-  title: '溪午听风 - 用 AI 构建产品，创造长期价值',
-  description: '专业工作名片：真实案例、可用产品、公开文章与合作入口。',
+  title: home.value.seo.title || '溪午听风',
+  description: home.value.seo.description || '',
   path: '/work',
   world: 'work',
 })
@@ -485,6 +511,8 @@ usePageSeo({
   --home-accent: #91aaff;
   --home-radius: var(--radius-lg);
   --home-radius-lg: var(--radius-xl);
+  --floating-dock-right: max(18px, env(safe-area-inset-right));
+  --floating-dock-bottom: max(18px, calc(env(safe-area-inset-bottom) + 14px));
   min-height: 100vh;
   color: var(--home-text-main);
 }

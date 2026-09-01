@@ -4,7 +4,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace PersonalSite.Api.Models;
 
 /// <summary>
-/// 文章表
+/// 文章表 — 正文字段 LEGACY_READONLY（Phase 4B-3）。
+/// 内容事实 SoT = content/articles/*.md；本表保留用于 rollback 核对与历史。
+/// 禁止新代码写入 ContentMd / ContentHtml / Status 等内容事实字段。
+/// 运营指标见 content_ops。
 /// </summary>
 [Table("article")]
 public class Article

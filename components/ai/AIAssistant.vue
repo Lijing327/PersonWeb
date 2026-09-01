@@ -1,7 +1,7 @@
 <template>
   <ClientOnly>
     <button
-      v-if="!isOpen"
+      v-if="!hideLauncher && !isOpen"
       :class="['ai-assistant-button', { 'ai-assistant-button-has-prompt': hasUnreadPrompt }]"
       @click="toggleAssistant"
       aria-label="打开 AI 助手"
@@ -33,7 +33,7 @@
               </svg>
             </div>
             <div class="ai-assistant-header__meta">
-              <h3 class="ai-assistant-title">AI 小智</h3>
+              <h3 class="ai-assistant-title">{{ chat.name }}</h3>
               <span class="ai-assistant-status-badge" :class="{ 'is-busy': isLoading }">
                 <span class="ai-assistant-status-badge__dot"></span>
                 {{ statusText }}
@@ -50,9 +50,9 @@
         <div ref="messagesRef" class="ai-assistant-messages">
           <div v-if="messages.length === 0" class="ai-assistant-welcome">
             <div class="ai-assistant-welcome__card">
-              <p class="ai-assistant-welcome__eyebrow">智能助手</p>
-              <p class="ai-assistant-welcome__title">你好，我是 AI 小智</p>
-              <p class="ai-assistant-welcome__desc">可以帮你找文章、了解产品，或解答技术问题。</p>
+              <p class="ai-assistant-welcome__eyebrow">{{ chat.welcome.eyebrow }}</p>
+              <p class="ai-assistant-welcome__title">{{ chat.welcome.title }}</p>
+              <p class="ai-assistant-welcome__desc">{{ chat.welcome.description }}</p>
             </div>
 
             <div v-if="!isCompactMode" class="ai-assistant-suggestions">
@@ -100,7 +100,7 @@
               ]"
             >
               <p class="ai-assistant-msg-text">{{ message.content }}</p>
-              <p v-if="message.role === 'assistant' && message.loading" class="ai-assistant-msg-loading">正在思考...</p>
+              <p v-if="message.role === 'assistant' && message.loading" class="ai-assistant-msg-loading">{{ chat.statusThinking }}</p>
             </div>
           </div>
 
@@ -163,13 +163,23 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, watch } from 'vue'
+import { fetchAiSolutionsData } from '~/composables/useAiSolutionsData'
 
 interface Message {
   role: 'user' | 'assistant'
   content: string
   loading?: boolean
 }
+
+const props = withDefaults(defineProps<{
+  /** 由 WorkAssistantHub 统一入口时隐藏自带悬浮按钮 */
+  hideLauncher?: boolean
+}>(), {
+  hideLauncher: false,
+})
+
+void props
 
 const isOpen = ref(false)
 const inputText = ref('')
@@ -182,10 +192,25 @@ const hasUnreadPrompt = ref(false)
 const pendingPromptMessage = ref('')
 const isCompactMode = ref(false)
 
-const quickActions = [
-  { text: '推荐文章', icon: 'article' as const },
-  { text: '搜索文章', icon: 'search' as const },
-]
+const { data: aiData } = await useAsyncData('work-ai-solutions', () => fetchAiSolutionsData())
+const chat = computed(() => aiData.value?.assistant.chat || {
+  name: 'AI 小智',
+  statusOnline: '在线',
+  statusThinking: '正在思考...',
+  welcome: { eyebrow: '', title: '', description: '' },
+  quickActions: [],
+  systemAbout: '',
+})
+
+const quickActions = computed(() => chat.value.quickActions)
+
+watch(
+  () => chat.value.statusOnline,
+  (value) => {
+    if (!isLoading.value) statusText.value = value
+  },
+  { immediate: true },
+)
 
 let openAssistantHandler: EventListener | null = null
 
@@ -196,32 +221,46 @@ const scrollToBottom = () => {
 }
 
 const toggleAssistant = () => {
-  isOpen.value = !isOpen.value
-
   if (isOpen.value) {
-    if (pendingPromptMessage.value) {
-      messages.value.push({
-        role: 'assistant',
-        content: pendingPromptMessage.value
-      })
-      pendingPromptMessage.value = ''
-    }
+    closeAssistant()
+  } else {
+    openAssistant()
+  }
+}
 
-    hasUnreadPrompt.value = false
-    hasUserClosed.value = false
+const openAssistant = () => {
+  isOpen.value = true
 
-    if (process.client) {
-      localStorage.removeItem('ai-assistant-auto-open-disabled')
-    }
-
-    nextTick(() => {
-      scrollToBottom()
+  if (pendingPromptMessage.value) {
+    messages.value.push({
+      role: 'assistant',
+      content: pendingPromptMessage.value
     })
-    return
+    pendingPromptMessage.value = ''
   }
 
+  hasUnreadPrompt.value = false
+  hasUserClosed.value = false
+
+  if (process.client) {
+    localStorage.removeItem('ai-assistant-auto-open-disabled')
+  }
+
+  nextTick(() => {
+    scrollToBottom()
+  })
+}
+
+const closeAssistant = () => {
+  isOpen.value = false
   hasUserClosed.value = true
 }
+
+defineExpose({
+  open: openAssistant,
+  close: closeAssistant,
+  isOpen,
+})
 
 const sendQuickMessage = (text: string) => {
   inputText.value = text
@@ -241,7 +280,7 @@ const sendMessage = async () => {
 
   scrollToBottom()
   isLoading.value = true
-  statusText.value = '正在思考...'
+  statusText.value = chat.value.statusThinking
 
   try {
     const api = useApi()
@@ -257,7 +296,7 @@ const sendMessage = async () => {
       role: 'assistant',
       content: response.message || response.content || '抱歉，我暂时无法回答这个问题。'
     })
-    statusText.value = '在线'
+    statusText.value = chat.value.statusOnline
   } catch (error) {
     console.error('AI Chat error:', error)
     messages.value.push({

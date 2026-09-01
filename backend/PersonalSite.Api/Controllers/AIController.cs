@@ -22,17 +22,23 @@ public class AIController : ControllerBase
     private readonly AppDbContext _context;
     private readonly HttpClient _httpClient;
     private readonly AiServiceOptions _aiServiceOptions;
+    private readonly IWorkContentService _workContentService;
+    private readonly IArticlesCatalogService _articlesCatalog;
     private readonly ILogger<AIController> _logger;
 
     public AIController(
         AppDbContext context,
         IHttpClientFactory httpClientFactory,
         IOptions<AiServiceOptions> aiServiceOptions,
+        IWorkContentService workContentService,
+        IArticlesCatalogService articlesCatalog,
         ILogger<AIController> logger)
     {
         _context = context;
         _httpClient = httpClientFactory.CreateClient();
         _aiServiceOptions = aiServiceOptions.Value;
+        _workContentService = workContentService;
+        _articlesCatalog = articlesCatalog;
         _logger = logger;
 
         // 配置 HttpClient
@@ -149,33 +155,25 @@ public class AIController : ControllerBase
     /// </summary>
     private string BuildSystemPrompt()
     {
-        // 获取网站信息（异步操作需要在调用前完成）
-        var articles = _context.Articles
-            .Include(a => a.Category)
-            .Where(a => a.Status == 1)
-            .OrderByDescending(a => a.PublishTime)
-            .Take(10)
-            .ToList();
+        // Phase 4B-3: 文章标题来自 Git catalog，不再读 MySQL article 正文/状态
+        var articles = _articlesCatalog.GetRecentPublished(10);
         var projects = _context.Projects
             .Where(p => p.Status == "Active" || p.Status == "1")
             .Take(10)
             .ToList();
 
         var prompt = new StringBuilder();
-        prompt.AppendLine("你是溪午听风的个人网站的 AI 智能助手，名字叫'小智'。");
+        prompt.AppendLine(_workContentService.GetSystemAbout());
+        prompt.AppendLine();
         prompt.AppendLine("你的任务是帮助访客了解溪午听风，推荐文章和项目，回答问题。");
         prompt.AppendLine();
-        prompt.AppendLine("关于溪午听风：");
-        prompt.AppendLine("- 全栈开发者、AI应用探索者、Revit插件专家");
-        prompt.AppendLine("- 专注于构建高效、优雅的数字体验");
-        prompt.AppendLine();
         
-        if (articles.Any())
+        if (articles.Count > 0)
         {
             prompt.AppendLine("最近的文章：");
             foreach (var article in articles)
             {
-                prompt.AppendLine($"- {article.Title} (分类: {article.Category?.Name ?? "未分类"})");
+                prompt.AppendLine($"- {article.Title} (分类: {article.Category ?? "未分类"}, /blog/{article.Slug})");
             }
             prompt.AppendLine();
         }

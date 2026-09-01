@@ -5,7 +5,10 @@ import {
   uniqPaths,
   buildSitemapXml,
   STATIC_PATHS,
+  collectArticlePathsFromGit,
+  diffArticleSitemapPaths,
 } from '../../scripts/lib/sitemap-builder.js'
+import { resolve } from 'node:path'
 
 describe('sitemap builder', () => {
   it('excludes admin and api paths', () => {
@@ -51,5 +54,12 @@ describe('sitemap builder', () => {
   it('marks private paths as non-indexable', () => {
     expect(isPublicIndexablePath('/order/create')).toBe(false)
     expect(isPublicIndexablePath('/payment/cancel')).toBe(false)
+  })
+
+  it('can collect Git article paths and diff against API set', () => {
+    const gitPaths = collectArticlePathsFromGit(resolve(__dirname, '../../content/articles'))
+    expect(gitPaths.every((p: string) => p.startsWith('/blog/'))).toBe(true)
+    const diff = diffArticleSitemapPaths(gitPaths, gitPaths)
+    expect(diff.equal).toBe(true)
   })
 })

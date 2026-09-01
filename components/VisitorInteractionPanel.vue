@@ -1,22 +1,30 @@
 <template>
-  <div class="interaction-panel">
+  <div class="interaction-panel" :class="{ 'interaction-panel--embedded': hideLauncher }">
     <button
+      v-if="!hideLauncher"
       type="button"
       class="visitor-button-circle visitor-button-circle-blue panel-button"
       title="发送留言"
       aria-label="发送留言"
-      @click="showMessageModal = true"
+      @click="openMessageModal"
     >
-      <i class="fas fa-comment-dots"></i>
+      <i class="fas fa-comment-dots" aria-hidden="true"></i>
     </button>
 
     <Teleport to="body">
-      <div v-if="showMessageModal" class="visitor-modal-overlay" @click="showMessageModal = false">
+      <div
+        v-if="showMessageModal"
+        class="visitor-modal-overlay"
+        role="dialog"
+        aria-modal="true"
+        aria-label="发送留言"
+        @click="closeMessageModal"
+      >
         <div class="visitor-modal" @click.stop>
           <div class="visitor-modal-header">
             <h3>发送留言</h3>
-            <button class="visitor-modal-close" @click="showMessageModal = false">
-              <i class="fas fa-times"></i>
+            <button type="button" class="visitor-modal-close" aria-label="关闭留言" @click="closeMessageModal">
+              <i class="fas fa-times" aria-hidden="true"></i>
             </button>
           </div>
 
@@ -31,7 +39,7 @@
                   :class="['visitor-type-button', { 'visitor-type-button-active': messageType === type.value }]"
                   @click="messageType = type.value"
                 >
-                  <i :class="type.icon"></i>
+                  <i :class="type.icon" aria-hidden="true"></i>
                   {{ type.label }}
                 </button>
               </div>
@@ -75,12 +83,17 @@
               />
             </div>
 
-            <button class="visitor-button-primary" :disabled="!messageContent.trim() || submitting" @click="sendMessage">
+            <button
+              type="button"
+              class="visitor-button-primary"
+              :disabled="!messageContent.trim() || submitting"
+              @click="sendMessage"
+            >
               {{ submitting ? '发送中...' : '发送留言' }}
             </button>
 
             <p class="visitor-form-hint">
-              <i class="fas fa-info-circle"></i>
+              <i class="fas fa-info-circle" aria-hidden="true"></i>
               内容提交后会进入审核流程
             </p>
           </div>
@@ -91,6 +104,12 @@
 </template>
 
 <script setup lang="ts">
+const props = withDefaults(defineProps<{
+  hideLauncher?: boolean
+}>(), {
+  hideLauncher: false,
+})
+
 const api = useApi()
 
 const showMessageModal = ref(false)
@@ -107,6 +126,19 @@ const messageTypes = [
 ]
 
 const quickEmojis = ['😊', '❤️', '👏', '🎉', '✨', '🔥', '👍', '🌟', '💡', '🚀', '✔️', '🫶']
+
+const openMessageModal = () => {
+  showMessageModal.value = true
+}
+
+const closeMessageModal = () => {
+  showMessageModal.value = false
+}
+
+defineExpose({
+  open: openMessageModal,
+  close: closeMessageModal,
+})
 
 const sendMessage = async () => {
   if (!messageContent.value.trim()) return
@@ -147,6 +179,17 @@ const sendMessage = async () => {
     submitting.value = false
   }
 }
+
+onMounted(() => {
+  if (!process.client) return
+  const onKey = (event: KeyboardEvent) => {
+    if (event.key === 'Escape' && showMessageModal.value) {
+      closeMessageModal()
+    }
+  }
+  window.addEventListener('keydown', onKey)
+  onUnmounted(() => window.removeEventListener('keydown', onKey))
+})
 </script>
 
 <style scoped>
@@ -164,6 +207,15 @@ const sendMessage = async () => {
   pointer-events: auto;
   isolation: isolate;
   transform: translateZ(0);
+}
+
+.interaction-panel--embedded {
+  position: static;
+  bottom: auto;
+  right: auto;
+  z-index: auto;
+  pointer-events: none;
+  transform: none;
 }
 
 .panel-button {
@@ -184,7 +236,7 @@ const sendMessage = async () => {
 }
 
 @media (max-width: 768px) {
-  .interaction-panel {
+  .interaction-panel:not(.interaction-panel--embedded) {
     bottom: calc(
       var(--floating-dock-bottom, 12px)
       + (var(--floating-dock-button-size, 44px) + var(--floating-dock-gap, 10px)) * 2

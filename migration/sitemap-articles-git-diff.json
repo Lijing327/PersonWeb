@@ -1,0 +1,22 @@
+{
+  "generatedAt": "2026-09-01T02:31:24.144Z",
+  "gitPublishedCount": 50,
+  "expectedPublished": 50,
+  "equalToExpectedCount": true,
+  "note": "Matches 50 published Git articles (1 draft excluded from 51 exported).",
+  "sample": [
+    "/blog/2024-spring-thoughts",
+    "/blog/2024-year-end-summary",
+    "/blog/5-year-roadmap",
+    "/blog/ai-agent-development-guide",
+    "/blog/ai-assisted-programming"
+  ],
+  "diffSelf": {
+    "apiCount": 50,
+    "gitCount": 50,
+    "sharedCount": 50,
+    "onlyInApi": [],
+    "onlyInGit": [],
+    "equal": true
+  }
+}

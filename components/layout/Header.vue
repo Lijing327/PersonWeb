@@ -1,7 +1,7 @@
 <template>
   <header class="header-container">
     <div class="header-nav-pill">
-      <!-- Logo -->
+      <!-- Logo：与 Work 首页一致，使用浅底 favicon（wordmark 深色笔画在深色顶栏不可见） -->
       <div class="header-brand-row">
         <div
           class="header-brand-mark"
@@ -14,10 +14,11 @@
           @keydown.space.prevent="handleLogoClick"
           @mouseenter="handleAvatarHover"
         >
-          <SiteBrandLogo variant="wordmark" />
+          <SiteBrandLogo variant="favicon" />
         </div>
         <NuxtLink to="/work" class="header-brand-text-link" aria-label="溪午听风工作站首页">
           <span class="header-brand-text">
+            <strong>溪午听风</strong>
             <small>个人数字资产 | AI 产品实验室</small>
           </span>
         </NuxtLink>

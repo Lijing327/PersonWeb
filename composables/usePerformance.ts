@@ -85,7 +85,7 @@ class PerformanceMonitor {
   /**
    * 测量函数执行时间
    */
-  measureFn<T extends any[], R>(name: string, fn: (...args: T) => R): (...args: T) => {
+  measureFn<T extends any[], R>(name: string, fn: (...args: T) => R): (...args: T) => R {
     return (...args) => {
       this.mark({ name: `${name}-start`, type: 'mark' })
       const result = fn(...args)
@@ -148,56 +148,62 @@ class PerformanceMonitor {
     }
 
     // 首次输入延迟
-    if (PerformanceObserver.supportedEntryTypes.includes('first-input')) {
-      const fidObserver = new PerformanceObserver((list) => {
-        for (const entry of list.getEntries()) {
-          if (entry.name === 'first-input' && !entry.processingStart) {
-            metrics.fid = entry.startTime
+    try {
+      if (PerformanceObserver.supportedEntryTypes.includes('first-input')) {
+        const fidObserver = new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            if (entry.name === 'first-input' && !entry.processingStart) {
+              metrics.fid = entry.startTime
+            }
           }
-        }
-      })
-      fidObserver.observe({ type: 'first-input', buffered: true })
+        })
+        fidObserver.observe({ type: 'first-input', buffered: true })
 
-      await new Promise(resolve => setTimeout(resolve, 5000))
-      fidObserver.disconnect()
+        await new Promise(resolve => setTimeout(resolve, 5000))
+        fidObserver.disconnect()
+      }
     } catch (e) {
       console.warn('PerformanceObserver not supported for first-input', e)
     }
 
     // 首次字节
-    if (PerformanceObserver.supportedEntryTypes.includes('largest-contentful-paint')) {
-      const fbiObserver = new PerformanceObserver((list) => {
-        for (const entry of list.getEntries()) {
-          if (entry.name === 'largest-contentful-paint') {
-            metrics.fbi = (entry as any).firstByteToFCP
+    try {
+      if (PerformanceObserver.supportedEntryTypes.includes('largest-contentful-paint')) {
+        const fbiObserver = new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            if (entry.name === 'largest-contentful-paint') {
+              metrics.fbi = (entry as any).firstByteToFCP
+            }
           }
-        }
-      })
-      fbiObserver.observe({ type: 'largest-contentful-paint', buffered: true })
+        })
+        fbiObserver.observe({ type: 'largest-contentful-paint', buffered: true })
 
-      await new Promise(resolve => setTimeout(resolve, 3000))
-      fbiObserver.disconnect()
+        await new Promise(resolve => setTimeout(resolve, 3000))
+        fbiObserver.disconnect()
+      }
     } catch (e) {
       console.warn('PerformanceObserver not supported for largest-contentful-paint', e)
     }
 
     // 累积布局偏移
-    if (PerformanceObserver.supportedEntryTypes.includes('layout-shift')) {
-      let clsScore = 0
-      const clsObserver = new PerformanceObserver((list) => {
-        for (const entry of list.getEntries()) {
-          if (!entry.hadRecentInput) {
-            const score = (entry as any).value * (1 + (entry as any).entries.length)
-            clsScore = Math.max(clsScore, score)
+    try {
+      if (PerformanceObserver.supportedEntryTypes.includes('layout-shift')) {
+        let clsScore = 0
+        const clsObserver = new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            if (!(entry as any).hadRecentInput) {
+              const score = (entry as any).value * (1 + ((entry as any).entries?.length || 0))
+              clsScore = Math.max(clsScore, score)
+            }
           }
-        }
         })
-      clsObserver.observe({ type: 'layout-shift', buffered: true })
+        clsObserver.observe({ type: 'layout-shift', buffered: true })
 
-      await new Promise(resolve => setTimeout(resolve, 3000))
-      clsObserver.disconnect()
+        await new Promise(resolve => setTimeout(resolve, 3000))
+        clsObserver.disconnect()
 
-      metrics.cls = clsScore
+        metrics.cls = clsScore
+      }
     } catch (e) {
       console.warn('PerformanceObserver not supported for layout-shift', e)
     }

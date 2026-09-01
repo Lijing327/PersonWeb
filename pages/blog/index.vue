@@ -301,20 +301,13 @@ definePageMeta({
   layout: 'default'
 })
 
-const api = useApi()
 usePageStyle('blog')
+const { listArticles } = useArticlesRepository()
 
 const { data: allPosts, pending: blogLoading } = useLazyAsyncData('blog-posts', async () => {
-  const res = await api.get<any>('/Articles', {
-    params: {
-      page: 1,
-      pageSize: 100
-    }
-  })
+  const { list } = await listArticles({ page: 1, pageSize: 100, status: 1 })
 
-  const articles = res.List ?? res.list ?? []
-
-  return articles.map((article: any) => {
+  return list.map((article: any) => {
     const articleId = article.id || article.Id
     const articleSlug = article.slug || article.Slug
     const pathSegment = articleSlug || articleId
@@ -326,6 +319,7 @@ const { data: allPosts, pending: blogLoading } = useLazyAsyncData('blog-posts', 
       _path: pathSegment ? `/blog/${pathSegment}` : '#',
       date: article.publishTime || article.createdAt,
       category: article.categoryName || article.category?.name || '未分类',
+      description: article.summary || article.description,
       tags: article.tags
         ? (Array.isArray(article.tags) ? article.tags : article.tags.split(',').filter((tag: string) => tag.trim()))
         : []

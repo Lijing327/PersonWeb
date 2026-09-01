@@ -1,0 +1,31 @@
+categories:
+  - slug: 运维部署
+    label: 运维部署
+    sortOrder: 0
+  - slug: 部署系列
+    label: 部署系列
+    sortOrder: 0
+  - slug: 理财笔记
+    label: 理财笔记
+    sortOrder: 0
+  - slug: 科普知识
+    label: 科普知识
+    sortOrder: 0
+  - slug: tech
+    label: 技术博客
+    sortOrder: 1
+  - slug: life
+    label: 生活随笔
+    sortOrder: 2
+  - slug: project
+    label: 项目分享
+    sortOrder: 3
+  - slug: study
+    label: 学习笔记
+    sortOrder: 4
+  - slug: tool
+    label: 工具推荐
+    sortOrder: 4
+  - slug: ai
+    label: AI探索
+    sortOrder: 4

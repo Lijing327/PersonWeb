@@ -1,0 +1,32 @@
+# Work 能力范围 — 跨页面可复用的能力切片
+# /work 能力区 PRIMARY；About / AI 可引用摘要，勿再复制第三份长文
+
+areas:
+  - id: product
+    title: 产品
+    bullets:
+      - 需求拆解
+      - 产品定义
+      - 功能设计
+      - 迭代优化
+  - id: ai
+    title: AI 应用
+    bullets:
+      - LLM 集成
+      - Prompt 工程
+      - RAG / 知识库
+      - AI Agent / Workflow
+  - id: engineering
+    title: 工程实现
+    bullets:
+      - 前端开发
+      - 后端开发
+      - API 与数据层
+      - 性能优化与可观测性
+  - id: delivery
+    title: 交付上线
+    bullets:
+      - 部署与运维
+      - CI/CD
+      - 测试与质量保障
+      - 迭代优化与持续交付

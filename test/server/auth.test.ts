@@ -29,7 +29,7 @@ function createAuthEvent(options?: {
 
   return createEvent({
     method: 'GET',
-    url: '/api/admin/articles',
+    url: '/api/modules',
     headers,
   })
 }

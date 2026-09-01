@@ -10,14 +10,14 @@
           </p>
         </div>
         <div class="flex flex-wrap gap-2">
-          <AppButton variant="primary" @click="navigateTo('/admin/articles/edit')">
-            新建文章
+          <AppButton variant="primary" @click="navigateTo('/admin/analytics')">
+            查看分析
           </AppButton>
-          <AppButton variant="secondary" @click="navigateTo('/admin/projects')">
-            新建项目
+          <AppButton variant="secondary" @click="navigateTo('/admin/content-hub')">
+            内容中枢
           </AppButton>
-          <AppButton variant="secondary" @click="navigateTo('/admin/side-projects/dashboard')">
-            打开副业仪表盘
+          <AppButton variant="secondary" @click="navigateTo('/admin/consultations')">
+            待处理咨询
           </AppButton>
         </div>
       </div>

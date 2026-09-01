@@ -97,8 +97,8 @@ NUXT_PUBLIC_API_BASE=http://localhost:5234/api   # 可选，会自动检测
 项目根据调用的 API 不同，使用**两套独立的存储后端**：
 
 1. **MySQL**（通过 `server/utils/db.ts` 或 `server/services/database.ts`）— 模块系统、访问分析、许可证/支付数据
-2. **文件型 JSON**（`server/data/*.json`）— 站点配置（`config.json`）、统计（`stats.json`）、访问日志（`visit-logs.json`）、指标（`personal_metrics.json`）
-3. **Markdown 文件**（`content/`）— 管理后台 API 直接从文件系统读写文章、项目、工具
+2. **文件型 JSON**（`server/data/*.json`）— 历史遗留位；主路径已迁 .NET `site_config` / Analytics。Phase 1 已清理无消费者的 `visit-logs` / `views` / `stats` / `personal_metrics`。
+3. **Markdown 文件**（`content/`）— Life 等内容由 Nitro `/api/content/*` 读取；管理后台文章/项目/工具走 .NET，不再经 Nitro MD CRUD
 
 有两个 MySQL 连接池工具：`server/utils/db.ts`（带 keepalive ping）和 `server/services/database.ts`（简化版连接池）。新增服务端路由时优先使用 `server/utils/db.ts`。
 
@@ -107,10 +107,11 @@ Nuxt 自带的服务端路由（Nitro），与 .NET 后端完全独立。关键�
 - `server/api/admin/` — 管理 CRUD：直接读写 `content/` 目录下的 Markdown 文件
 - `server/api/auth/login.post.ts` — 设置 cookie `admin_auth=true`，返回占位 token
 - `server/api/content/` — 公开内容接口（博客、项目、工具）
-- `server/api/views/` — 访问/分析追踪 → MySQL
+- `server/api/views/` — （Phase 1 已删除；分析走 .NET `/Analytics`）
 - `server/api/modules/` — 模块系统 → MySQL
 - `server/api/payment/` + `server/api/license/` — 支付与许可证校验
 - `server/api/robokit/` — Nitro 占位接口（尚未实现）
+- `server/api/admin/` — Phase 1 已清空 Nitro 孤儿 admin handlers；后台内容 CRUD 走 .NET
 
 服务端路由鉴权：`server/utils/auth.ts` 导出 `checkAuth()` — 检查 cookie `admin_auth=true` 或任意 `Authorization: Bearer ...` 请求头，**不进行真正的 JWT 签名验证**。
 

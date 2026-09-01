@@ -1,0 +1,28 @@
+# Work 联系方式 — PRIMARY SoT
+# 页面/组件只消费，不在此处之外硬编码 email / GitHub / 合作文案
+
+email: linxiwanting@gmail.com
+
+github:
+  url: https://github.com/Lijing327
+  display: github.com/Lijing327
+
+wechat:
+  note: 扫码添加
+  qr_image: /images/wechat-qr.png
+
+cooperation_title: 联系合作
+cooperation_kicker: Work With Me
+cooperation_description: >-
+  这里是独立的合作入口。你可以直接描述目标、预算范围和期望交付，我会按项目方式与你对齐方案与节奏。
+cooperation_chips:
+  - AI 应用落地
+  - 业务系统开发
+  - 自动化工具产品化
+
+response_note: 工作日 24h 内回复
+
+footer:
+  tagline: Work · 专业工作名片
+  description: >-
+    展示真实案例、可使用的产品，以及公开写作。需要合作时，直接联系即可。

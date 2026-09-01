@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6">
     <div class="page-header">
-      <h1 class="page-title">工具管理</h1>
+      <h1 class="page-title">工具运营</h1>
       <button class="btn-primary" @click="openModal()">
         <i class="fas fa-plus mr-2"></i>
         新增工具
@@ -103,6 +103,15 @@
           </div>
 
           <div class="flex gap-2">
+            <NuxtLink
+              v-if="tool.id"
+              :to="`/admin/toolbox/${tool.id}/analytics`"
+              class="text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+              title="使用统计"
+            >
+              <span class="sr-only">统计</span>
+              <i class="fas fa-chart-bar"></i>
+            </NuxtLink>
             <button
               class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
               @click="openModal(tool)"

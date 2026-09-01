@@ -31,7 +31,7 @@
           </template>
           <div class="agent-body">
             <p class="agent-description">
-              自动生成文章草稿、项目介绍、工具说明等高质量内容。
+              预览 AI 生成的文章/项目/工具文案（只读，不写入 CMS）。
             </p>
             <div class="agent-features">
               <div class="feature-item">
@@ -54,7 +54,7 @@
           </div>
           <template #action>
             <n-button type="primary" block @click="navigateTo('/admin/ai/content')">
-              进入内容生成
+              打开预览工具
             </n-button>
           </template>
         </n-card>

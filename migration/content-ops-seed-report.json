@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "seededAt": "2026-09-01T02:04:32.764Z",
+  "dryRun": false,
+  "gitArticleCount": 51,
+  "plannedSeedCount": 51,
+  "beforeOpsCount": 51,
+  "afterOpsCount": 51,
+  "inserted": 0,
+  "skippedExisting": 51,
+  "hashUpdated": 51,
+  "viewCountSumBeforeFromArticle": 3146,
+  "viewCountSumPlanned": 3146,
+  "viewCountSumAfterOps": 3146,
+  "excludedLegacyIds": [
+    75
+  ],
+  "countsMatch": true,
+  "viewSumInitConsistent": true
+}

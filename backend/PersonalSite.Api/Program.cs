@@ -133,6 +133,12 @@ builder.Services.Configure<PersonalSite.Api.Middleware.RateLimitOptions>(options
 // 配置 AI Service 客户端
 builder.Services.Configure<PersonalSite.Api.Services.AiServiceOptions>(
     builder.Configuration.GetSection("AiService"));
+builder.Services.Configure<PersonalSite.Api.Services.WorkContentOptions>(
+    builder.Configuration.GetSection(PersonalSite.Api.Services.WorkContentOptions.SectionName));
+builder.Services.AddSingleton<PersonalSite.Api.Services.IWorkContentService, PersonalSite.Api.Services.WorkContentService>();
+builder.Services.Configure<PersonalSite.Api.Services.ArticlesCatalogOptions>(
+    builder.Configuration.GetSection(PersonalSite.Api.Services.ArticlesCatalogOptions.SectionName));
+builder.Services.AddSingleton<PersonalSite.Api.Services.IArticlesCatalogService, PersonalSite.Api.Services.ArticlesCatalogService>();
 builder.Services.AddHttpClient<PersonalSite.Api.Services.AiServiceClient>();
 
 // 配置 NameTool AI Service（使用独立的 HttpClient）

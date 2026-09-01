@@ -1,11 +1,22 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import type { WorkContactContent } from '~/server/utils/content-files'
 
 type ContactType = 'wechat' | 'phone' | 'email'
 
 definePageMeta({
   layout: 'default'
 })
+
+const { data: contactData } = await useAsyncData('work-contact-page', () =>
+  $fetch<WorkContactContent>('/api/content/work/contact'),
+)
+
+if (!contactData.value?.cooperationTitle) {
+  throw createError({ statusCode: 500, statusMessage: 'Work contact content missing' })
+}
+
+const contact = computed(() => contactData.value!)
 
 const api = useApi()
 
@@ -73,8 +84,8 @@ const submitConsultation = async () => {
 }
 
 usePageSeo({
-  title: '联系合作 - 溪午听风',
-  description: '合作咨询入口：描述目标、预算与交付期望，按项目方式对齐方案与节奏。',
+  title: `${contact.value.cooperationTitle} - 溪午听风`,
+  description: contact.value.cooperationDescription || '合作咨询入口',
   path: '/contact',
   world: 'work',
 })
@@ -84,15 +95,13 @@ usePageSeo({
   <section class="contact-page">
     <div class="contact-shell">
       <div class="contact-intro">
-        <p class="contact-kicker">Work With Me</p>
-        <h1>联系合作</h1>
+        <p class="contact-kicker">{{ contact.cooperationKicker }}</p>
+        <h1>{{ contact.cooperationTitle }}</h1>
         <p class="contact-desc">
-          这里是独立的合作入口。你可以直接描述目标、预算范围和期望交付，我会按项目方式与你对齐方案与节奏。
+          {{ contact.cooperationDescription }}
         </p>
         <div class="contact-chips">
-          <span>AI 应用落地</span>
-          <span>业务系统开发</span>
-          <span>自动化工具产品化</span>
+          <span v-for="chip in contact.cooperationChips" :key="chip">{{ chip }}</span>
         </div>
       </div>
 

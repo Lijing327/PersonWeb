@@ -28,14 +28,18 @@ describe('legacy / dead-code guards (Phase 6)', () => {
     expect(existsSync(resolve(root, 'content/cognition'))).toBe(true)
   })
 
-  it('keeps admin markdown API as 410 stubs (COMPAT loud failure)', () => {
-    for (const name of ['articles', 'projects', 'tools']) {
-      const src = require('node:fs').readFileSync(
-        resolve(root, `server/api/admin/${name}.ts`),
-        'utf8',
-      )
-      expect(src).toMatch(/statusCode:\s*410/)
+  it('does not resurrect retired Nitro admin markdown / orphan APIs', () => {
+    for (const name of ['articles', 'projects', 'tools', 'stats', 'config', 'metrics', 'categories']) {
+      expect(existsSync(resolve(root, `server/api/admin/${name}.ts`))).toBe(false)
     }
+    expect(existsSync(resolve(root, 'server/api/projects.ts'))).toBe(false)
+    expect(existsSync(resolve(root, 'server/api/views/index.get.ts'))).toBe(false)
+    expect(existsSync(resolve(root, 'server/api/views/index.post.ts'))).toBe(false)
+    expect(existsSync(resolve(root, 'pages/admin/edit.vue'))).toBe(false)
+    expect(existsSync(resolve(root, 'pages/admin/theme-settings.vue'))).toBe(false)
+    expect(existsSync(resolve(root, 'pages/admin/themes.vue'))).toBe(false)
+    expect(existsSync(resolve(root, 'pages/admin/commercial/memberships.vue'))).toBe(false)
+    expect(existsSync(resolve(root, 'server/api/github/stats.ts'))).toBe(false)
   })
 
   it('does not resurrect unused module-check middleware', () => {

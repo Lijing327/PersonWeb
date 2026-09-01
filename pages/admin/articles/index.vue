@@ -1,8 +1,8 @@
 <template>
   <!-- 使用 ListPage Pattern 组件 -->
   <ListPage
-    title="文章管理"
-    description="管理全站文章的发布、分类和编辑"
+    title="文章运营"
+    description="观察文章发布状态、来源与表现。正文请在 content/ 或 Git 中维护，后台不提供正文编辑。"
     :columns="internalColumns"
     :data="articles"
     :loading="loading"
@@ -10,21 +10,9 @@
     :empty-config="{
       icon: 'fas fa-file-alt',
       text: '暂无文章',
-      description: '点击「新增文章」开始创作您的第一篇文章'
+      description: '当前无文章记录；正文生产请走 Git / content 流程'
     }"
   >
-    <!-- 头部操作按钮区域 -->
-    <template #header-actions>
-      <n-space :size="12">
-        <n-button type="primary" @click="handleNewArticle">
-          <template #icon>
-            <i class="fas fa-plus"></i>
-          </template>
-          新增文章
-        </n-button>
-      </n-space>
-    </template>
-
     <!-- 筛选区域 -->
     <template #filter="{ filterValue }">
       <div class="filter-bar">
@@ -123,6 +111,22 @@ const internalColumns: DataTableColumns<Article> = [
     }
   },
   {
+    title: 'Slug',
+    key: 'slug',
+    width: 140,
+    render(row) {
+      return row.slug || '-'
+    }
+  },
+  {
+    title: '浏览量',
+    key: 'viewCount',
+    width: 90,
+    render(row) {
+      return row.viewCount ?? 0
+    }
+  },
+  {
     title: '发布时间',
     key: 'publishTime',
     width: 180,
@@ -145,19 +149,29 @@ const internalColumns: DataTableColumns<Article> = [
   {
     title: '操作',
     key: 'actions',
-    width: 120,
+    width: 180,
     fixed: 'right',
     render(row) {
-      return h('div', { class: 'action-buttons' }, [
+      const previewPath = row.slug ? `/blog/${row.slug}` : `/blog/${row.id}`
+      const buttons = [
+        row.status === 1
+          ? h('a', {
+            href: previewPath,
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            class: 'btn-link btn-link-blue',
+          }, '前台')
+          : null,
         h('button', {
-          onClick: () => router.push(`/admin/articles/edit/${row.id}`),
-          class: 'btn-link btn-link-blue'
-        }, '编辑'),
+          onClick: () => router.push(`/admin/articles/${row.id}/versions`),
+          class: 'btn-link btn-link-blue',
+        }, '版本'),
         h('button', {
           onClick: () => handleDelete(row.id),
-          class: 'btn-link btn-link-red'
-        }, '删除')
-      ])
+          class: 'btn-link btn-link-red',
+        }, '删除'),
+      ].filter(Boolean)
+      return h('div', { class: 'action-buttons' }, buttons)
     }
   }
 ]
@@ -244,12 +258,6 @@ const formatDate = (dateStr: string) => {
 
 const handleSearchChange = () => {
    page.value = 1
-}
-
-// 新增文章
-const handleNewArticle = () => {
-  // 直接使用 window.location 进行硬跳转，确保页面刷新
-  window.location.href = '/admin/articles/edit'
 }
 
 // 初始加载

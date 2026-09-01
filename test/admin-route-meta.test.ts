@@ -51,10 +51,11 @@ describe('admin route meta', () => {
 })
 
 describe('admin API server auth coverage', () => {
-  it('all admin API handlers import or rely on checkAuth', () => {
+  it('all remaining admin API handlers import or rely on checkAuth', () => {
     const adminApiDir = path.resolve('server/api/admin')
     const files = readdirSync(adminApiDir).filter((file) => file.endsWith('.ts'))
 
+    // Phase 1 orphan cleanup: Nitro admin handlers removed; directory may be empty.
     for (const file of files) {
       const source = readFileSync(path.join(adminApiDir, file), 'utf-8')
       expect(source.includes('checkAuth')).toBe(true)

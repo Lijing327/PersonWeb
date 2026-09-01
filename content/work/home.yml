@@ -1,0 +1,78 @@
+# Work 首页展示文案 — PRIMARY SoT for /work
+# 导航文案仍在 constants/work-ia.ts（PRESENTATION / IA）
+# 精选项目正文来自 .NET Projects（DB）
+
+brand:
+  name: 溪午听风
+  tagline: 个人数字资产 | AI 产品实验室
+
+hero:
+  kicker: 个人工作站
+  title: 溪午听风
+  english_name: Aven
+  role: AI 应用 · 产品开发 · 全栈工程
+  value: 专业工作名片：我是谁、能做什么、做过什么、做出了哪些可用产品，以及如何联系。
+  actions:
+    - label: 查看案例
+      href: "#featured-projects"
+      variant: primary
+    - label: 可用产品
+      to: /products
+      variant: secondary
+
+panel:
+  focus:
+    - AI 应用开发
+    - 产品设计
+    - 全栈工程
+    - 自动化
+  status:
+    - 持续开发中
+    - 可交流合作
+    - 可远程协作
+    - Asia/Shanghai · 24h 内回复
+  tools:
+    - Vue
+    - Nuxt
+    - TypeScript
+    - .NET
+    - Python
+    - OpenAI API
+    - Docker
+  current_suffix: 持续迭代中
+
+sections:
+  featured:
+    number: "01"
+    label: Selected Work
+    title: 精选项目
+    description: 代表性的产品与工程实践。
+    link_text: 查看全部项目 →
+    link_to: /projects
+  capabilities:
+    number: "02"
+    label: Capabilities
+    title: 能力范围
+    description: 产品、AI、工程与交付。
+    link_text: 查看能力详情 →
+    link_to: /about
+  more:
+    number: "03"
+    label: More Work
+    title: 更多项目
+    description: 其它产品、工具与实验。
+    link_text: 查看更多 →
+    link_to: /projects
+  contact:
+    number: "04"
+    label: Contact
+    title: 联系我
+    description: 合作、咨询或交流，欢迎联系。
+
+footer:
+  name: 溪午听风
+  description: 专注 AI 应用、个人产品与数字资产构建。
+
+seo:
+  title: 溪午听风 - 用 AI 构建产品，创造长期价值
+  description: 专业工作名片：真实案例、可用产品、公开文章与合作入口。

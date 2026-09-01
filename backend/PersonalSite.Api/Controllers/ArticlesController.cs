@@ -18,6 +18,14 @@ public class ArticlesController : ControllerBase
         _context = context;
     }
 
+    private bool IsAuthenticatedAdmin => User.Identity?.IsAuthenticated == true;
+
+    /// <summary>
+    /// 公开读路径：仅已发布的主版本（非 parent 历史快照）
+    /// </summary>
+    private static IQueryable<Article> ApplyPublicArticleFilter(IQueryable<Article> query) =>
+        query.Where(a => a.Status == 1 && a.ParentId == null);
+
     /// <summary>
     /// 获取文章列表
     /// </summary>
@@ -39,7 +47,11 @@ public class ArticlesController : ControllerBase
     {
         var query = _context.Articles.AsQueryable();
 
-        if (status.HasValue)
+        if (!IsAuthenticatedAdmin)
+        {
+            query = ApplyPublicArticleFilter(query);
+        }
+        else if (status.HasValue)
         {
             query = query.Where(a => a.Status == status.Value);
         }
@@ -100,6 +112,11 @@ public class ArticlesController : ControllerBase
         {
             return Ok(ApiResponse<Article>.Error("文章不存在", 404));
         }
+
+        if (!IsAuthenticatedAdmin && (article.Status != 1 || article.ParentId != null))
+        {
+            return Ok(ApiResponse<Article>.Error("文章不存在", 404));
+        }
         
         return Ok(ApiResponse<Article>.Success(article));
     }
@@ -121,128 +138,31 @@ public class ArticlesController : ControllerBase
         {
             return Ok(ApiResponse<Article>.Error("文章不存在", 404));
         }
+
+        if (!IsAuthenticatedAdmin && (article.Status != 1 || article.ParentId != null))
+        {
+            return Ok(ApiResponse<Article>.Error("文章不存在", 404));
+        }
         
         return Ok(ApiResponse<Article>.Success(article));
     }
 
     /// <summary>
-    /// 创建/更新文章
+    /// 创建/更新文章 — LEGACY_READONLY (Phase 4B-3)。
+    /// 正文 SoT 已迁 Git；禁止通过 API 写入 content_md / content_html / status 等内容事实。
     /// </summary>
-    /// <param name="article"></param>
-    /// <returns></returns>
     [HttpPost]
     [Authorize] 
-    public async Task<ActionResult<ApiResponse>> SaveArticle([FromBody] Article article)
-    {
-        try
-        {
-            // 如果 ID 为 0，则为新建
-            if (article.Id == 0)
-            {
-                // 检查 Slug 是否重复（如果提供了 Slug）
-                if (!string.IsNullOrEmpty(article.Slug))
-                {
-                    var slugExists = await _context.Articles.AnyAsync(a => a.Slug == article.Slug);
-                    if (slugExists)
-                    {
-                        return Ok(ApiResponse.Error($"URL Slug '{article.Slug}' 已存在，请使用其他值", 400));
-                    }
-                }
-
-                article.CreatedAt = DateTime.Now;
-                article.UpdatedAt = DateTime.Now;
-                
-                // 自动填充发布时间
-                if (article.Status == 1 && article.PublishTime == null)
-                {
-                    article.PublishTime = DateTime.Now;
-                }
-
-                // 设置作者
-                var userId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
-                if (userId > 0) article.AuthorId = userId;
-
-                _context.Articles.Add(article);
-                await _context.SaveChangesAsync();
-                return Ok(ApiResponse.Success(new { id = article.Id }, "创建成功"));
-            }
-            else
-            {
-                // 更新
-                var existing = await _context.Articles.FindAsync(article.Id);
-                if (existing == null) return Ok(ApiResponse.Error("文章不存在", 404));
-
-                // 检查 Slug 是否重复（如果 Slug 有变化）
-                if (!string.IsNullOrEmpty(article.Slug) && existing.Slug != article.Slug)
-                {
-                    var slugExists = await _context.Articles.AnyAsync(a => a.Slug == article.Slug && a.Id != article.Id);
-                    if (slugExists)
-                    {
-                        return Ok(ApiResponse.Error($"URL Slug '{article.Slug}' 已存在，请使用其他值", 400));
-                    }
-                }
-
-                // 创建版本历史（保存旧版本）
-                var history = new Article
-                {
-                    Title = existing.Title,
-                    Slug = existing.Slug + $"-v{existing.Version}", // 避免slug冲突
-                    Summary = existing.Summary,
-                    ContentMd = existing.ContentMd,
-                    ContentHtml = existing.ContentHtml,
-                    CoverUrl = existing.CoverUrl,
-                    CategoryId = existing.CategoryId,
-                    Status = 2, // 下线（历史版本）
-                    Version = existing.Version,
-                    ParentId = existing.Id,
-                    CreatedAt = existing.CreatedAt,
-                    UpdatedAt = existing.UpdatedAt,
-                    AuthorId = existing.AuthorId
-                };
-                _context.Articles.Add(history);
-
-                // 更新当前版本
-                existing.Title = article.Title;
-                existing.Slug = article.Slug;
-                existing.Summary = article.Summary;
-                existing.ContentMd = article.ContentMd;
-                existing.ContentHtml = article.ContentHtml;
-                existing.CoverUrl = article.CoverUrl;
-                existing.CategoryId = article.CategoryId;
-                existing.Version++;
-                existing.UpdatedAt = DateTime.Now;
-
-                // 状态变更逻辑
-                if (existing.Status != 1 && article.Status == 1 && existing.PublishTime == null)
-                {
-                    existing.PublishTime = DateTime.Now;
-                }
-                existing.Status = article.Status;
-
-                await _context.SaveChangesAsync();
-                return Ok(ApiResponse.Success(null, "更新成功"));
-            }
-        }
-        catch (DbUpdateException ex)
-        {
-            // 处理数据库约束错误（如唯一索引冲突）
-            if (ex.InnerException != null && ex.InnerException.Message.Contains("Duplicate entry"))
-            {
-                return Ok(ApiResponse.Error("URL Slug 已存在，请使用其他值", 400));
-            }
-            return Ok(ApiResponse.Error($"保存失败: {ex.Message}", 500));
-        }
-        catch (Exception ex)
-        {
-            return Ok(ApiResponse.Error($"保存失败: {ex.Message}", 500));
-        }
-    }
+    [Obsolete("Articles body SoT is Git. Do not write content via this endpoint.")]
+    public Task<ActionResult<ApiResponse>> SaveArticle([FromBody] Article article) =>
+        Task.FromResult<ActionResult<ApiResponse>>(
+            Ok(ApiResponse.Error(
+                "文章正文已迁至 Git SoT：禁止通过 POST /Articles 写入正文。请在 content/articles 中维护。",
+                403)));
 
     /// <summary>
-    /// 删除文章
+    /// 删除文章（运营动作：仍允许，但正式内容删除应同步删 Git 文件）
     /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
     [HttpDelete("{id}")]
     [Authorize]
     public async Task<ActionResult<ApiResponse>> DeleteArticle(long id)
@@ -305,54 +225,14 @@ public class ArticlesController : ControllerBase
     /// <summary>
     /// 恢复指定版本
     /// </summary>
+    /// <summary>
+    /// LEGACY_READONLY — 正文版本由 Git history 管理，禁止写回 DB。
+    /// </summary>
     [HttpPost("{id}/versions/{versionId}/restore")]
     [Authorize]
-    public async Task<ActionResult<ApiResponse>> RestoreVersion(long id, long versionId)
-    {
-        var current = await _context.Articles.FindAsync(id);
-        if (current == null)
-        {
-            return Ok(ApiResponse.Error("文章不存在", 404));
-        }
-
-        var version = await _context.Articles.FindAsync(versionId);
-        if (version == null || (version.ParentId != id && version.Id != id))
-        {
-            return Ok(ApiResponse.Error("版本不存在", 404));
-        }
-
-        // 创建当前版本的备份
-        var backup = new Article
-        {
-            Title = current.Title,
-            Slug = current.Slug + $"-v{current.Version}",
-            Summary = current.Summary,
-            ContentMd = current.ContentMd,
-            ContentHtml = current.ContentHtml,
-            CoverUrl = current.CoverUrl,
-            CategoryId = current.CategoryId,
-            Status = 2,
-            Version = current.Version,
-            ParentId = current.Id,
-            CreatedAt = current.CreatedAt,
-            UpdatedAt = current.UpdatedAt,
-            AuthorId = current.AuthorId
-        };
-        _context.Articles.Add(backup);
-
-        // 恢复版本内容
-        current.Title = version.Title;
-        current.Summary = version.Summary;
-        current.ContentMd = version.ContentMd;
-        current.ContentHtml = version.ContentHtml;
-        current.CoverUrl = version.CoverUrl;
-        current.CategoryId = version.CategoryId;
-        current.Version++;
-        current.UpdatedAt = DateTime.Now;
-
-        await _context.SaveChangesAsync();
-        return Ok(ApiResponse.Success(null, "恢复成功"));
-    }
+    public Task<ActionResult<ApiResponse>> RestoreVersion(long id, long versionId) =>
+        Task.FromResult<ActionResult<ApiResponse>>(
+            Ok(ApiResponse.Error("版本恢复已退役（LEGACY_READONLY）：请使用 Git history 管理正文", 403)));
 
     /// <summary>
     /// 内容中枢总览接口

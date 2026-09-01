@@ -30,14 +30,29 @@
       </p>
 
       <div class="ai-solutions-hero-actions">
-        <a href="#scenarios" class="ai-solutions-hero-link ai-solutions-hero-link--primary">
-          看看适用场景
-          <i class="fas fa-arrow-down" aria-hidden="true"></i>
-        </a>
-        <NuxtLink to="/contact" class="ai-solutions-hero-link ai-solutions-hero-link--secondary">
-          沟通具体需求
-          <i class="fas fa-arrow-right" aria-hidden="true"></i>
-        </NuxtLink>
+        <template v-for="action in heroActions" :key="action.label">
+          <a
+            v-if="action.href"
+            :href="action.href"
+            class="ai-solutions-hero-link"
+            :class="action.variant === 'primary' ? 'ai-solutions-hero-link--primary' : 'ai-solutions-hero-link--secondary'"
+          >
+            {{ action.label }}
+            <i
+              :class="action.variant === 'primary' ? 'fas fa-arrow-down' : 'fas fa-arrow-right'"
+              aria-hidden="true"
+            />
+          </a>
+          <NuxtLink
+            v-else-if="action.to"
+            :to="action.to"
+            class="ai-solutions-hero-link"
+            :class="action.variant === 'primary' ? 'ai-solutions-hero-link--primary' : 'ai-solutions-hero-link--secondary'"
+          >
+            {{ action.label }}
+            <i class="fas fa-arrow-right" aria-hidden="true" />
+          </NuxtLink>
+        </template>
       </div>
 
       <!-- 适用场景：先帮助访客判断自己的问题是否适合使用 AI -->
@@ -214,46 +229,45 @@
 </template>
 
 <script setup lang="ts">
-import { useAiSolutionsData, type FeaturedProject } from '~/composables/useAiSolutionsData'
+import { fetchAiSolutionsData, type FeaturedProject } from '~/composables/useAiSolutionsData'
 
 definePageMeta({
   layout: 'ai'
 })
 
-// 获取页面配置数据
-const pageData = useAiSolutionsData()
+const { data: pageData } = await useAsyncData('work-ai-solutions', () => fetchAiSolutionsData())
 
-// 使用配置数据
-const {
-  badge,
-  title,
-  subtitle,
-  description,
-  seo,
-  scenarios,
-  capabilities,
-  featuredProjects,
-  techStackCategories,
-  cooperationSteps,
-  cta,
-  sectionTitles
-} = pageData
+if (!pageData.value) {
+  throw createError({ statusCode: 500, statusMessage: 'AI solutions content missing' })
+}
 
-// SEO 配置
-useHead({
-  title: seo.title,
+const badge = computed(() => pageData.value!.badge)
+const title = computed(() => pageData.value!.title)
+const subtitle = computed(() => pageData.value!.subtitle)
+const description = computed(() => pageData.value!.description)
+const heroActions = computed(() => pageData.value!.heroActions)
+const seo = computed(() => pageData.value!.seo)
+const scenarios = computed(() => pageData.value!.scenarios)
+const capabilities = computed(() => pageData.value!.capabilities)
+const featuredProjects = computed(() => pageData.value!.featuredProjects)
+const techStackCategories = computed(() => pageData.value!.techStackCategories)
+const cooperationSteps = computed(() => pageData.value!.cooperationSteps)
+const cta = computed(() => pageData.value!.cta)
+const sectionTitles = computed(() => pageData.value!.sectionTitles)
+
+useHead(() => ({
+  title: seo.value.title,
   meta: [
-    { name: 'description', content: seo.description }
+    { name: 'description', content: seo.value.description }
   ]
-})
+}))
 
 const router = useRouter()
 const isSafeInternalPath = (path?: string | null) => Boolean(path && path.startsWith('/') && !path.startsWith('/api/'))
 
-// 处理项目点击
 const handleProjectClick = (project: FeaturedProject) => {
   if (isSafeInternalPath(project.path)) {
-    router.push(project.path)
+    router.push(project.path!)
   }
 }
 </script>

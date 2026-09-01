@@ -56,7 +56,15 @@
     "build:analyze": "node node_modules/cross-env/dist/bin/cross-env.js ANALYZE=true npm run build",
     "bundle:analyze": "nuxt build --analyze",
     "perf:regression:test": "node scripts/test-performance-regression.js test",
-    "perf:baseline:update": "node scripts/test-performance-regression.js update-baseline"
+    "perf:baseline:update": "node scripts/test-performance-regression.js update-baseline",
+    "migrate:articles:audit": "node scripts/migrate/audit-articles-db.js",
+    "migrate:articles:export": "node scripts/migrate/export-articles-to-content.js",
+    "migrate:articles:export:write": "node scripts/migrate/export-articles-to-content.js --write",
+    "migrate:articles:verify": "node scripts/migrate/verify-articles-export.js",
+    "migrate:articles:seed-ops": "node scripts/migrate/seed-content-ops-articles.js",
+    "migrate:articles:seed-ops:dry": "node scripts/migrate/seed-content-ops-articles.js --dry-run",
+    "migrate:articles:catalog": "node scripts/migrate/build-articles-catalog.js",
+    "migrate:articles:sitemap-diff": "node scripts/migrate/sitemap-articles-diff.js"
   },
   "devDependencies": {
     "@lhci/cli": "^0.13.0",

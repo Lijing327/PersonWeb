@@ -2,8 +2,10 @@
   <ClientOnly>
     <div class="admin-ai-content-page p-6">
       <div class="mb-6">
-        <h1 class="text-2xl font-bold mb-2">内容生成智能体</h1>
-        <p class="text-gray-600 dark:text-gray-400">使用 AI 生成文章、项目介绍、工具介绍等内容</p>
+        <h1 class="text-2xl font-bold mb-2">AI 内容预览</h1>
+        <p class="text-gray-600 dark:text-gray-400">
+          仅用于预览 AI 生成效果，不会写入文章库。正文生产请走 Git / content 或导入脚本。
+        </p>
       </div>
 
       <n-card>
@@ -65,9 +67,10 @@
             />
           </n-form-item>
 
-          <n-form-item label="自动保存草稿">
-            <n-switch v-model:value="form.autoSaveDraft" />
-            <span class="ml-2 text-sm text-gray-500">生成后自动保存为文章草稿</span>
+          <n-form-item label="预览说明">
+            <n-alert type="info" :bordered="false">
+              生成结果仅供复制参考，后台已禁用「保存为文章」等 CMS 写入。
+            </n-alert>
           </n-form-item>
 
           <n-form-item>
@@ -101,13 +104,12 @@
             <n-button
               v-if="result.content"
               type="primary"
-              @click="handleSaveArticle"
-              :loading="saving"
+              @click="handleCopyResult"
             >
               <template #icon>
-                <i class="fas fa-save"></i>
+                <i class="fas fa-copy"></i>
               </template>
-              保存为文章
+              复制 Markdown
             </n-button>
           </div>
         </template>
@@ -140,7 +142,7 @@
 </template>
 
 <script setup lang="ts">
-import { NCard, NForm, NFormItem, NInput, NSelect, NRadioGroup, NRadio, NButton, NSwitch, NAlert } from 'naive-ui'
+import { NCard, NForm, NFormItem, NInput, NSelect, NRadioGroup, NRadio, NButton, NAlert } from 'naive-ui'
 import { useMarkdown } from '~/composables/useMarkdown'
 
 definePageMeta({
@@ -155,7 +157,6 @@ const { markdownToHtml } = useMarkdown()
 
 const formRef = ref<any>(null)
 const generating = ref(false)
-const saving = ref(false)
 const result = ref<any>(null)
 
 const form = ref({
@@ -165,7 +166,6 @@ const form = ref({
   targetAudience: '',
   length: 'medium',
   extraNotes: '',
-  autoSaveDraft: false
 })
 
 const toneOptions = [
@@ -208,7 +208,6 @@ const handleGenerate = async () => {
       targetAudience: form.value.targetAudience || undefined,
       length: form.value.length,
       extraNotes: form.value.extraNotes || undefined,
-      autoSaveDraft: form.value.autoSaveDraft
     })
 
     if (res && res.success) {
@@ -241,38 +240,19 @@ const handleReset = () => {
     targetAudience: '',
     length: 'medium',
     extraNotes: '',
-    autoSaveDraft: false
   }
   result.value = null
   formRef.value?.restoreValidation()
 }
 
-const handleSaveArticle = async () => {
-  if (!result.value?.content) return
-
-  saving.value = true
-
+const handleCopyResult = async () => {
+  const body = result.value?.content?.body
+  if (!body) return
   try {
-    const res = await api.post('/Articles', {
-      title: result.value.content.title,
-      summary: result.value.content.summary,
-      contentMd: result.value.content.body,
-      status: 0, // 草稿状态
-      sourceType: 'ai_generated' // AI生成
-    })
-
-    if (res && res.id) {
-      message.success('文章已保存为草稿！')
-      // 跳转到编辑页面
-      navigateTo(`/admin/articles/edit/${res.id}`)
-    } else {
-      message.error('保存失败')
-    }
-  } catch (e: any) {
-    console.error('保存文章失败:', e)
-    message.error(e.response?.data?.message || e.message || '保存失败')
-  } finally {
-    saving.value = false
+    await navigator.clipboard.writeText(body)
+    message.success('已复制 Markdown 正文')
+  } catch {
+    message.error('复制失败，请手动选择复制')
   }
 }
 </script>

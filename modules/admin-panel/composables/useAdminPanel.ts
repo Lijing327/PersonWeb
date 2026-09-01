@@ -138,7 +138,7 @@ const defaultMenuItems: MenuItem[] = [
     id: 'modules',
     title: '模块管理',
     icon: '🧩',
-    path: '/admin/modules',
+    path: '/admin/settings/modules',
     permissions: ['admin.modules']
   }
 ]

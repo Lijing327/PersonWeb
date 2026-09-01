@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "auditedAt": "2026-09-01T01:18:40.353Z",
+  "summary": {
+    "totalRowsInArticleTable": 53,
+    "mainVersionCount": 52,
+    "exportableCount": 51,
+    "excludedCount": 1,
+    "excludedHistoryVersionCount": 1,
+    "explicitHistoryQueryCount": 1,
+    "categoryCount": 10,
+    "tagLinkCount": 0,
+    "blockingIssueCount": 0,
+    "warningCount": 0
+  },
+  "categories": [
+    {
+      "id": 9,
+      "name": "运维部署",
+      "slug": "运维部署",
+      "sort": 0
+    },
+    {
+      "id": 10,
+      "name": "部署系列",
+      "slug": "部署系列",
+      "sort": 0
+    },
+    {
+      "id": 11,
+      "name": "理财笔记",
+      "slug": "理财笔记",
+      "sort": 0
+    },
+    {
+      "id": 12,
+      "name": "科普知识",
+      "slug": "科普知识",
+      "sort": 0
+    },
+    {
+      "id": 1,
+      "name": "技术博客",
+      "slug": "tech",
+      "sort": 1
+    },
+    {
+      "id": 2,
+      "name": "生活随笔",
+      "slug": "life",
+      "sort": 2
+    },
+    {
+      "id": 3,
+      "name": "项目分享",
+      "slug": "project",
+      "sort": 3
+    },
+    {
+      "id": 4,
+      "name": "学习笔记",
+      "slug": "study",
+      "sort": 4
+    },
+    {
+      "id": 5,
+      "name": "工具推荐",
+      "slug": "tool",
+      "sort": 4
+    },
+    {
+      "id": 16,
+      "name": "AI探索",
+      "slug": "ai",
+      "sort": 4
+    }
+  ],
+  "excludedHistorySample": [
+    {
+      "id": 77,
+      "parentId": 76,
+      "slug": "-v1",
+      "version": 1,
+      "status": 2
+    }
+  ],
+  "excludedArticles": [
+    {
+      "legacyId": 75,
+      "slug": "",
+      "status": 0,
+      "issues": [
+        {
+          "code": "NULL_SLUG",
+          "message": "slug 为空",
+          "exclude": true
+        }
+      ]
+    }
+  ],
+  "blockingArticles": [],
+  "warnings": [],
+  "migrationReady": true
+}

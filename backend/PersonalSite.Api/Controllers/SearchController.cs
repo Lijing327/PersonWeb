@@ -59,13 +59,14 @@ public class SearchController : ControllerBase
 
         // 使用 LIKE 搜索（兼容性更好，全文索引需要特殊配置）
         // 搜索文章
+        // Phase 4B-3: 正文 SoT 已迁 Git。此处仅保留 title/summary 作为 LEGACY 降级；
+        // 正式文章全文检索走 Nitro /api/search（Git index），禁止再读 content_md。
         if (type == "all" || type == "articles")
         {
             var articleQuery = _context.Articles
-                .Where(a => a.Status == 1) // 只搜索已发布的文章
+                .Where(a => a.Status == 1 && a.ParentId == null)
                 .Where(a => a.Title.Contains(keyword) ||
-                           (a.Summary != null && a.Summary.Contains(keyword)) ||
-                           (a.ContentMd != null && a.ContentMd.Contains(keyword)));
+                           (a.Summary != null && a.Summary.Contains(keyword)));
 
             var articleTotal = await articleQuery.CountAsync();
             
@@ -74,8 +75,7 @@ public class SearchController : ControllerBase
                 ? articleQuery.OrderByDescending(a => a.CreatedAt)
                 : articleQuery.OrderByDescending(a => 
                     (a.Title.Contains(keyword) ? 3 : 0) + 
-                    (a.Summary != null && a.Summary.Contains(keyword) ? 2 : 0) + 
-                    (a.ContentMd != null && a.ContentMd.Contains(keyword) ? 1 : 0))
+                    (a.Summary != null && a.Summary.Contains(keyword) ? 2 : 0))
                     .ThenByDescending(a => a.CreatedAt);
             
             var articles = await sortedArticleQuery
@@ -87,7 +87,7 @@ public class SearchController : ControllerBase
                     Id = a.Id.ToString(),
                     Title = a.Title,
                     Summary = a.Summary ?? "",
-                    Content = a.ContentMd ?? "",
+                    Content = a.Summary ?? "",
                     Type = "article",
                     Url = $"/blog/{a.Slug ?? a.Id.ToString()}",
                     CreatedAt = a.CreatedAt,

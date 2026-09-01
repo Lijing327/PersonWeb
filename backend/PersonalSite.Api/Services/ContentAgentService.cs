@@ -291,42 +291,18 @@ public class ContentAgentService : AiAgentService
     }
 
     /// <summary>
-    /// 保存草稿到数据库
+    /// 保存草稿到数据库 — LEGACY 已退役（Phase 4B-3）。
+    /// 文章正文 SoT = Git；AI 生成结果请导出到 content/articles，禁止写 DB body。
     /// </summary>
-    private async Task SaveDraftAsync(
+    private Task SaveDraftAsync(
         ContentGenerationResult result,
         ContentGenerationRequest request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            if (result.Content == null)
-            {
-                Logger.LogWarning("内容生成结果为空，无法保存草稿");
-                return;
-            }
-
-            var article = new Article
-            {
-                Title = result.Content.Title,
-                Summary = result.Content.Summary,
-                ContentMd = result.Content.Body,
-                Status = 0, // 草稿状态
-                SourceType = "ai_generated", // AI生成
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
-            };
-
-            DbContext.Articles.Add(article);
-            await DbContext.SaveChangesAsync(cancellationToken);
-
-            Logger.LogInformation("内容已保存为草稿: ArticleId={ArticleId}", article.Id);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "保存草稿失败");
-            // 不抛出异常，避免影响主流程
-        }
+        Logger.LogWarning(
+            "Skip SaveDraftAsync: Articles body SoT is Git. Do not write ContentMd to MySQL. Type={Type}",
+            request.Type);
+        return Task.CompletedTask;
     }
 }
 

@@ -4,16 +4,19 @@
       <div class="footer-grid">
         <div>
           <div class="footer-brand-logo">
-            <SiteBrandLogo variant="wordmark" />
+            <SiteBrandLogo variant="favicon" />
+            <span class="footer-brand-name">溪午听风</span>
           </div>
-          <div class="footer-brand-tagline">Work · 专业工作名片</div>
+          <div class="footer-brand-tagline">{{ contact.footer.tagline }}</div>
           <p class="footer-brand-desc">
-            展示真实案例、可使用的产品，以及公开写作。<br>
-            需要合作时，直接联系即可。
+            <template v-for="(line, index) in footerDescriptionLines" :key="line">
+              {{ line }}<br v-if="index < footerDescriptionLines.length - 1">
+            </template>
           </p>
           <div class="footer-social-links">
             <a
-              href="https://github.com/Lijing327"
+              v-if="contact.github.url"
+              :href="contact.github.url"
               target="_blank"
               rel="noopener noreferrer"
               class="footer-social-btn"
@@ -69,17 +72,14 @@
     >
       <div class="wechat-qr-content" @click.stop>
         <button type="button" class="wechat-qr-close" aria-label="关闭微信二维码" @click="closeModals">✕</button>
-        <div style="text-align:center">
-          <img
-            src="/images/wechat-qr.png"
-            alt="微信二维码"
-            width="180"
-            height="180"
-            decoding="async"
-            style="width:180px;height:180px;border-radius:12px;margin:0 auto 12px;display:block"
-          />
-          <p class="footer-copyright">扫码加好友，请注明来意</p>
-        </div>
+        <img
+          class="wechat-qr-image"
+          :src="contact.wechat.qrImage"
+          alt="微信二维码"
+          width="1074"
+          height="1452"
+          decoding="async"
+        />
       </div>
     </div>
 
@@ -96,7 +96,7 @@
         <button type="button" class="email-modal-close" aria-label="关闭邮箱弹层" @click="closeModals">✕</button>
         <p class="footer-nav-title" style="margin-bottom:8px">联系邮箱</p>
         <p style="font-size:15px;color:var(--color-text);font-family:var(--font-family-mono)">
-          linxiwanting@gmail.com
+          {{ contact.email }}
         </p>
       </div>
     </div>
@@ -104,10 +104,28 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import SiteBrandLogo from '~/components/layout/SiteBrandLogo.vue'
 import { SITE_LEGAL } from '~/constants/siteLegal'
 import { WORK_FOOTER_SECTIONS } from '~/constants/work-ia'
+import type { WorkContactContent } from '~/server/utils/content-files'
+
+const { data: contactData } = await useAsyncData('work-contact-footer', () =>
+  $fetch<WorkContactContent>('/api/content/work/contact'),
+)
+
+if (!contactData.value?.email) {
+  throw createError({ statusCode: 500, statusMessage: 'Work contact content missing' })
+}
+
+const contact = computed(() => contactData.value!)
+
+const footerDescriptionLines = computed(() =>
+  (contact.value.footer.description || '')
+    .split(/\n+/)
+    .map(line => line.trim())
+    .filter(Boolean),
+)
 
 const footerSections = WORK_FOOTER_SECTIONS
 const showWeChatQR = ref(false)

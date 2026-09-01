@@ -4,33 +4,37 @@ import type {
   HomeOverview, HomeProjectCard, HomeArticleCard,
   HomeJourneyItem, HomeNowBuildingItem, HomeStats
 } from '../../../types/home'
+import { listAggregatedArticles } from '../../utils/articles-aggregate'
+import { adaptArticlesToHomeCards } from '../../utils/home-articles-adapter'
 
 export default defineEventHandler(async (event) => {
   setHeader(event, 'Cache-Control', 'public, max-age=300, s-maxage=300')
 
   const config = useRuntimeConfig()
   const base = (config.backendApiBase as string) || 'http://localhost:5234/api'
+  const articlesSot = String(config.public.articlesSot || 'git').toLowerCase()
 
-  // 并发拉取：Projects / Articles / Timeline / Toolbox count
-  const [rawProjects, rawArticlesRes, rawTimeline, rawTools] = await Promise.allSettled([
+  // Projects / Timeline / Tools 仍走 .NET；Articles 默认 Git SoT（Phase 4B-3）
+  const [rawProjects, rawArticlesRes, rawTimeline, rawTools, gitArticles] = await Promise.allSettled([
     $fetch<{ code: number; data: any[] }>(`${base}/Projects`, { timeout: 5000 }),
-    $fetch<{ code: number; data: { List: any[]; Total: number } }>(
-      `${base}/Articles`,
-      { query: { status: 1, pageSize: 50, page: 1 }, timeout: 5000 }
-    ),
+    articlesSot === 'mysql'
+      ? $fetch<{ code: number; data: { List: any[]; Total: number } }>(
+          `${base}/Articles`,
+          { query: { status: 1, pageSize: 50, page: 1 }, timeout: 5000 },
+        )
+      : Promise.resolve(null),
     $fetch<{ code: number; data: any[] }>(`${base}/Timeline`, { timeout: 5000 }),
     $fetch<{ code: number; data: any }>(
       `${base}/Toolbox/marketplace`,
       { query: { page: 1, pageSize: 1 }, timeout: 5000 },
     ),
+    articlesSot === 'git'
+      ? listAggregatedArticles({ publicOnly: true, page: 1, pageSize: 50 })
+      : Promise.resolve(null),
   ])
 
   const projects: any[] = rawProjects.status === 'fulfilled'
     ? (Array.isArray(rawProjects.value?.data) ? rawProjects.value.data : [])
-    : []
-
-  const articles: any[] = rawArticlesRes.status === 'fulfilled'
-    ? (rawArticlesRes.value?.data?.List ?? [])
     : []
 
   const timeline: any[] = rawTimeline.status === 'fulfilled'
@@ -67,7 +71,6 @@ export default defineEventHandler(async (event) => {
     .sort((a, b) => b.viewCount - a.viewCount)
     .slice(0, 5)
 
-  // nowBuilding: Active 项目，UpdatedAt DESC 排序，取前 4
   const nowBuilding: HomeNowBuildingItem[] = projects
     .filter((p: any) => String(p.Status ?? p.status) === 'Active')
     .sort((a: any, b: any) => {
@@ -88,30 +91,41 @@ export default defineEventHandler(async (event) => {
       }
     })
 
-  // 处理 Articles
-  const allArticles: HomeArticleCard[] = articles.map((a: any) => {
-    const id = Number(a.Id ?? a.id ?? 0)
-    const slug = a.Slug ?? a.slug ?? null
-    return {
-      id,
-      title: String(a.Title ?? a.title ?? ''),
-      slug,
-      summary: a.Summary ?? a.summary ?? null,
-      coverUrl: a.CoverUrl ?? a.coverUrl ?? null,
-      publishTime: a.PublishTime ?? a.publishTime ?? a.CreatedAt ?? a.createdAt ?? null,
-      viewCount: Number(a.ViewCount ?? a.viewCount ?? 0),
-      categoryName: a.CategoryName ?? a.categoryName ?? null,
-      path: `/blog/${slug ?? id}`,
-    }
-  })
+  // Articles — Git (default) via adapter; mysql = LEGACY_ROLLBACK_ONLY
+  let allArticles: HomeArticleCard[] = []
+  let featuredArticle: HomeArticleCard | null = null
+  let latestArticles: HomeArticleCard[] = []
 
-  const featuredArticle: HomeArticleCard | null = allArticles[0] ?? null
-  // 按 id 排除精选文章（不用数组下标）
-  const latestArticles: HomeArticleCard[] = allArticles
-    .filter(a => a.id !== featuredArticle?.id)
-    .slice(0, 4)
+  if (articlesSot === 'git' && gitArticles.status === 'fulfilled' && gitArticles.value) {
+    const adapted = adaptArticlesToHomeCards(gitArticles.value.blogList)
+    allArticles = adapted.allArticles
+    featuredArticle = adapted.featuredArticle
+    latestArticles = adapted.latestArticles
+  } else {
+    const articles: any[] = rawArticlesRes.status === 'fulfilled'
+      ? (rawArticlesRes.value?.data?.List ?? [])
+      : []
+    allArticles = articles.map((a: any) => {
+      const id = Number(a.Id ?? a.id ?? 0)
+      const slug = a.Slug ?? a.slug ?? null
+      return {
+        id,
+        title: String(a.Title ?? a.title ?? ''),
+        slug,
+        summary: a.Summary ?? a.summary ?? null,
+        coverUrl: a.CoverUrl ?? a.coverUrl ?? null,
+        publishTime: a.PublishTime ?? a.publishTime ?? a.CreatedAt ?? a.createdAt ?? null,
+        viewCount: Number(a.ViewCount ?? a.viewCount ?? 0),
+        categoryName: a.CategoryName ?? a.categoryName ?? null,
+        path: `/blog/${slug ?? id}`,
+      }
+    })
+    featuredArticle = allArticles[0] ?? null
+    latestArticles = allArticles
+      .filter(a => a.id !== featuredArticle?.id)
+      .slice(0, 4)
+  }
 
-  // 处理 Timeline
   const currentYear = new Date().getFullYear()
   const journey: HomeJourneyItem[] = timeline.map((t: any) => ({
     id: Number(t.Id ?? t.id ?? 0),
@@ -123,7 +137,6 @@ export default defineEventHandler(async (event) => {
     isNow: Number(t.Year ?? t.year) === currentYear,
   }))
 
-  // Stats
   const stats: HomeStats = {
     projects: allProjects.filter(p => p.status !== 'Archived').length,
     articles: allArticles.length,

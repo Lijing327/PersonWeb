@@ -4,9 +4,12 @@
       <div>
         <h1 class="page-title">文章版本历史</h1>
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ articleTitle }}</p>
+        <p class="text-sm text-amber-600 dark:text-amber-400 mt-2">
+          LEGACY_READONLY — 正文版本请使用 Git history；此处仅保留 DB 历史只读对照，不可恢复写回。
+        </p>
       </div>
-      <NuxtLink :to="`/admin/articles/edit/${articleId}`" class="btn-secondary">
-        返回编辑
+      <NuxtLink :to="`/admin/articles`" class="btn-secondary">
+        返回列表
       </NuxtLink>
     </div>
 
@@ -55,13 +58,6 @@
               class="btn-primary"
             >
               查看
-            </button>
-            <button
-              v-if="version.status !== 1"
-              @click="restoreVersion(version.id)"
-              class="btn-success"
-            >
-              恢复
             </button>
           </div>
         </div>
@@ -256,18 +252,6 @@ const generateDiff = () => {
   }
 
   diffHtml.value = html || '<p class="text-gray-500 dark:text-gray-400">两个版本内容相同</p>'
-}
-
-const restoreVersion = async (versionId: number) => {
-  if (!confirm('确定要恢复这个版本吗？当前版本将被保存为历史版本。')) return
-
-  try {
-    await api.post(`/Articles/${articleId.value}/versions/${versionId}/restore`)
-    success('恢复成功')
-    await fetchVersions()
-  } catch (e: unknown) {
-    handleError(e, '恢复失败')
-  }
 }
 
 onMounted(() => {

@@ -9,7 +9,7 @@ import {
   ENABLE_LEGACY_SHOWCASE_PRESETS,
 } from '../../composables/useProjectShowcase'
 import type { Project } from '../../types/api'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 describe('project legacy slug mapping', () => {
@@ -117,16 +117,9 @@ describe('showcase source priority', () => {
 })
 
 describe('blog markdown admin retired', () => {
-  it('admin articles handler returns Gone stub', () => {
-    const src = readFileSync(resolve(__dirname, '../../server/api/admin/articles.ts'), 'utf8')
-    expect(src).toMatch(/statusCode:\s*410/)
-    expect(src).toMatch(/Articles/)
-  })
-
-  it('admin edit page redirects to articles management', () => {
-    const src = readFileSync(resolve(__dirname, '../../pages/admin/edit.vue'), 'utf8')
-    expect(src).toMatch(/\/admin\/articles/)
-    expect(src).not.toMatch(/\/api\/admin\/articles\?action=read/)
+  it('does not resurrect Nitro admin articles API or legacy edit page', () => {
+    expect(existsSync(resolve(__dirname, '../../server/api/admin/articles.ts'))).toBe(false)
+    expect(existsSync(resolve(__dirname, '../../pages/admin/edit.vue'))).toBe(false)
   })
 })
 
@@ -137,5 +130,6 @@ describe('content architecture invariants', () => {
     expect(doc).toMatch(/PRIMARY/)
     expect(doc).toMatch(/MySQL/)
     expect(doc).toMatch(/Toolbox\.Slug|Tools\.Slug/)
+    expect(doc).toMatch(/content\/work/)
   })
 })

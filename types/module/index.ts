@@ -50,7 +50,8 @@ export interface ModuleMetadata {
 export enum ModuleCategory {
   AI = 'ai',
   VISITOR = 'visitor',
-  3D = '3d',
+  /** 3D 展示类模块（枚举名不可数字开头） */
+  THREE_D = '3d',
   ADMIN = 'admin',
   PERFORMANCE = 'performance',
   I18N = 'i18n',

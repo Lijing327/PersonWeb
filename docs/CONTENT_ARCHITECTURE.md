@@ -1,7 +1,7 @@
 # PersonWeb Content Architecture
 
-> Phase 4 — Work 数据源与内容模型收敛  
-> 最后更新：2026-08-31
+> Phase 4B — Articles Git SoT 正式切换  
+> 最后更新：2026-09-01
 
 ## Worlds
 
@@ -45,6 +45,16 @@
 
 ## Work
 
+### Display copy (Phase 2 SoT)
+
+| 层 | 路径 |
+| --- | --- |
+| **PRIMARY** | `content/work/{home.yml,about.md,ai.yml,capabilities.yml}` |
+| **API** | Nitro `/api/content/work/*`（复用 `content-files.ts`） |
+| **Frontend** | `/work`、`/about`、`/ai`、WorkAssistantHub / AIAssistant |
+| **LEGACY** | About 假 KPI / 硬编码项目列表；`.NET AIController.BuildSystemPrompt` 人设未读文件 |
+| **Admin** | **不可编** About/AI/Home 展示文案（无 CMS 写路径） |
+
 ### Projects
 
 | 层 | 路径 |
@@ -58,7 +68,7 @@
 | **PRESENTATION** | `constants/projects/covers.ts` 封面映射 |
 | **DERIVED list inject** | `showcaseExtras.ts`（MindTrace → Product 视图） |
 | **COMPAT route** | `/projects/detail-{slug}` → slug 映射 → `/projects/{id}`（失败则 `/projects`） |
-| **ORPHAN** | `content/projects`、`server/api/admin/projects.ts`（410）、`/api/content/projects*` |
+| **ORPHAN** | `content/projects`、`/api/content/projects*`（已删）；Nitro `server/api/admin/projects.ts` / `server/api/projects.ts`（Phase 1 已删） |
 
 Showcase 合并优先级：
 
@@ -71,10 +81,14 @@ Showcase 合并优先级：
 
 | 层 | 路径 |
 | --- | --- |
-| **PRIMARY** | MySQL `article` → `.NET /Articles` |
-| **Admin** | `/admin/articles` → `.NET /Articles` |
-| **Frontend** | `/blog`、`/blog/[id]` |
-| **ORPHAN** | `content/blog`、`server/api/admin/articles.ts`（410）、`pages/admin/edit.vue`（重定向到文章管理） |
+| **PRIMARY（内容事实）** | `content/articles/{slug}.md` → Nitro `/api/content/articles` |
+| **PRIMARY（运营）** | MySQL `content_ops`（view_count / featured / takedown） |
+| **Feature flag** | `CONTENT_ARTICLES_SOT=git`（默认）；`mysql` = **LEGACY_ROLLBACK_ONLY** |
+| **Frontend** | `/blog`、`/blog/[slug]` via `useArticlesRepository`；numeric id → 301 slug |
+| **Home / Sitemap / Search** | Git 聚合（Phase 4B-3） |
+| **Admin** | `/admin/articles` 运营观察；版本页 = Legacy DB History（不可 restore） |
+| **LEGACY_READONLY** | MySQL `article.content_md/html/status/...` 保留核对，禁止新写入 |
+| **ORPHAN** | `content/blog`（已删）；`import-blog-to-db.js` DEPRECATED |
 
 ### Tools
 
@@ -85,7 +99,7 @@ Showcase 合并优先级：
 | **Frontend LIST** | `/tools` → `/Toolbox/marketplace` |
 | **Frontend DETAIL** | `/tools/:slug` → `/Toolbox/by-slug/{slug}`（COMPAT：marketplace exact match） |
 | **COMPAT** | `/tools/detail-{slug}` → 301 `/tools/{slug}` |
-| **ORPHAN** | `content/tools`、`server/api/admin/tools.ts`（410）、列表不再走 `/MockData/tools` 或 MD fallback |
+| **ORPHAN** | `content/tools`（已删）；Nitro `server/api/admin/tools.ts`、`MockDataController`（Phase 1 已删） |
 
 Slug 责任：**Toolbox.Slug**（DB）是唯一规范 slug。
 
@@ -166,9 +180,12 @@ Project (DB)
 | `showcaseExtras.ts` | DERIVED / COMPAT |
 | `/projects/detail-*`、`/tools/detail-*` | COMPAT redirect |
 | `content/projects|blog|tools` | **DELETED (Phase 6)** — 空目录且无消费者 |
-| `server/api/admin/{articles,projects,tools}.ts` | ORPHAN stub → **KEEP_410**（历史调用方大声失败） |
+| `server/api/admin/{articles,projects,tools,stats,config,metrics,categories}.ts` | **DELETED (Phase 1 orphan cleanup)** |
+| `server/api/projects.ts`、`server/api/views/*`、`server/data/{visit-logs,views,stats,personal_metrics}.json` | **DELETED (Phase 1)** |
+| `pages/admin/edit.vue`、`theme-settings.vue`、`themes.vue`、`commercial/memberships.vue` | **DELETED (Phase 1 / 1.5)** |
+| `MockDataController`、`AiServiceExampleController` | **DELETED (Phase 1)** |
+| Nitro `server/api/github/stats.ts` | **DELETED (Phase 1.5)** — 前台仍用 `useApi('/github/stats')` → `.NET /GitHub/stats` |
 | `server/api/content/projects*` / `tools*` | **DELETED (Phase 6)** |
-| `pages/admin/edit.vue` | LEGACY retired |
 | Cognition changelog MD | LEGACY |
 | Products constants | ACTIVE（当前 PRIMARY，无 DB） |
 
