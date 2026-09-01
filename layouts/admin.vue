@@ -121,21 +121,13 @@
         </div>
       </ClientOnly>
 
-      <!-- 使用统一的 AppNaiveConfig，确保前台和后台共用同一套主题配置 -->
-      <!-- 使用 ClientOnly 避免 SSR 时的闪烁 -->
+      <!-- AppNaiveConfig 直接包裹主内容，避免与 ssr:false 页面叠加 ClientOnly 导致空白 -->
       <div class="flex-1 overflow-auto admin-main-scroll">
-        <ClientOnly>
-          <AppNaiveConfig>
-            <div class="admin-page-shell">
-              <slot />
-            </div>
-          </AppNaiveConfig>
-          <template #fallback>
-            <div class="admin-main-fallback admin-page-shell">
-              <slot />
-            </div>
-          </template>
-        </ClientOnly>
+        <AppNaiveConfig>
+          <div class="admin-page-shell">
+            <slot />
+          </div>
+        </AppNaiveConfig>
       </div>
     </main>
 

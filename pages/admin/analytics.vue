@@ -256,8 +256,7 @@ import PageHeader from '~/components/admin/patterns/PageHeader.vue'
 
 definePageMeta({
   layout: 'admin',
-  middleware: 'admin-auth',
-  ssr: false
+  middleware: 'admin-auth'
 })
 
 const { moduleTheme } = useModuleTheme('analytics_dashboard')

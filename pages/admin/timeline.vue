@@ -102,8 +102,7 @@ import { useErrorHandler } from '~/composables/useErrorHandler'
 
 definePageMeta({
   layout: 'admin',
-  middleware: 'admin-auth',
-  ssr: false // 禁用 SSR，避免 Naive UI 组件在服务端渲染时出错
+  middleware: 'admin-auth'
 })
 
 const api = useApi()

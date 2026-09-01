@@ -196,8 +196,7 @@ import {
 
 definePageMeta({
   layout: 'admin',
-  middleware: 'admin-auth',
-  ssr: false
+  middleware: 'admin-auth'
 })
 
 const route = useRoute()

@@ -147,8 +147,7 @@ import { useMarkdown } from '~/composables/useMarkdown'
 
 definePageMeta({
   layout: 'admin',
-  middleware: 'admin-auth',
-  ssr: false
+  middleware: 'admin-auth'
 })
 
 const api = useApi()

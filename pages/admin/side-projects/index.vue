@@ -359,8 +359,7 @@ import type { SideProject, CreateSideProjectDto, UpdateSideProjectDto } from '~/
 
 definePageMeta({
   layout: 'admin',
-  middleware: 'admin-auth',
-  ssr: false
+  middleware: 'admin-auth'
 })
 
 const router = useRouter()

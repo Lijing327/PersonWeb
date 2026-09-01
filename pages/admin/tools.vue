@@ -304,8 +304,7 @@ const statusLabelMap: Record<string, string> = {
 
 definePageMeta({
   layout: 'admin',
-  middleware: 'admin-auth',
-  ssr: false
+  middleware: 'admin-auth'
 })
 
 const api = useApi()

@@ -129,7 +129,6 @@ definePageMeta({
   layout: 'admin',
   middleware: 'admin-auth',
   // 排除静态预渲染（admin 页面需要认证）
-  ssr: false
 })
 
 const api = useApi()

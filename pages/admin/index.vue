@@ -176,8 +176,7 @@ const AdminDashboardKpiCard = defineAsyncComponent(() =>
 
 definePageMeta({
   layout: 'admin',
-  middleware: 'admin-auth',
-  ssr: false
+  middleware: 'admin-auth'
 })
 
 // 显式导入组件，确保 Nuxt 自动导入正常工作

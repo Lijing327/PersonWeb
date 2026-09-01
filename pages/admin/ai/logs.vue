@@ -106,8 +106,7 @@ import { NCard, NSelect, NButton, NTag, NCollapse, NCollapseItem, NPagination, N
 
 definePageMeta({
   layout: 'admin',
-  middleware: 'admin-auth',
-  ssr: false
+  middleware: 'admin-auth'
 })
 
 const api = useApi()

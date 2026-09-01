@@ -101,10 +101,23 @@ describe('Admin operations console guards (Phase 3)', () => {
     expect(hub).not.toMatch(/readWorkHome|edit.*about/i)
   })
 
-  it('dashboard quick actions are operations not CMS', () => {
-    const src = readSrc('pages/admin/index.vue')
-    expect(src).not.toMatch(/articles\/edit/)
-    expect(src).toMatch(/\/admin\/analytics/)
+  it('admin layout does not wrap page shell in ClientOnly', () => {
+    const src = readSrc('layouts/admin.vue')
+    const mainShell = src.match(/admin-main-scroll">([\s\S]*?)<\/div>\s*<\/main>/)?.[1] ?? ''
+    expect(mainShell).toMatch(/admin-page-shell/)
+    expect(mainShell).not.toMatch(/ClientOnly/)
+  })
+
+  it('admin pages do not disable SSR (avoids blank main content)', () => {
+    const vueFiles = collectVueFiles(adminPagesRoot)
+    const offenders: string[] = []
+    for (const file of vueFiles) {
+      const src = readFileSync(file, 'utf8')
+      if (/ssr:\s*false/.test(src)) {
+        offenders.push(path.relative(root, file))
+      }
+    }
+    expect(offenders).toEqual([])
   })
 })
 

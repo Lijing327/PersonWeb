@@ -54,8 +54,7 @@ import type { DataTableColumns } from 'naive-ui'
 
 definePageMeta({
   layout: 'admin',
-  middleware: 'admin-auth',
-  ssr: false
+  middleware: 'admin-auth'
 })
 
 const router = useRouter()

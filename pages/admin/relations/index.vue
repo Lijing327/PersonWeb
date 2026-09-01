@@ -310,8 +310,7 @@ import { useRelationsApi, type RelationPerson, type ObservationReminder as Obser
 
 definePageMeta({
   layout: 'admin',
-  middleware: 'admin-auth',
-  ssr: false
+  middleware: 'admin-auth'
 })
 
 const router = useRouter()

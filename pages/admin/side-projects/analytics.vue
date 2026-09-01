@@ -128,8 +128,7 @@ import type { ProjectBrief, SideProjectAnalyticsSummary } from '~/types/api'
 
 definePageMeta({
   layout: 'admin',
-  middleware: 'admin-auth',
-  ssr: false
+  middleware: 'admin-auth'
 })
 
 type EChartOption = Record<string, any>

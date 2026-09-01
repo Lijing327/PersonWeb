@@ -165,8 +165,7 @@ import { useErrorHandler } from '~/composables/useErrorHandler'
 
 definePageMeta({
   layout: 'admin',
-  middleware: 'admin-auth',
-  ssr: false
+  middleware: 'admin-auth'
 })
 
 const api = useApi()
