@@ -151,6 +151,7 @@ export default defineNuxtConfig({
         '/life/about',
         '/life/notes',
         '/work',
+        '/about',
         '/admin',
         '/admin/analytics',
         '/admin/articles',

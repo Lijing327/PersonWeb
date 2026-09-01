@@ -8,6 +8,7 @@ import {
   readWorkCapabilities,
   readWorkContact,
   readWorkHome,
+  resolveContentRoot,
 } from '../../server/utils/content-files'
 
 const root = resolve(__dirname, '../..')
@@ -138,5 +139,20 @@ describe('Work content boundary guards', () => {
     const lifeHome = readFileSync(resolve(root, 'content/life/home.yml'), 'utf8')
     expect(lifeHome).toMatch(/溪午听风/)
     expect(readSrc('content/work/home.yml')).not.toMatch(/最近在/)
+  })
+
+  it('resolveContentRoot finds repo content when cwd is .output (nuxt preview)', () => {
+    const outputDir = resolve(root, '.output')
+    if (!existsSync(outputDir)) {
+      return
+    }
+    const original = process.cwd()
+    try {
+      process.chdir(outputDir)
+      expect(resolveContentRoot()).toBe(resolve(root, 'content'))
+      expect(readWorkAbout()?.title).toBe('溪午听风')
+    } finally {
+      process.chdir(original)
+    }
   })
 })

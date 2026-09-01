@@ -10,7 +10,32 @@ import type {
 } from '../../types/articlesContent'
 import { parseFrontmatter } from './frontmatter'
 
-const contentRoot = path.resolve(process.cwd(), 'content')
+/** Marker files/dirs used to locate repo `content/` when cwd is `.output` (nuxt preview / nitro). */
+const CONTENT_ROOT_MARKERS = [
+  ['work', 'home.yml'],
+  ['articles'],
+  ['life', 'home.yml'],
+] as const
+
+export const resolveContentRoot = (): string => {
+  const hasMarker = (contentDir: string) =>
+    CONTENT_ROOT_MARKERS.some((segments) => fs.existsSync(path.join(contentDir, ...segments)))
+
+  let dir = process.cwd()
+  for (let depth = 0; depth < 8; depth++) {
+    const candidate = path.join(dir, 'content')
+    if (hasMarker(candidate)) {
+      return candidate
+    }
+    const parent = path.dirname(dir)
+    if (parent === dir) break
+    dir = parent
+  }
+
+  return path.resolve(process.cwd(), 'content')
+}
+
+const contentRoot = resolveContentRoot()
 
 export const parseYamlSafe = (raw: string) => {
   try {
