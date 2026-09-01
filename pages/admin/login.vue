@@ -86,7 +86,14 @@ const handleLogin = async () => {
 
     router.push('/admin')
   } catch (e: any) {
-    error.value = e?.statusMessage || e?.message || '登录失败，请检查用户名或密码'
+    const status = e?.statusCode ?? e?.response?.status
+    if (status === 503) {
+      error.value = '后台认证未配置：请在项目根目录 .env 设置 ADMIN_PASSWORD 后重启 npm run dev'
+    } else if (status === 401) {
+      error.value = '密码错误，请重试'
+    } else {
+      error.value = e?.statusMessage || e?.message || '登录失败，请检查用户名或密码'
+    }
   } finally {
     loading.value = false
   }
