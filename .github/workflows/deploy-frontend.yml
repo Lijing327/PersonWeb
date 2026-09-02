@@ -57,10 +57,26 @@ jobs:
           echo "accessKeyID=$OSS_ACCESS_KEY_ID" >> ~/.ossutilconfig
           echo "accessKeySecret=$OSS_ACCESS_KEY_SECRET" >> ~/.ossutilconfig
 
-          # 上传文件
-          ossutil cp -r .output/public/ oss://$OSS_BUCKET/ -f || {
+          # 1) 清掉后台预渲染空壳（历史上 generate 时无登录 cookie，会生成
+          #    <meta refresh → /admin/login> 的 98 字节 HTML，直链打开主区空白）
+          ossutil rm "oss://$OSS_BUCKET/admin" -r -f || true
+
+          # 2) 清掉旧 _nuxt hash 包，避免浏览器继续命中旧侧栏菜单 JS
+          ossutil rm "oss://$OSS_BUCKET/_nuxt" -r -f || true
+
+          # 3) 上传最新静态产物
+          ossutil cp -r .output/public/ "oss://$OSS_BUCKET/" -f || {
             echo "Error: Upload failed!"
             exit 1
           }
 
+          # 4) HTML 入口禁缓存（否则会长期指向旧 JS，侧栏仍显示「内容中心」）
+          for html in index.html 200.html 404.html; do
+            if ossutil stat "oss://$OSS_BUCKET/$html" >/dev/null 2>&1; then
+              ossutil set-meta "oss://$OSS_BUCKET/$html" \
+                Cache-Control:no-cache,no-store,must-revalidate -f || true
+            fi
+          done
+
           echo "Upload completed successfully!"
+

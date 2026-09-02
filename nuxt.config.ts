@@ -144,7 +144,8 @@ export default defineNuxtConfig({
     prerender: {
       // 关闭自动爬取链接，避免内存溢出
       crawlLinks: false,
-      // 预渲染核心路由和 admin 主要页面
+      // 只预渲染公开页。/admin/* 有登录守卫，预渲染会生成「跳转登录」空壳 HTML，
+      // 上传 OSS 后直链/目录索引会打到空壳，主内容区空白；后台一律走 SPA 200.html。
       routes: [
         '/',
         '/life',
@@ -152,22 +153,14 @@ export default defineNuxtConfig({
         '/life/notes',
         '/work',
         '/about',
-        '/admin',
-        '/admin/analytics',
-        '/admin/content',
-        '/admin/side-projects',
-        '/admin/visitor-messages',
-        '/admin/consultations',
-        '/admin/orders',
-        '/admin/cognition',
         '/200.html',
         '/404.html'
       ],
-      // 排除动态内容页面
+      // 排除动态内容与全部后台页
       ignore: [
         '/blog/**',
         '/projects/**',
-        '/admin/side-projects/projects/**'
+        '/admin/**',
       ],
       // 忽略预渲染错误
       failOnError: false
