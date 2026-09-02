@@ -83,6 +83,6 @@ describe('error world routing', () => {
     expect(resolveErrorWorld('/life')).toBe('life')
     expect(resolveErrorWorld('/life/notes')).toBe('life')
     expect(resolveErrorWorld('/admin')).toBe('admin')
-    expect(resolveErrorWorld('/admin/articles')).toBe('admin')
+    expect(resolveErrorWorld('/admin/content')).toBe('admin')
   })
 })

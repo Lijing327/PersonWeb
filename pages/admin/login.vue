@@ -2,6 +2,9 @@
   <div class="min-h-screen flex items-center justify-center bg-gray-100">
     <div class="max-w-md w-full bg-white rounded-lg shadow-md p-8">
       <h2 class="text-2xl font-bold text-center text-gray-800 mb-8">后台管理系统登录</h2>
+      <p class="text-sm text-gray-500 text-center -mt-4 mb-6">
+        仅校验密码，需与项目根目录 <code class="text-xs">.env</code> 中的 <code class="text-xs">ADMIN_PASSWORD</code> 一致
+      </p>
       
       <form @submit.prevent="handleLogin" class="space-y-6">
         <div>
@@ -58,6 +61,7 @@ const password = ref('')
 const error = ref('')
 const loading = ref(false)
 const router = useRouter()
+const { setBackendToken, clearBackendToken } = useBackendAuth()
 
 const handleLogin = async () => {
   if (!username.value || !password.value) {
@@ -69,19 +73,24 @@ const handleLogin = async () => {
   error.value = ''
   
   try {
-    // Cookie auth via Nitro — do not persist token in localStorage
-    await $fetch('/api/auth/login', {
+    const trimmedPassword = password.value.trim()
+    // Cookie auth via Nitro + backend JWT for .NET API
+    const result = await $fetch<{ backendToken?: string }>('/api/auth/login', {
       method: 'POST',
       credentials: 'include',
       body: {
-        username: username.value,
-        password: password.value,
+        username: username.value.trim(),
+        password: trimmedPassword,
       },
     })
 
     if (process.client) {
       localStorage.removeItem('admin_token')
       localStorage.removeItem('admin_user')
+      clearBackendToken()
+      if (result?.backendToken) {
+        setBackendToken(result.backendToken)
+      }
     }
 
     router.push('/admin')

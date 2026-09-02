@@ -30,6 +30,17 @@
 
           <div class="visitor-modal-body">
             <div class="visitor-form-group">
+              <label class="visitor-form-label">你的称呼</label>
+              <input
+                v-model="visitorName"
+                type="text"
+                class="visitor-form-input"
+                placeholder="例如：小明（选填，不填则显示匿名）"
+                maxlength="20"
+              />
+            </div>
+
+            <div class="visitor-form-group">
               <label class="visitor-form-label">消息类型</label>
               <div class="visitor-type-buttons">
                 <button
@@ -94,7 +105,7 @@
 
             <p class="visitor-form-hint">
               <i class="fas fa-info-circle" aria-hidden="true"></i>
-              内容提交后会进入审核流程
+              审核通过后会在页面顶部以弹幕形式展示；入口：右下角「问问 AI」或右上角访客中心
             </p>
           </div>
         </div>
@@ -117,7 +128,10 @@ const messageType = ref('message')
 const selectedEmoji = ref('')
 const messageContent = ref('')
 const messageLocation = ref('')
+const visitorName = ref('')
 const submitting = ref(false)
+
+const VISITOR_NAME_KEY = 'visitor_display_name'
 
 const messageTypes = [
   { value: 'message', label: '留言', icon: 'fas fa-comment' },
@@ -150,11 +164,16 @@ const sendMessage = async () => {
 
     await api.post('/VisitorInteraction/message', {
       visitorId,
+      visitorName: visitorName.value.trim() || null,
       messageType: messageType.value,
       content: messageContent.value.trim(),
       emoji: selectedEmoji.value || null,
       location: messageLocation.value.trim() || null
     })
+
+    if (process.client && visitorName.value.trim()) {
+      localStorage.setItem(VISITOR_NAME_KEY, visitorName.value.trim())
+    }
 
     messageContent.value = ''
     selectedEmoji.value = ''
@@ -182,6 +201,12 @@ const sendMessage = async () => {
 
 onMounted(() => {
   if (!process.client) return
+
+  const savedName = localStorage.getItem(VISITOR_NAME_KEY)
+  if (savedName) {
+    visitorName.value = savedName
+  }
+
   const onKey = (event: KeyboardEvent) => {
     if (event.key === 'Escape' && showMessageModal.value) {
       closeMessageModal()

@@ -80,12 +80,6 @@
           >
             启用
           </button>
-          <button
-            @click="openSettings"
-            class="action-btn secondary"
-          >
-            设置
-          </button>
         </template>
 
         <!-- 未安装模块 -->
@@ -169,11 +163,6 @@ function getCategoryName(category: string): string {
     analytics: '数据分析'
   }
   return categoryMap[category] || category
-}
-
-// 打开模块配置中枢（站点级 .NET 模块开关，非 per-key 插件设置页）
-function openSettings() {
-  navigateTo('/admin/settings/modules')
 }
 
 // 购买模块

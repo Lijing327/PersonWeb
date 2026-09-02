@@ -14,12 +14,15 @@ export type AdminMenuGroup = {
 
 export const adminMenu: AdminMenuGroup[] = [
   {
-    label: 'Dashboard',
+    label: '控制台',
     icon: 'fas fa-tachometer-alt',
-    children: [{ label: '网站概览', path: '/admin' }],
+    children: [
+      { label: '网站概览', path: '/admin' },
+      { label: '站点内容', path: '/admin/content' },
+    ],
   },
   {
-    label: 'Analytics',
+    label: '数据统计',
     icon: 'fas fa-chart-pie',
     children: [
       { label: '数据分析', path: '/admin/analytics' },
@@ -28,16 +31,15 @@ export const adminMenu: AdminMenuGroup[] = [
     ],
   },
   {
-    label: 'Interactions',
+    label: '互动管理',
     icon: 'fas fa-comments',
     children: [
-      { label: '访客留言', path: '/admin/visitor-messages' },
+      { label: '访客互动', path: '/admin/visitor-messages' },
       { label: '咨询管理', path: '/admin/consultations' },
-      { label: '时间胶囊', path: '/admin/time-capsules' },
     ],
   },
   {
-    label: 'AI',
+    label: 'AI 管理',
     icon: 'fas fa-robot',
     children: [
       { label: 'AI 中心', path: '/admin/ai' },
@@ -46,19 +48,7 @@ export const adminMenu: AdminMenuGroup[] = [
     ],
   },
   {
-    label: 'Content Ops',
-    icon: 'fas fa-layer-group',
-    children: [
-      { label: '内容中枢', path: '/admin/content-hub' },
-      { label: '文章运营', path: '/admin/articles' },
-      { label: '项目运营', path: '/admin/projects' },
-      { label: '工具运营', path: '/admin/tools' },
-      { label: '分类管理', path: '/admin/categories' },
-      { label: '友情链接', path: '/admin/friend-links' },
-    ],
-  },
-  {
-    label: 'Commercial',
+    label: '商业管理',
     icon: 'fas fa-coins',
     children: [
       { label: '订单管理', path: '/admin/orders' },
@@ -66,24 +56,13 @@ export const adminMenu: AdminMenuGroup[] = [
     ],
   },
   {
-    label: 'Personal Workspace',
+    label: '个人工作台',
     icon: 'fas fa-briefcase',
     children: [
       { label: '情报中心', path: '/admin/intelligence' },
-      { label: '关系管理', path: '/admin/relations' },
       { label: '副业项目', path: '/admin/side-projects' },
-      { label: '技能树', path: '/admin/skill-tree' },
       { label: '认知说明书', path: '/admin/cognition' },
       { label: '思维记录', path: '/admin/thoughts' },
-    ],
-  },
-  {
-    label: 'System',
-    icon: 'fas fa-shield-alt',
-    children: [
-      { label: '系统设置', path: '/admin/settings' },
-      { label: '错误日志', path: '/admin/error-logs' },
-      { label: '用户管理', path: '/admin/users' },
     ],
   },
 ]

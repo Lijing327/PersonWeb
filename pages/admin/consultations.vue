@@ -34,6 +34,14 @@
       />
       <n-button type="primary" @click="handleSearch">搜索</n-button>
       <n-button quaternary @click="handleReset">重置</n-button>
+      <n-button
+        v-if="consultations.length > 0"
+        type="error"
+        secondary
+        @click="handleClearAll"
+      >
+        清空全部
+      </n-button>
     </div>
 
     <div class="stats-grid">
@@ -140,6 +148,12 @@
                   class="btn-link btn-link-green"
                 >
                   转为订单
+                </button>
+                <button
+                  @click="handleDelete(consultation)"
+                  class="btn-link btn-link-red"
+                >
+                  删除
                 </button>
               </div>
             </td>
@@ -462,6 +476,55 @@ const handleConvertToOrder = async (consultation: any) => {
   }
 }
 
+const handleDelete = async (consultation: any) => {
+  if (!confirm(`确定删除咨询 #${consultation.id}？此操作不可恢复。`)) {
+    return
+  }
+
+  try {
+    await api.delete(`/admin/consultations/${consultation.id}`)
+    message.success('已删除')
+    fetchConsultations()
+  } catch (e: any) {
+    message.error(e?.message || '删除失败')
+  }
+}
+
+const handleClearAll = async () => {
+  if (!confirm('确定清空当前筛选条件下的全部咨询记录？此操作不可恢复。')) {
+    return
+  }
+
+  try {
+    const res = await api.get<any>('/admin/consultations', {
+      params: {
+        status: filterStatus.value ?? undefined,
+        keyword: searchKeyword.value || undefined,
+        source: filterSource.value ?? undefined,
+        page: 1,
+        pageSize: 1000,
+      },
+    })
+
+    const list = res?.list || res?.List || []
+    const ids = list.map((item: { id: number }) => item.id)
+    if (ids.length === 0) {
+      message.warning('没有可删除的记录')
+      return
+    }
+
+    if (!confirm(`将删除 ${ids.length} 条记录，确认继续？`)) {
+      return
+    }
+
+    await api.post('/admin/consultations/batch-delete', { ids })
+    message.success(`已删除 ${ids.length} 条记录`)
+    fetchConsultations()
+  } catch (e: any) {
+    message.error(e?.message || '清空失败')
+  }
+}
+
 // AI 分析
 const handleAiAnalyze = async (consultation: any) => {
   try {
@@ -769,6 +832,14 @@ useHead({
 }
 
 .btn-link-orange:hover {
+  background: var(--color-bg-elevated);
+}
+
+.btn-link-red {
+  color: var(--color-error, #ef4444);
+}
+
+.btn-link-red:hover {
   background: var(--color-bg-elevated);
 }
 

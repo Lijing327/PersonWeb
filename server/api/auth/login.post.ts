@@ -1,4 +1,5 @@
 import { createAdminToken, getAdminPassword, AuthConfigurationError } from '../../utils/auth-token'
+import { obtainBackendToken } from '../../utils/backend-jwt'
 
 export default defineEventHandler(async (event) => {
   let adminPassword: string
@@ -15,9 +16,12 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event)
-  const { password } = body ?? {}
+  const password = typeof body?.password === 'string' ? body.password.trim() : ''
+  const username = typeof body?.username === 'string' && body.username.trim()
+    ? body.username.trim()
+    : 'admin'
 
-  if (!password || password !== adminPassword) {
+  if (!password || password !== adminPassword.trim()) {
     throw createError({
       statusCode: 401,
       statusMessage: 'Unauthorized',
@@ -25,6 +29,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const token = createAdminToken()
+  const backendToken = await obtainBackendToken(username, password)
 
   setCookie(event, 'admin_token', token, {
     maxAge: 60 * 60 * 24,
@@ -37,12 +42,12 @@ export default defineEventHandler(async (event) => {
   // Remove legacy insecure cookie
   deleteCookie(event, 'admin_auth', { path: '/' })
 
-  // Web Admin uses cookie auth only. Token is returned for API/CLI clients
-  // that intentionally send Authorization: Bearer — Admin UI must NOT store it.
+  // Nitro cookie for module routes; backendToken for .NET API Bearer auth.
   return {
     success: true,
-    username: 'admin',
+    username,
     role: 'admin',
     token,
+    backendToken,
   }
 })

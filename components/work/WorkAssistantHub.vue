@@ -131,10 +131,12 @@ const onKeydown = (event: KeyboardEvent) => {
 onMounted(() => {
   document.addEventListener('click', onDocClick)
   window.addEventListener('keydown', onKeydown)
+  window.addEventListener('open-visitor-message', openMessage)
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', onDocClick)
   window.removeEventListener('keydown', onKeydown)
+  window.removeEventListener('open-visitor-message', openMessage)
 })
 </script>

@@ -34,6 +34,9 @@
     
     <!-- Work 统一浮动帮助入口（问 AI / 联系 / 留言） -->
     <WorkAssistantHub v-if="showWorkAssistantHub" />
+
+    <!-- 已通过审核的访客留言弹幕 -->
+    <VisitorDanmakuWall v-if="showWorkAssistantHub" />
     
     <!-- 访客互动式玩法（包含在抽屉中） -->
     <VisitorBehaviorListener v-if="showDesktopEnhancements" />
@@ -60,6 +63,7 @@ import {
 
 const ParticleBackground = defineAsyncComponent(() => import('~/components/effects/ParticleBackground.vue'))
 const MouseTrail = defineAsyncComponent(() => import('~/components/effects/MouseTrail.vue'))
+const VisitorDanmakuWall = defineAsyncComponent(() => import('~/components/VisitorDanmakuWall.vue'))
 const WorkAssistantHub = defineAsyncComponent(() => import('~/components/work/WorkAssistantHub.vue'))
 const VisitorBehaviorListener = defineAsyncComponent(() => import('~/components/VisitorBehaviorListener.vue'))
 const VisitorSidebarDrawer = defineAsyncComponent(() => import('~/components/VisitorSidebarDrawer.vue'))

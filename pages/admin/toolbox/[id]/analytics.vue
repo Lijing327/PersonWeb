@@ -2,7 +2,7 @@
   <div class="space-y-6">
     <div class="page-header">
       <div class="flex items-center gap-4">
-        <NuxtLink to="/admin/tools" class="text-gray-400 hover:text-var(--color-bg-light, white)">
+        <NuxtLink to="/admin/content?tab=tools" class="text-gray-400 hover:text-var(--color-bg-light, white)">
           ← 返回工具列表
         </NuxtLink>
         <h1 class="page-title">工具使用统计</h1>

@@ -88,26 +88,6 @@ const defaultMenuItems: MenuItem[] = [
     ]
   },
   {
-    id: 'users',
-    title: '用户管理',
-    icon: '👥',
-    path: '/admin/users',
-    children: [
-      {
-        id: 'users-list',
-        title: '用户列表',
-        icon: '👤',
-        path: '/admin/users/list'
-      },
-      {
-        id: 'roles',
-        title: '角色权限',
-        icon: '🔑',
-        path: '/admin/users/roles'
-      }
-    ]
-  },
-  {
     id: 'analytics',
     title: '数据分析',
     icon: '📈',
@@ -127,20 +107,6 @@ const defaultMenuItems: MenuItem[] = [
       }
     ]
   },
-  {
-    id: 'settings',
-    title: '系统设置',
-    icon: '⚙️',
-    path: '/admin/settings',
-    permissions: ['admin.settings']
-  },
-  {
-    id: 'modules',
-    title: '模块管理',
-    icon: '🧩',
-    path: '/admin/settings/modules',
-    permissions: ['admin.modules']
-  }
 ]
 
 // 默认仪表盘组件

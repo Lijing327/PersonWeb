@@ -37,6 +37,7 @@ public class VisitorInteractionController : ControllerBase
             var message = new VisitorMessage
             {
                 VisitorId = dto.VisitorId,
+                VisitorName = string.IsNullOrWhiteSpace(dto.VisitorName) ? null : dto.VisitorName.Trim(),
                 MessageType = dto.MessageType ?? "message",
                 Content = dto.Content,
                 Emoji = dto.Emoji,
@@ -68,9 +69,31 @@ public class VisitorInteractionController : ControllerBase
         {
             var messages = await _context.VisitorMessages
                 .Where(m => m.Status == "approved")
-                .OrderByDescending(m => m.ApprovedAt)
+                .OrderByDescending(m => m.ApprovedAt ?? m.CreatedAt)
                 .Take(limit)
                 .ToListAsync();
+
+            // 兼容旧「时间胶囊」已展示内容，统一进入弹幕流
+            var legacyCapsules = await _context.TimeCapsules
+                .Where(t => t.Status == 1)
+                .OrderByDescending(t => t.CreatedAt)
+                .Take(Math.Max(0, limit - messages.Count))
+                .ToListAsync();
+
+            foreach (var capsule in legacyCapsules)
+            {
+                messages.Add(new VisitorMessage
+                {
+                    Id = 1_000_000_000 + capsule.Id,
+                    VisitorId = capsule.VisitorId ?? "legacy-capsule",
+                    VisitorName = capsule.VisitorName,
+                    MessageType = "message",
+                    Content = capsule.Content,
+                    Status = "approved",
+                    CreatedAt = capsule.CreatedAt,
+                    ApprovedAt = capsule.CreatedAt,
+                });
+            }
 
             return Ok(ApiResponse<List<VisitorMessage>>.Success(messages));
         }
@@ -291,6 +314,7 @@ public class VisitorInteractionController : ControllerBase
 public class VisitorMessageDto
 {
     public string VisitorId { get; set; } = string.Empty;
+    public string? VisitorName { get; set; }
     public string? MessageType { get; set; }
     public string Content { get; set; } = string.Empty;
     public string? Emoji { get; set; }

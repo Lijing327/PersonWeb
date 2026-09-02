@@ -6,6 +6,7 @@
 CREATE TABLE IF NOT EXISTS `visitor_message` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '留言ID',
     `visitor_id` VARCHAR(100) NOT NULL COMMENT '访客ID',
+    `visitor_name` VARCHAR(50) DEFAULT NULL COMMENT '访客备注姓名',
     `message_type` VARCHAR(20) NOT NULL DEFAULT 'message' COMMENT '消息类型：message-留言, mood-心情, blessing-祝福',
     `content` TEXT NOT NULL COMMENT '消息内容',
     `emoji` VARCHAR(10) DEFAULT NULL COMMENT '表情符号',

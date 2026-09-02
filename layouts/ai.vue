@@ -15,6 +15,7 @@
 
       <MouseTrail v-if="showDesktopEnhancements" />
       <WorkAssistantHub v-if="showWorkAssistantHub" />
+      <VisitorDanmakuWall v-if="showWorkAssistantHub" />
       <VisitorBehaviorListener v-if="showDesktopEnhancements" />
       <VisitorSidebarDrawer v-if="showDesktopEnhancements" />
     </div>
@@ -28,6 +29,7 @@ import Footer from '~/components/layout/Footer.vue'
 
 const MouseTrail = defineAsyncComponent(() => import('~/components/effects/MouseTrail.vue'))
 const WorkAssistantHub = defineAsyncComponent(() => import('~/components/work/WorkAssistantHub.vue'))
+const VisitorDanmakuWall = defineAsyncComponent(() => import('~/components/VisitorDanmakuWall.vue'))
 const VisitorBehaviorListener = defineAsyncComponent(() => import('~/components/VisitorBehaviorListener.vue'))
 const VisitorSidebarDrawer = defineAsyncComponent(() => import('~/components/VisitorSidebarDrawer.vue'))
 

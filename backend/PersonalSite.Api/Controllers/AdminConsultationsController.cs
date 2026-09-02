@@ -261,6 +261,60 @@ public class AdminConsultationsController : ControllerBase
         }
     }
 
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<ApiResponse>> DeleteConsultation(long id)
+    {
+        try
+        {
+            var consultation = await _context.PreSaleConsultations.FindAsync(id);
+            if (consultation == null)
+            {
+                return NotFound(ApiResponse.Error("咨询不存在", 404));
+            }
+
+            _context.PreSaleConsultations.Remove(consultation);
+            await _context.SaveChangesAsync();
+
+            return Ok(ApiResponse.Success(null, "删除成功"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "删除咨询失败: {Id}", id);
+            return StatusCode(500, ApiResponse.Error($"删除咨询失败: {ex.Message}", 500));
+        }
+    }
+
+    [HttpPost("batch-delete")]
+    public async Task<ActionResult<ApiResponse<object>>> BatchDelete([FromBody] BatchDeleteConsultationsRequest request)
+    {
+        try
+        {
+            if (request.Ids == null || request.Ids.Count == 0)
+            {
+                return BadRequest(ApiResponse.Error("请选择要删除的记录", 400));
+            }
+
+            var consultations = await _context.PreSaleConsultations
+                .Where(c => request.Ids.Contains(c.Id))
+                .ToListAsync();
+
+            if (consultations.Count == 0)
+            {
+                return NotFound(ApiResponse.Error("未找到可删除的记录", 404));
+            }
+
+            _context.PreSaleConsultations.RemoveRange(consultations);
+            await _context.SaveChangesAsync();
+
+            return Ok(ApiResponse.Success(new { deleted = consultations.Count }, $"已删除 {consultations.Count} 条记录"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "批量删除咨询失败");
+            return StatusCode(500, ApiResponse.Error($"批量删除失败: {ex.Message}", 500));
+        }
+    }
+
     private string GenerateOrderNo()
     {
         var dateStr = DateTime.Now.ToString("yyyyMMdd");
@@ -282,4 +336,9 @@ public class ConvertToOrderResponse
     public long OrderId { get; set; }
 
     public string OrderNo { get; set; } = string.Empty;
+}
+
+public class BatchDeleteConsultationsRequest
+{
+    public List<long> Ids { get; set; } = new();
 }

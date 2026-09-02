@@ -38,20 +38,23 @@ describe('Admin operations console guards (Phase 3)', () => {
     expect(existsSync(resolve(root, 'components/admin/SimpleMarkdownEditor.vue'))).toBe(false)
   })
 
-  it('articles ops page has no edit route or new-article CMS entry', () => {
-    const src = readSrc('pages/admin/articles/index.vue')
-    expect(src).toMatch(/文章运营/)
-    expect(src).not.toMatch(/articles\/edit/)
-    expect(src).not.toMatch(/新增文章/)
-    expect(src).not.toMatch(/SimpleMarkdownEditor/)
+  it('does not ship removed content ops observation pages', () => {
+    expect(existsSync(resolve(adminPagesRoot, 'content-hub.vue'))).toBe(false)
+    expect(existsSync(resolve(adminPagesRoot, 'articles/index.vue'))).toBe(false)
+    expect(existsSync(resolve(adminPagesRoot, 'projects/index.vue'))).toBe(false)
+    expect(existsSync(resolve(adminPagesRoot, 'categories.vue'))).toBe(false)
   })
 
-  it('projects ops page has no edit route or AI body save', () => {
-    const src = readSrc('pages/admin/projects/index.vue')
-    expect(src).toMatch(/项目运营/)
-    expect(src).not.toMatch(/projects\/edit/)
-    expect(src).not.toMatch(/新建项目/)
-    expect(src).not.toMatch(/\/ai\/demo\/describe/)
+  it('tools ops page remains as redirect to merged content page', () => {
+    const src = readSrc('pages/admin/tools.vue')
+    expect(src).toMatch(/\/admin\/content\?tab=tools/)
+  })
+
+  it('merged site content page hosts tools and friend links tabs', () => {
+    const src = readSrc('pages/admin/content.vue')
+    expect(src).toMatch(/站点内容/)
+    expect(src).toMatch(/AdminToolsPanel/)
+    expect(src).toMatch(/AdminFriendLinksPanel/)
   })
 
   it('ai content preview does not POST Articles CMS payload', () => {
@@ -87,18 +90,15 @@ describe('Admin operations console guards (Phase 3)', () => {
     }
   })
 
-  it('content-hub does not deep-link to CMS edit routes', () => {
-    const src = readSrc('pages/admin/content-hub.vue')
-    expect(src).not.toMatch(/articles\/edit/)
-    expect(src).not.toMatch(/projects\/edit/)
-    expect(src).toMatch(/content\/work/)
+  it('content ops lives under console group as site content', () => {
+    const consoleGroup = adminMenu.find(g => g.label === '控制台')
+    expect(consoleGroup?.children.map(c => c.path)).toContain('/admin/content')
+    expect(adminMenu.some(g => g.label === '内容运营')).toBe(false)
   })
 
   it('preserves work/life content SoT outside admin CMS', () => {
     expect(existsSync(resolve(root, 'content/work/home.yml'))).toBe(true)
     expect(existsSync(resolve(root, 'content/life/home.yml'))).toBe(true)
-    const hub = readSrc('pages/admin/content-hub.vue')
-    expect(hub).not.toMatch(/readWorkHome|edit.*about/i)
   })
 
   it('admin layout does not wrap page shell in ClientOnly', () => {
@@ -124,10 +124,12 @@ describe('Admin operations console guards (Phase 3)', () => {
 describe('Admin menu structure', () => {
   it('uses operations-first groups', () => {
     const labels = adminMenu.map(g => g.label)
-    expect(labels[0]).toBe('Dashboard')
-    expect(labels).toContain('Analytics')
-    expect(labels).toContain('Content Ops')
-    expect(labels).toContain('System')
+    expect(labels[0]).toBe('控制台')
+    expect(labels).toContain('数据统计')
+    expect(labels).toContain('控制台')
+    expect(labels).not.toContain('内容运营')
+    expect(labels).toContain('个人工作台')
+    expect(labels).not.toContain('系统管理')
   })
 })
 
@@ -138,9 +140,8 @@ describe('Admin legacy cleanup guards (Phase 3.1)', () => {
 
   it('keeps toolbox analytics as child route only', () => {
     expect(existsSync(resolve(adminPagesRoot, 'toolbox/[id]/analytics.vue'))).toBe(true)
-    const tools = readSrc('pages/admin/tools.vue')
-    expect(tools).toMatch(/\/admin\/toolbox\/\$\{tool\.id\}\/analytics/)
-    expect(tools).not.toMatch(/to="\/admin\/toolbox"/)
+    const tools = readSrc('pages/admin/content.vue')
+    expect(readSrc('components/admin/content/AdminToolsPanel.vue')).toMatch(/\/admin\/toolbox\/\$\{tool\.id\}\/analytics/)
   })
 
   it('has single orders entry in menu', () => {
@@ -150,16 +151,14 @@ describe('Admin legacy cleanup guards (Phase 3.1)', () => {
     expect(existsSync(resolve(adminPagesRoot, 'orders.vue'))).toBe(true)
   })
 
-  it('ModuleCard settings points to real module config hub', () => {
+  it('ModuleCard does not link to removed system settings routes', () => {
     const src = readSrc('components/ModuleCard.vue')
-    expect(src).toMatch(/\/admin\/settings\/modules/)
-    expect(src).not.toMatch(/\/admin\/modules\//)
+    expect(src).not.toMatch(/\/admin\/settings/)
   })
 
   it('admin sources do not link to dead toolbox index or duplicate orders', () => {
     const sources = [
       'constants/admin/menu.ts',
-      'pages/admin/content-hub.vue',
       'pages/admin/index.vue',
       'components/ModuleCard.vue',
     ]
@@ -172,7 +171,7 @@ describe('Admin legacy cleanup guards (Phase 3.1)', () => {
 
   it('toolbox analytics back link returns to tools hub', () => {
     const src = readSrc('pages/admin/toolbox/[id]/analytics.vue')
-    expect(src).toMatch(/to="\/admin\/tools"/)
+    expect(src).toMatch(/to="\/admin\/content\?tab=tools"/)
     expect(src).not.toMatch(/to="\/admin\/toolbox"/)
   })
 })

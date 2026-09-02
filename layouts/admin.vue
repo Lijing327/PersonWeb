@@ -167,6 +167,7 @@ useHead({
 
 const router = useRouter()
 const route = useRoute()
+const { ensureBackendToken, clearBackendToken } = useBackendAuth()
 
 // 检测是否在 iframe 中嵌入（通过 URL 参数或 window 检测）
 const isEmbedded = ref(false)
@@ -288,29 +289,18 @@ const getMenuItemIcon = (label: string): string => {
     '数据分析': 'fas fa-chart-bar',
     '访客数据': 'fas fa-users',
     '项目访问统计': 'fas fa-chart-area',
-    '访客留言': 'fas fa-comments',
+    '访客互动': 'fas fa-comments',
     '咨询管理': 'fas fa-handshake',
-    '时间胶囊': 'fas fa-hourglass-half',
     'AI 中心': 'fas fa-robot',
     'AI 日志': 'fas fa-scroll',
     '客服配置': 'fas fa-headset',
-    '内容中枢': 'fas fa-sitemap',
-    '文章运营': 'fas fa-file-alt',
-    '项目运营': 'fas fa-project-diagram',
-    '工具运营': 'fas fa-tools',
-    '分类管理': 'fas fa-folder',
-    '友情链接': 'fas fa-link',
+    '站点内容': 'fas fa-store',
     '订单管理': 'fas fa-shopping-cart',
     '资产管理': 'fas fa-wallet',
     '情报中心': 'fas fa-broadcast-tower',
-    '关系管理': 'fas fa-heart',
     '副业项目': 'fas fa-briefcase',
-    '技能树': 'fas fa-sitemap',
     '认知说明书': 'fas fa-book-open',
     '思维记录': 'fas fa-pen-fancy',
-    '系统设置': 'fas fa-cog',
-    '错误日志': 'fas fa-bug',
-    '用户管理': 'fas fa-user-cog',
   }
   return iconMap[label] || 'fas fa-circle'
 }
@@ -377,6 +367,7 @@ const mainContentStyle = computed(() => {
 // 应用 CSS 变量到根元素
 onMounted(() => {
   fetchGlobalStyle()
+  ensureBackendToken()
   
   // 检测是否在 iframe 中嵌入（通过 URL 参数或 window 检测）
   // 检测 URL 参数
@@ -453,6 +444,7 @@ const logout = async () => {
   if (process.client) {
     localStorage.removeItem('admin_token')
     localStorage.removeItem('admin_user')
+    clearBackendToken()
   }
 
   router.push('/admin/login')

@@ -4,7 +4,7 @@
       <h1 class="text-2xl font-bold text-gray-800 dark:text-var(--color-bg-light, white)">
         {{ isEdit ? '编辑友情链接' : '新建友情链接' }}
       </h1>
-      <NuxtLink to="/admin/friend-links" class="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200">
+      <NuxtLink to="/admin/content?tab=links" class="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200">
         取消
       </NuxtLink>
     </div>
@@ -160,7 +160,7 @@ const fetchFriendLink = async (id: string) => {
     }
   } catch (e: unknown) {
     errorHandler.handleError(e, '加载失败')
-    router.push('/admin/friend-links')
+    router.push('/admin/content?tab=links')
   }
 }
 
@@ -214,7 +214,7 @@ const handleSave = async () => {
       await api.post('/FriendLinks', payload)
     }
     notification.success('保存成功')
-    router.push('/admin/friend-links')
+    router.push('/admin/content?tab=links')
   } catch (e: unknown) {
     errorHandler.handleError(e, '保存失败')
   } finally {

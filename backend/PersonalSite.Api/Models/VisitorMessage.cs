@@ -15,6 +15,10 @@ public class VisitorMessage
     [Column("visitor_id")]
     public string VisitorId { get; set; } = string.Empty;
 
+    [MaxLength(50)]
+    [Column("visitor_name")]
+    public string? VisitorName { get; set; }
+
     [Required]
     [MaxLength(20)]
     [Column("message_type")]

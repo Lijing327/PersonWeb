@@ -7,6 +7,7 @@ interface ApiResponse<T> {
 
 export const useApi = () => {
     const config = useRuntimeConfig()
+    const { getBackendToken, ensureBackendToken, clearBackendToken } = useBackendAuth()
 
     /**
      * 根据当前环境自动获取 API 基础路径
@@ -62,8 +63,20 @@ export const useApi = () => {
                 finalBaseURL = undefined
                 fetchOptions.credentials = fetchOptions.credentials ?? 'include'
             } else {
-                // .NET 后端 API
+                // .NET 后端 API：使用 session 中的 backend JWT
                 finalBaseURL = baseUrl
+                if (import.meta.client) {
+                    let backendToken = getBackendToken()
+                    if (!backendToken) {
+                        backendToken = await ensureBackendToken()
+                    }
+                    if (backendToken) {
+                        fetchOptions.headers = {
+                            ...(fetchOptions.headers ?? {}),
+                            Authorization: `Bearer ${backendToken}`,
+                        }
+                    }
+                }
             }
             
             const response = await $fetch<ApiResponse<T>>(url, {
@@ -95,10 +108,15 @@ export const useApi = () => {
             }
             // Nitro Admin API 401 → 清残留 legacy 存储并跳转登录
             const status = error?.response?.status ?? error?.statusCode ?? error?.status
-            if (status === 401 && typeof window !== 'undefined' && url.startsWith('/api/')) {
-                localStorage.removeItem('admin_token')
-                localStorage.removeItem('admin_user')
-                navigateTo('/admin/login')
+            if (status === 401 && typeof window !== 'undefined') {
+                if (url.startsWith('/api/')) {
+                    localStorage.removeItem('admin_token')
+                    localStorage.removeItem('admin_user')
+                    navigateTo('/admin/login')
+                } else {
+                    clearBackendToken()
+                    navigateTo('/admin/login')
+                }
             }
             throw error
         }

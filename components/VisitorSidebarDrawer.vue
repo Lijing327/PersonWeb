@@ -57,9 +57,13 @@
           <VisitorChallengeButton />
         </div>
 
-        <!-- 时间胶囊墙 -->
+        <!-- 留言入口（与时间胶囊合并） -->
         <div class="drawer-section">
-          <TimeCapsuleWall />
+          <button type="button" class="drawer-message-btn" @click="openVisitorMessage">
+            <i class="fas fa-comment-dots" aria-hidden="true"></i>
+            <span>留个言</span>
+            <small>审核通过后会以弹幕形式展示</small>
+          </button>
         </div>
 
         <!-- 访客足迹地图 -->
@@ -84,6 +88,13 @@ const closeDrawer = (event?: Event) => {
     event.stopPropagation()
   }
   isOpen.value = false
+}
+
+const openVisitorMessage = () => {
+  closeDrawer()
+  if (process.client) {
+    window.dispatchEvent(new CustomEvent('open-visitor-message'))
+  }
 }
 
 // 点击外部关闭
@@ -219,6 +230,36 @@ onMounted(() => {
 
 .drawer-section {
   width: 100%;
+}
+
+.drawer-message-btn {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.625rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(59, 130, 246, 0.15);
+  color: white;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s ease;
+}
+
+.drawer-message-btn:hover {
+  background: rgba(59, 130, 246, 0.28);
+}
+
+.drawer-message-btn i {
+  font-size: 1rem;
+  margin-bottom: 0.15rem;
+}
+
+.drawer-message-btn small {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.65);
 }
 
 /* 调整内部组件样式 */

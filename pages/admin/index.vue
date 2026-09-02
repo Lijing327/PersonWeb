@@ -13,8 +13,8 @@
           <AppButton variant="primary" @click="navigateTo('/admin/analytics')">
             查看分析
           </AppButton>
-          <AppButton variant="secondary" @click="navigateTo('/admin/content-hub')">
-            内容中枢
+          <AppButton variant="secondary" @click="navigateTo('/admin/content')">
+            站点内容
           </AppButton>
           <AppButton variant="secondary" @click="navigateTo('/admin/consultations')">
             待处理咨询
@@ -52,6 +52,11 @@
             :loading="isLoading"
           />
         </div>
+      </div>
+
+      <!-- 站点内容预览 -->
+      <div class="mt-8">
+        <AdminDashboardSiteContentCard />
       </div>
 
       <!-- 内容分析区域 -->
@@ -161,6 +166,9 @@
 import { ref, computed, onMounted, defineAsyncComponent, onUnmounted } from 'vue'
 
 // 异步加载图表组件，减少初始包大小
+const AdminDashboardSiteContentCard = defineAsyncComponent(() =>
+  import('~/components/admin/dashboard/SiteContentCard.vue')
+)
 const AdminDashboardTrendAndSource = defineAsyncComponent(() => 
   import('~/components/admin/dashboard/TrendAndSource.vue')
 )
@@ -266,26 +274,18 @@ const timelineItems = computed(() => {
   
   return [
     {
-      path: '/admin/articles',
-      icon: '📝',
-      title: '文章管理',
-      desc: '管理你的文章内容',
+      path: '/admin/content',
+      icon: '🔧',
+      title: '站点内容',
+      desc: '管理工具与友情链接',
       color: 'blue' as const,
       date: formatDate(now)
     },
     {
       path: '/admin/visitor-messages',
       icon: '💬',
-      title: '访客留言',
-      desc: stats.value.pendingMessages > 0 ? `${stats.value.pendingMessages} 条待审核留言` : '审核访客留言',
-      color: 'purple' as const,
-      date: formatDate(now)
-    },
-    {
-      path: '/admin/time-capsules',
-      icon: '⏰',
-      title: '时间胶囊',
-      desc: '管理时间胶囊内容',
+      title: '访客互动',
+      desc: '审核留言与旧时间胶囊',
       color: 'purple' as const,
       date: formatDate(now)
     },
