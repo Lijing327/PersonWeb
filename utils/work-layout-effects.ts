@@ -38,3 +38,13 @@ export function shouldShowWorkDeferredChrome(
   if (!options.deferred || options.lowPower) return false
   return !isWorkContentFocusRoute(path)
 }
+
+/** 弹幕只挂 Work 首页，避免盖住博客/项目等阅读页 */
+export function shouldShowVisitorDanmaku(
+  path: string,
+  options: { deferred: boolean; lowPower: boolean },
+): boolean {
+  if (!options.deferred || options.lowPower) return false
+  const p = path || '/'
+  return p === '/work'
+}

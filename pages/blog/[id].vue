@@ -18,6 +18,10 @@
                 <span class="blog-detail-meta-icon">📂</span>
                 {{ article.category.name }}
               </span>
+              <span class="blog-detail-meta-item">
+                <span class="blog-detail-meta-icon">👁</span>
+                {{ displayViewCount }} 阅读
+              </span>
             </div>
           </header>
 
@@ -121,10 +125,20 @@ if (!article.value && !pending.value) {
   throw createError({ statusCode: 404, statusMessage: 'Not Found' })
 }
 
+const liveViewCount = ref<number | null>(null)
+const displayViewCount = computed(() => {
+  if (liveViewCount.value != null) return liveViewCount.value
+  return Number(article.value?.viewCount || 0)
+})
+
 // Client-only view count — avoids SSR + hydration double increment
-onMounted(() => {
+onMounted(async () => {
   const slug = article.value?.slug
-  if (slug) recordArticleView(slug)
+  if (!slug) return
+  const next = await recordArticleView(slug)
+  if (typeof next === 'number' && Number.isFinite(next)) {
+    liveViewCount.value = next
+  }
 })
 
 const renderArticle = (contentMd: string) => {

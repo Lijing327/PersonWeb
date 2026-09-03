@@ -6,6 +6,7 @@ import {
   isWorkContentFocusRoute,
   shouldShowWorkDeferredChrome,
   shouldShowWorkParticleLayer,
+  shouldShowVisitorDanmaku,
 } from '../../utils/work-layout-effects'
 
 const root = resolve(__dirname, '../..')
@@ -80,6 +81,10 @@ describe('Phase 7 UX / performance guards', () => {
     expect(shouldShowWorkParticleLayer('/projects', opts)).toBe(false)
     expect(shouldShowWorkDeferredChrome('/blog/x', opts)).toBe(false)
     expect(shouldShowWorkDeferredChrome('/projects', opts)).toBe(true)
+    expect(shouldShowVisitorDanmaku('/work', opts)).toBe(true)
+    expect(shouldShowVisitorDanmaku('/blog', opts)).toBe(false)
+    expect(shouldShowVisitorDanmaku('/blog/hello', opts)).toBe(false)
+    expect(shouldShowVisitorDanmaku('/ai', opts)).toBe(false)
   })
 
   it('breakpoint tokens are documented in tokens.css', () => {

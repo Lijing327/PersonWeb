@@ -18,7 +18,7 @@
             type="button"
             class="work-assistant-hub__item"
             :class="{ 'work-assistant-hub__item--primary': item.action === 'open_ai' }"
-            @click="runHubAction(item.action)"
+            @click.stop="runHubAction(item.action)"
           >
             <span class="work-assistant-hub__item-icon" aria-hidden="true">{{ item.icon }}</span>
             <span class="work-assistant-hub__item-copy">
@@ -29,31 +29,44 @@
         </div>
       </Transition>
 
-      <button
-        type="button"
-        class="work-assistant-hub__trigger"
-        :aria-expanded="menuOpen"
-        aria-controls="work-assistant-hub-panel"
-        :aria-label="hub.triggerLabel"
-        @click="toggleMenu"
-      >
-        <svg class="work-assistant-hub__trigger-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path
-            stroke="currentColor"
-            stroke-width="1.7"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-          />
-          <path
-            stroke="currentColor"
-            stroke-width="1.7"
-            stroke-linecap="round"
-            d="M18.2 4.2l.3 1.1 1.1.3-1.1.3-.3 1.1-.3-1.1-1.1-.3 1.1-.3.3-1.1z"
-          />
-        </svg>
-        <span class="work-assistant-hub__trigger-label">{{ hub.triggerLabel }}</span>
-      </button>
+      <div class="work-assistant-hub__trigger-wrap">
+        <button
+          type="button"
+          class="work-assistant-hub__trigger"
+          :aria-label="hub.triggerLabel"
+          @click="onAskClick"
+        >
+          <svg class="work-assistant-hub__trigger-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+            />
+            <path
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              d="M18.2 4.2l.3 1.1 1.1.3-1.1.3-.3 1.1-.3-1.1-1.1-.3 1.1-.3.3-1.1z"
+            />
+          </svg>
+          <span class="work-assistant-hub__trigger-label">{{ hub.triggerLabel }}</span>
+        </button>
+        <button
+          type="button"
+          class="work-assistant-hub__more"
+          :class="{ 'is-open': menuOpen }"
+          :aria-expanded="menuOpen"
+          aria-controls="work-assistant-hub-panel"
+          aria-label="更多帮助"
+          @click.stop="toggleMenu"
+        >
+          <svg class="work-assistant-hub__more-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M6 14l6-6 6 6" />
+          </svg>
+        </button>
+      </div>
 
       <AIAssistant ref="aiRef" hide-launcher />
       <VisitorInteractionPanel ref="messageRef" hide-launcher />
@@ -62,26 +75,41 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
+import AIAssistant from '~/components/ai/AIAssistant.vue'
+import VisitorInteractionPanel from '~/components/VisitorInteractionPanel.vue'
 import { fetchAiSolutionsData, type WorkAssistantCopy } from '~/composables/useAiSolutionsData'
 import '~/assets/css/work-assistant-hub.css'
 
-const AIAssistant = defineAsyncComponent(() => import('~/components/ai/AIAssistant.vue'))
-const VisitorInteractionPanel = defineAsyncComponent(() => import('~/components/VisitorInteractionPanel.vue'))
+const WORK_AI_OPEN_EVENT = 'open-work-ai-assistant'
+
+const FALLBACK_HUB: WorkAssistantCopy['hub'] = {
+  title: '有什么可以帮你？',
+  triggerLabel: '问问 AI',
+  items: [
+    { id: 'ai', title: '问 AI 助手', description: '了解项目、能力与站内内容', icon: '✦', action: 'open_ai' },
+    { id: 'contact', title: '联系合作', description: '项目开发 / 商务合作', icon: '↗', action: 'go_contact' },
+    { id: 'message', title: '留个言', description: '建议、反馈或打个招呼', icon: '✉', action: 'open_message' },
+  ],
+}
 
 const router = useRouter()
 
-const { data: aiData } = await useAsyncData('work-ai-solutions', () => fetchAiSolutionsData())
+const { data: aiData } = useAsyncData(
+  'work-ai-solutions',
+  () => fetchAiSolutionsData(),
+  { server: false },
+)
 
-const hub = computed<WorkAssistantCopy['hub']>(() => aiData.value?.assistant.hub || {
-  title: '有什么可以帮你？',
-  triggerLabel: '问问 AI',
-  items: [],
+const hub = computed<WorkAssistantCopy['hub']>(() => {
+  const fromApi = aiData.value?.assistant?.hub
+  if (fromApi?.items?.length) return fromApi
+  return FALLBACK_HUB
 })
 
 const rootEl = ref<HTMLElement | null>(null)
 const menuOpen = ref(false)
-const aiRef = ref<{ open: () => void; close: () => void } | null>(null)
+const aiRef = ref<{ open: () => void; close: () => void; toggle?: () => void } | null>(null)
 const messageRef = ref<{ open: () => void; close: () => void } | null>(null)
 
 const closeMenu = () => {
@@ -92,10 +120,21 @@ const toggleMenu = () => {
   menuOpen.value = !menuOpen.value
 }
 
-const openAi = async () => {
+const openAi = () => {
   closeMenu()
-  await nextTick()
-  aiRef.value?.open()
+  aiRef.value?.open?.()
+  if (process.client) {
+    window.dispatchEvent(new CustomEvent(WORK_AI_OPEN_EVENT))
+  }
+}
+
+const onAskClick = () => {
+  closeMenu()
+  if (typeof aiRef.value?.toggle === 'function') {
+    aiRef.value.toggle()
+    return
+  }
+  openAi()
 }
 
 const goContact = () => {
@@ -103,10 +142,19 @@ const goContact = () => {
   router.push('/contact')
 }
 
-const openMessage = async () => {
+const openMessage = () => {
   closeMenu()
-  await nextTick()
-  messageRef.value?.open()
+  const reveal = () => {
+    messageRef.value?.open?.()
+    if (process.client) {
+      window.dispatchEvent(new CustomEvent('open-work-visitor-message'))
+    }
+  }
+  if (process.client) {
+    window.setTimeout(reveal, 0)
+    return
+  }
+  reveal()
 }
 
 const runHubAction = (action: string) => {

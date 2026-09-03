@@ -17,12 +17,11 @@
   pointer-events: auto;
 }
 
-.work-assistant-hub__trigger {
+.work-assistant-hub__trigger-wrap {
   display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
+  align-items: stretch;
   min-height: 2.85rem;
-  padding: 0.55rem 1rem 0.55rem 0.85rem;
+  overflow: hidden;
   border-radius: 999px;
   border: 1px solid var(--color-border-strong, rgba(148, 163, 184, 0.28));
   background: rgba(12, 22, 44, 0.92);
@@ -30,22 +29,55 @@
   box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.3));
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  cursor: pointer;
-  font: inherit;
-  font-size: 0.9rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
 }
 
-.work-assistant-hub__trigger:hover {
+.work-assistant-hub__trigger-wrap:hover {
   background: rgba(18, 32, 62, 0.96);
   border-color: rgba(145, 170, 255, 0.42);
 }
 
-.work-assistant-hub__trigger:focus-visible {
+.work-assistant-hub__trigger,
+.work-assistant-hub__more {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
+.work-assistant-hub__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.85rem 0.55rem 0.85rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.work-assistant-hub__more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.7rem 0 0.45rem;
+  border-left: 1px solid var(--color-border, rgba(148, 163, 184, 0.18));
+}
+
+.work-assistant-hub__more-icon {
+  width: 0.9rem;
+  height: 0.9rem;
+  opacity: 0.78;
+  transition: transform 160ms ease;
+}
+
+.work-assistant-hub__more.is-open .work-assistant-hub__more-icon {
+  transform: rotate(180deg);
+}
+
+.work-assistant-hub__trigger:focus-visible,
+.work-assistant-hub__more:focus-visible {
   outline: 2px solid var(--color-border-focus, rgba(59, 130, 246, 0.6));
-  outline-offset: 2px;
+  outline-offset: -2px;
 }
 
 .work-assistant-hub__trigger-icon {
@@ -169,9 +201,12 @@
     bottom: var(--floating-dock-bottom, max(12px, calc(env(safe-area-inset-bottom) + 10px)));
   }
 
-  .work-assistant-hub__trigger {
+  .work-assistant-hub__trigger-wrap {
     min-height: 2.6rem;
-    padding: 0.5rem 0.85rem 0.5rem 0.75rem;
+  }
+
+  .work-assistant-hub__trigger {
+    padding: 0.5rem 0.75rem 0.5rem 0.75rem;
     font-size: 0.84rem;
   }
 

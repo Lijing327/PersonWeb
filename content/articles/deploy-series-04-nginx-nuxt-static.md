@@ -10,50 +10,82 @@ category: 部署系列
 cover: /images/blog/deploy-04.png
 source: manual
 ---
+
 # 04｜Nginx + Nuxt3 静态站点部署全流程（小白可用）
 
+把 Nuxt 3 前台当成「一堆 HTML/CSS/JS」交给 Nginx，是个人站最省事的上线方式。
+
 ## 1. 本地构建
-你使用 Nuxt3 开发，运行以下命令生成静态网站：
+
 ```bash
+npm ci
 npm run generate
 ```
-Nuxt 会在项目根目录下生成一个 `.output/public` 或 `dist` 目录（取决于配置）。这里面就是纯静态的 HTML/CSS/JS 文件。
 
-## 2. 上传文件
-你需要把 `dist` 目录的内容放到服务器的 `/var/www/html` 目录。
-推荐使用 SCP 命令（在本地终端执行）：
+产物一般在 `.output/public`（部分旧教程写 `dist`，以你目录为准）。里面应有 `index.html` 与 `_nuxt/`。
+
+## 2. 上传到服务器
+
+示例放到 `/var/www/html`：
+
 ```bash
-# 假设你的服务器IP是 1.2.3.4，用户是 root
-scp -r dist/* root@1.2.3.4:/var/www/html/
+rsync -avz --delete .output/public/ root@你的IP:/var/www/html/
 ```
 
-## 3. Nginx 配置
-编辑 Nginx 配置文件：
+首次也可用 scp：
+
+```bash
+scp -r .output/public/* root@你的IP:/var/www/html/
+```
+
+## 3. Nginx 最小配置
+
 ```bash
 sudo nano /etc/nginx/sites-available/default
 ```
 
-修改为以下内容（最简配置）：
 ```nginx
 server {
     listen 80;
-    server_name yourdomain.com;  # 换成你的域名
+    server_name yourdomain.com;  # 换成你的域名或先写 _
 
     root /var/www/html;
     index index.html;
 
     location / {
-        try_files $uri $uri/ /index.html;
+        # SPA / 前端路由刷新不 404
+        try_files $uri $uri/ /200.html /index.html;
+    }
+
+    location /_nuxt/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
     }
 }
 ```
 
+Nuxt 静态生成常带 `200.html` 作为回退页；没有就保留 `/index.html`。
+
 ## 4. 生效
+
 ```bash
-# 检查配置是否有误
-sudo nginx -t
-# 重启 Nginx
-sudo systemctl restart nginx
+sudo nginx -t && sudo systemctl reload nginx
 ```
 
-现在，访问你的域名，应该就能看到你的网站了！
+## 5. 验收
+
+- 打开 `http://域名或IP`  
+- 随便进一个子路由再**刷新**，不应 404  
+- 控制台无大片 `_nuxt` 404  
+
+## 常见坑
+
+| 现象 | 处理 |
+| --- | --- |
+| 只有首页好，刷新子路径 404 | 补 `try_files` |
+| 403 Forbidden | 目录权限、`root` 路径是否真有 index |
+| 仍是 Welcome to nginx | 文件没传到 Nginx 在看的那个 root |
+
+## 小结
+
+generate → 上传 → Nginx root + try_files。先跑通 HTTP，下一篇再上 HTTPS。

@@ -18,7 +18,7 @@
         role="dialog"
         aria-modal="true"
         aria-label="发送留言"
-        @click="closeMessageModal"
+        @click.self="onOverlayClick"
       >
         <div class="visitor-modal" @click.stop>
           <div class="visitor-modal-header">
@@ -115,6 +115,10 @@
 </template>
 
 <script setup lang="ts">
+import '~/assets/css/visitor-interaction.css'
+
+const WORK_MESSAGE_OPEN_EVENT = 'open-work-visitor-message'
+
 const props = withDefaults(defineProps<{
   hideLauncher?: boolean
 }>(), {
@@ -132,6 +136,7 @@ const visitorName = ref('')
 const submitting = ref(false)
 
 const VISITOR_NAME_KEY = 'visitor_display_name'
+let ignoreOverlayCloseUntil = 0
 
 const messageTypes = [
   { value: 'message', label: '留言', icon: 'fas fa-comment' },
@@ -142,11 +147,17 @@ const messageTypes = [
 const quickEmojis = ['😊', '❤️', '👏', '🎉', '✨', '🔥', '👍', '🌟', '💡', '🚀', '✔️', '🫶']
 
 const openMessageModal = () => {
+  ignoreOverlayCloseUntil = Date.now() + 400
   showMessageModal.value = true
 }
 
 const closeMessageModal = () => {
   showMessageModal.value = false
+}
+
+const onOverlayClick = () => {
+  if (Date.now() < ignoreOverlayCloseUntil) return
+  closeMessageModal()
 }
 
 defineExpose({
@@ -213,7 +224,11 @@ onMounted(() => {
     }
   }
   window.addEventListener('keydown', onKey)
-  onUnmounted(() => window.removeEventListener('keydown', onKey))
+  window.addEventListener(WORK_MESSAGE_OPEN_EVENT, openMessageModal)
+  onUnmounted(() => {
+    window.removeEventListener('keydown', onKey)
+    window.removeEventListener(WORK_MESSAGE_OPEN_EVENT, openMessageModal)
+  })
 })
 </script>
 

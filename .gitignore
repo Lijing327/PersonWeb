@@ -165,3 +165,8 @@ scripts/sensitive-replacements.txt
 # Performance test reports (temporary)
 baseline/
 performance-report.json
+
+# Generated article JSON for static OSS (built by scripts/build-articles-static.js)
+public/data/articles-index.json
+public/data/articles/
+

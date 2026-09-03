@@ -136,6 +136,7 @@
 
           <div class="ai-assistant-input-shell">
             <input
+              ref="inputEl"
               v-model="inputText"
               type="text"
               placeholder="输入你的问题..."
@@ -155,7 +156,13 @@
               </svg>
             </button>
           </div>
-          <p class="ai-assistant-footer-hint">Enter 发送 · AI 回复仅供参考</p>
+          <p class="ai-assistant-footer-hint">
+            <button type="button" class="ai-assistant-footer-link" @click="goContact">联系合作</button>
+            <span aria-hidden="true">·</span>
+            <button type="button" class="ai-assistant-footer-link" @click="leaveMessage">留个言</button>
+            <span aria-hidden="true">·</span>
+            Enter 发送
+          </p>
         </div>
       </div>
     </Transition>
@@ -181,24 +188,38 @@ const props = withDefaults(defineProps<{
 
 void props
 
+const WORK_AI_OPEN_EVENT = 'open-work-ai-assistant'
+
 const isOpen = ref(false)
 const inputText = ref('')
 const messages = ref<Message[]>([])
 const isLoading = ref(false)
 const messagesRef = ref<HTMLDivElement | null>(null)
+const inputEl = ref<HTMLInputElement | null>(null)
 const statusText = ref('在线')
 const hasUserClosed = ref(false)
 const hasUnreadPrompt = ref(false)
 const pendingPromptMessage = ref('')
 const isCompactMode = ref(false)
 
-const { data: aiData } = await useAsyncData('work-ai-solutions', () => fetchAiSolutionsData())
+const { data: aiData } = useAsyncData(
+  'work-ai-solutions',
+  () => fetchAiSolutionsData(),
+  { server: false },
+)
 const chat = computed(() => aiData.value?.assistant.chat || {
   name: 'AI 小智',
   statusOnline: '在线',
   statusThinking: '正在思考...',
-  welcome: { eyebrow: '', title: '', description: '' },
-  quickActions: [],
+  welcome: {
+    eyebrow: 'Work 助手',
+    title: '你好，我是 AI 小智',
+    description: '可以问我站内项目、能力或合作相关的问题。',
+  },
+  quickActions: [
+    { text: '推荐文章', icon: 'article' },
+    { text: '搜索文章', icon: 'search' },
+  ],
   systemAbout: '',
 })
 
@@ -213,11 +234,19 @@ watch(
 )
 
 let openAssistantHandler: EventListener | null = null
+let workOpenHandler: EventListener | null = null
 
 const scrollToBottom = () => {
   if (messagesRef.value) {
     messagesRef.value.scrollTop = messagesRef.value.scrollHeight
   }
+}
+
+const focusInput = () => {
+  nextTick(() => {
+    scrollToBottom()
+    inputEl.value?.focus()
+  })
 }
 
 const toggleAssistant = () => {
@@ -246,9 +275,7 @@ const openAssistant = () => {
     localStorage.removeItem('ai-assistant-auto-open-disabled')
   }
 
-  nextTick(() => {
-    scrollToBottom()
-  })
+  focusInput()
 }
 
 const closeAssistant = () => {
@@ -256,9 +283,22 @@ const closeAssistant = () => {
   hasUserClosed.value = true
 }
 
+const goContact = () => {
+  closeAssistant()
+  navigateTo('/contact')
+}
+
+const leaveMessage = () => {
+  closeAssistant()
+  if (process.client) {
+    window.dispatchEvent(new CustomEvent('open-visitor-message'))
+  }
+}
+
 defineExpose({
   open: openAssistant,
   close: closeAssistant,
+  toggle: toggleAssistant,
   isOpen,
 })
 
@@ -318,6 +358,11 @@ onMounted(() => {
   const coarsePointer = window.matchMedia('(pointer: coarse)').matches
   isCompactMode.value = coarsePointer || window.innerWidth < 768
 
+  workOpenHandler = (() => {
+    openAssistant()
+  }) as EventListener
+  window.addEventListener(WORK_AI_OPEN_EVENT, workOpenHandler)
+
   if (localStorage.getItem('ai-assistant-auto-open-disabled') === 'true') {
     return
   }
@@ -334,10 +379,7 @@ onMounted(() => {
     }
 
     if (!isCompactMode.value && customEvent.detail?.forceOpen === true && !isOpen.value) {
-      isOpen.value = true
-      nextTick(() => {
-        scrollToBottom()
-      })
+      openAssistant()
     }
   }) as EventListener
 
@@ -345,8 +387,12 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  if (process.client && openAssistantHandler) {
+  if (!process.client) return
+  if (openAssistantHandler) {
     window.removeEventListener('open-ai-assistant', openAssistantHandler)
+  }
+  if (workOpenHandler) {
+    window.removeEventListener(WORK_AI_OPEN_EVENT, workOpenHandler)
   }
 })
 </script>
@@ -408,7 +454,11 @@ onUnmounted(() => {
 .ai-assistant-dialog {
   position: fixed;
   right: var(--floating-dock-right, max(14px, env(safe-area-inset-right)));
-  bottom: calc(var(--floating-dock-bottom, 18px) + 2px);
+  bottom: calc(
+    var(--floating-dock-bottom, 18px)
+    + 3.4rem
+    + 12px
+  );
   z-index: 9990;
   display: flex;
   flex-direction: column;
@@ -855,6 +905,20 @@ onUnmounted(() => {
   text-align: center;
 }
 
+.ai-assistant-footer-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+.ai-assistant-footer-link:hover {
+  color: var(--color-text);
+}
+
 .slide-up-enter-active,
 .slide-up-leave-active {
   transition: opacity 0.24s ease, transform 0.24s ease;
@@ -913,7 +977,11 @@ onUnmounted(() => {
     left: 12px;
     right: 12px;
     width: auto;
-    bottom: var(--floating-dock-bottom, 12px);
+    bottom: calc(
+      var(--floating-dock-bottom, 12px)
+      + 3.2rem
+      + 10px
+    );
     height: min(72vh, 520px);
     border-radius: var(--radius-md);
   }

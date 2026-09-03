@@ -35,8 +35,8 @@
     <!-- Work 统一浮动帮助入口（问 AI / 联系 / 留言） -->
     <WorkAssistantHub v-if="showWorkAssistantHub" />
 
-    <!-- 已通过审核的访客留言弹幕 -->
-    <VisitorDanmakuWall v-if="showWorkAssistantHub" />
+    <!-- 弹幕仅 Work 首页，不覆盖博客等阅读页 -->
+    <VisitorDanmakuWall v-if="showVisitorDanmaku" />
     
     <!-- 访客互动式玩法（包含在抽屉中） -->
     <VisitorBehaviorListener v-if="showDesktopEnhancements" />
@@ -59,6 +59,7 @@ import SecretAdminAccess from '~/components/admin/SecretAdminAccess.vue'
 import {
   shouldShowWorkDeferredChrome,
   shouldShowWorkParticleLayer,
+  shouldShowVisitorDanmaku,
 } from '~/utils/work-layout-effects'
 
 const ParticleBackground = defineAsyncComponent(() => import('~/components/effects/ParticleBackground.vue'))
@@ -86,6 +87,9 @@ const showParticleLayer = computed(() =>
 /** 单一浮动入口：详情阅读页 / 低功耗下不挂载 */
 const showWorkAssistantHub = computed(() =>
   shouldShowWorkDeferredChrome(route.path || '/', effectOpts.value),
+)
+const showVisitorDanmaku = computed(() =>
+  shouldShowVisitorDanmaku(route.path || '/', effectOpts.value),
 )
 
 let deferredMountTimer: number | null = null

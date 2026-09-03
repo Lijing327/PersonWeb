@@ -10,28 +10,63 @@ category: 部署系列
 cover: /images/blog/deploy-10.png
 source: manual
 ---
+
 # 10｜SSH key 管理：多电脑、多平台、CI 如何共存？
 
 ## 核心疑问
-“我家里有一台电脑，公司有一台，现在又搞了个 GitHub Actions，它们怎么同时连我的服务器？需要把私钥拷来拷去吗？”
 
-## 答案：千万别拷私钥！
-**原则：私钥永远不离开生成的设备。**
+「家里一台电脑，公司一台，还有 GitHub Actions，怎么同时连服务器？要把私钥拷来拷去吗？」
+
+## 答案：千万别拷私钥
+
+**原则：私钥永远不离开生成它的那台设备（或那个 CI 密钥库）。**
+
+拷贝私钥 = 把家门钥匙配得到处都是，丢一台设备等于全线失守，还难以追溯。
 
 ## 正确做法：多把钥匙开一把锁
-服务器的 `~/.ssh/authorized_keys` 文件就像一个**钥匙扣**，它可以挂很多把公钥。
 
-1.  **家里电脑**: 生成一对 Key A。把公钥 A 追加到服务器的 `authorized_keys`。
-2.  **公司电脑**: 生成一对 Key B。把公钥 B 追加到服务器的 `authorized_keys`。
-3.  **GitHub Actions**: 生成一对 Key C。把公钥 C 追加到服务器的 `authorized_keys`，私钥 C 填入 GitHub Secrets。
+服务器上的 `~/.ssh/authorized_keys` 像钥匙扣，可以挂很多把**公钥**：
 
-## 操作指南
-在服务器上：
+1. **家里电脑**：生成 Key A，公钥 A 追加进服务器  
+2. **公司电脑**：生成 Key B，公钥 B 追加进服务器  
+3. **GitHub Actions**：生成 Key C，公钥 C 上服务器，**私钥 C 只放进 GitHub Secrets**  
+
+哪台设备退役或泄露，只删 `authorized_keys` 里对应那一行即可。
+
+## 本机生成（示例）
+
 ```bash
-# 查看现有公钥
-cat ~/.ssh/authorized_keys
-
-# 追加新公钥（直接用编辑器打开粘贴新的一行）
-nano ~/.ssh/authorized_keys
+ssh-keygen -t ed25519 -C "home-laptop" -f ~/.ssh/id_ed25519_home
+cat ~/.ssh/id_ed25519_home.pub
 ```
-每一行代表一个允许登录的设备。哪台设备丢了，就去服务器删掉对应的那一行，其他设备不受影响。
+
+把打印出的公钥整行追加到服务器：
+
+```bash
+# 在服务器上
+mkdir -p ~/.ssh && chmod 700 ~/.ssh
+nano ~/.ssh/authorized_keys   # 粘贴新的一行
+chmod 600 ~/.ssh/authorized_keys
+```
+
+## 权限与排错
+
+| 现象 | 常查 |
+| --- | --- |
+| Permission denied | 公钥是否真的在 authorized_keys、用户是否对 |
+| 仍要密码 | 服务器 sshd 是否允许公钥、本机是否指定了正确私钥 |
+| CI 连不上 | Secrets 是否含完整私钥、换行是否被吃掉 |
+
+调试可加：
+
+```bash
+ssh -v root@你的IP
+```
+
+## 和密码登录
+
+初期可用密码；钥匙配齐后，建议关掉密码登录（防爆破），只保留密钥。改 `sshd_config` 前务必保留一个已验证能登录的会话，避免把自己锁外面。
+
+## 小结
+
+多设备 = 多公钥，不是共享一把私钥。CI 也是「另一台电脑」：公钥上服务器，私钥进 Secrets。
