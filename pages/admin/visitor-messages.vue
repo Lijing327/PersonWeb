@@ -2,7 +2,7 @@
   <div class="visitor-interaction-page">
     <div class="page-header">
       <h1 class="page-title">访客互动</h1>
-      <p class="page-desc">审核留言、心情、祝福与历史时间胶囊；通过后会在前台弹幕展示</p>
+      <p class="page-desc">审核留言、心情、祝福与历史时间胶囊；通过后会在入口首页左侧弹幕展示</p>
     </div>
 
     <div class="stats-row">

@@ -39,12 +39,13 @@ export function shouldShowWorkDeferredChrome(
   return !isWorkContentFocusRoute(path)
 }
 
-/** 弹幕只挂 Work 首页，避免盖住博客/项目等阅读页 */
+/**
+ * Work layout 不再挂全屏弹幕；入口页 `/` 自行挂载局部弹幕。
+ * 保留函数供守卫测试与历史调用，恒为 false。
+ */
 export function shouldShowVisitorDanmaku(
-  path: string,
-  options: { deferred: boolean; lowPower: boolean },
+  _path: string,
+  _options: { deferred: boolean; lowPower: boolean },
 ): boolean {
-  if (!options.deferred || options.lowPower) return false
-  const p = path || '/'
-  return p === '/work'
+  return false
 }

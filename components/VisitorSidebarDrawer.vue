@@ -62,7 +62,7 @@
           <button type="button" class="drawer-message-btn" @click="openVisitorMessage">
             <i class="fas fa-comment-dots" aria-hidden="true"></i>
             <span>留个言</span>
-            <small>审核通过后会以弹幕形式展示</small>
+            <small>审核通过后会出现在入口首页左侧弹幕区</small>
           </button>
         </div>
 

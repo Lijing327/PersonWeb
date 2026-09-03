@@ -120,7 +120,11 @@
 }
 
 .portal-intro {
+  position: relative;
   max-width: 36rem;
+  display: flex;
+  flex-direction: column;
+  min-height: min(28rem, 62vh);
 }
 
 .portal-eyebrow {
@@ -133,19 +137,138 @@
 
 .portal-intro h1 {
   margin: 0;
-  font-size: clamp(2.5rem, 4.6vw, 5.5rem);
+  font-size: clamp(2.15rem, 3.8vw, 3.75rem);
   font-weight: 760;
-  letter-spacing: -0.055em;
-  line-height: 1.08;
+  letter-spacing: -0.045em;
+  line-height: 1.12;
   text-wrap: pretty;
 }
 
-.portal-intro > p:last-child {
+.portal-intro > p:not(.portal-eyebrow) {
   max-width: 31rem;
-  margin: var(--spacing-xl) 0 0;
+  margin: var(--spacing-lg) 0 0;
   color: var(--portal-text-muted);
   font-size: 1rem;
   line-height: 1.8;
+}
+
+.portal-danmaku-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 11rem;
+  margin-top: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--portal-border);
+  background: color-mix(in srgb, var(--portal-surface) 55%, transparent);
+  overflow: hidden;
+  /* 边缘淡出用 mask，避免额外遮罩层叠在动画上反复合成 */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+
+.portal-message {
+  margin-top: var(--spacing-md);
+  display: grid;
+  gap: var(--spacing-sm);
+}
+
+.portal-message-label {
+  margin: 0;
+  color: var(--portal-text-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.portal-message-row {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  gap: var(--spacing-sm);
+  align-items: stretch;
+}
+
+.portal-message-name,
+.portal-message-input {
+  width: 100%;
+  margin: 0;
+  border: 1px solid var(--portal-border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--portal-surface) 70%, transparent);
+  color: var(--portal-text);
+  font: inherit;
+  outline: none;
+  transition: border-color 180ms ease, background 180ms ease;
+}
+
+.portal-message-name {
+  padding: 0.7rem 0.8rem;
+}
+
+.portal-message-input {
+  min-height: 3.1rem;
+  padding: 0.7rem 0.85rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.portal-message-name::placeholder,
+.portal-message-input::placeholder {
+  color: var(--portal-text-subtle);
+}
+
+.portal-message-name:focus,
+.portal-message-input:focus {
+  border-color: color-mix(in srgb, var(--color-primary) 55%, var(--portal-border));
+  background: color-mix(in srgb, var(--portal-surface) 88%, transparent);
+}
+
+.portal-message-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.portal-message-count {
+  color: var(--portal-text-subtle);
+  font-size: 0.75rem;
+}
+
+.portal-message-submit {
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 45%, var(--portal-border));
+  border-radius: var(--radius-md);
+  padding: 0.55rem 1rem;
+  background: color-mix(in srgb, var(--color-primary) 22%, var(--portal-surface));
+  color: var(--portal-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease, opacity 180ms ease;
+}
+
+.portal-message-submit:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-primary) 34%, var(--portal-surface));
+  border-color: color-mix(in srgb, var(--color-primary) 65%, var(--portal-border));
+}
+
+.portal-message-submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.portal-message-feedback {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.portal-message-feedback[data-type='success'] {
+  color: var(--color-success, #34d399);
+}
+
+.portal-message-feedback[data-type='error'] {
+  color: var(--color-danger, #f87171);
 }
 
 .portal-choices {
@@ -320,6 +443,15 @@
 
   .portal-intro {
     max-width: 46rem;
+    min-height: 0;
+  }
+
+  .portal-danmaku-stage {
+    min-height: 9.5rem;
+  }
+
+  .portal-message-row {
+    grid-template-columns: 1fr;
   }
 
   .portal-choice {
@@ -347,7 +479,12 @@
   }
 
   .portal-intro h1 {
-    font-size: clamp(2.35rem, 11vw, 3.6rem);
+    font-size: clamp(2rem, 9vw, 2.85rem);
+  }
+
+  .portal-danmaku-stage {
+    min-height: 8.5rem;
+    margin-top: var(--spacing-lg);
   }
 
   .portal-choices {

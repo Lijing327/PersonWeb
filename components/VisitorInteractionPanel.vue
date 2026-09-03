@@ -105,7 +105,7 @@
 
             <p class="visitor-form-hint">
               <i class="fas fa-info-circle" aria-hidden="true"></i>
-              审核通过后会在页面顶部以弹幕形式展示；入口：右下角「问问 AI」或右上角访客中心
+              审核通过后会出现在入口首页左侧弹幕区；入口：右下角「问问 AI」或右上角访客中心
             </p>
           </div>
         </div>

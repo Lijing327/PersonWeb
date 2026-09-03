@@ -15,9 +15,17 @@
 
     <section class="portal-content" aria-labelledby="portal-title">
       <div class="portal-intro">
-        <p class="portal-eyebrow">先选一面</p>
-        <h1 id="portal-title">循着此刻的心境，选择想要抵达的一面。</h1>
-        <p>这里一半收藏生活的温度，一半记录创造的轨迹。</p>
+        <p class="portal-eyebrow">访客留声</p>
+        <h1 id="portal-title">路过的人，留下过这些话。</h1>
+        <p>选一边进入生活或工作；留言审核通过后会出现在这里。</p>
+        <div class="portal-danmaku-stage" aria-hidden="true">
+          <ClientOnly>
+            <VisitorDanmakuWall variant="embedded" />
+          </ClientOnly>
+        </div>
+        <ClientOnly>
+          <PortalVisitorMessage />
+        </ClientOnly>
       </div>
 
       <div class="portal-choices">
@@ -64,12 +72,15 @@
 </template>
 
 <script setup lang="ts">
+import { defineAsyncComponent } from 'vue'
 import '~/assets/css/portal.css'
 import SiteBrandLogo from '~/components/layout/SiteBrandLogo.vue'
 import { usePageSeo, useJsonLd, toAbsoluteUrl } from '~/composables/usePageSeo'
 
 definePageMeta({ layout: false })
 
+const VisitorDanmakuWall = defineAsyncComponent(() => import('~/components/VisitorDanmakuWall.vue'))
+const PortalVisitorMessage = defineAsyncComponent(() => import('~/components/PortalVisitorMessage.vue'))
 const currentYear = new Date().getFullYear()
 
 usePageSeo({
